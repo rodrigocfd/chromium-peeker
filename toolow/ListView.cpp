@@ -1,7 +1,13 @@
+//
+// ListView control handling.
+// Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
+//
 
+#include "Controls.h"
 #include "ListView.h"
-#include "Icon.h"
-#include "util.h"
+#include "System.h"
 
 void ListView::Item::swapWith(int index)
 {
@@ -122,6 +128,7 @@ ListView::Item& ListView::Item::setIcon(int iconIdx)
 	return *this;
 }
 
+
 ListView::Item ListView::ItemsProxy::add(const wchar_t *caption, int iconIdx, int at)
 {
 	LVITEM lvi = { 0 };
@@ -150,11 +157,11 @@ ListView::Item ListView::ItemsProxy::find(const wchar_t *caption)
 	return Item(ListView_FindItem(_list->hWnd(), -1, &lfi), _list); // returns -1 if not found
 }
 
-void ListView::ItemsProxy::select(const Array<int> *idx)
+void ListView::ItemsProxy::select(const Array<int>& idx)
 {
 	// Select the items whose indexes have been passed in the array.
-	for(int i = 0; i < idx->size(); ++i)
-		ListView_SetItemState(_list->hWnd(), (*idx)[i], LVIS_SELECTED, LVIS_SELECTED);
+	for(int i = 0; i < idx.size(); ++i)
+		ListView_SetItemState(_list->hWnd(), idx[i], LVIS_SELECTED, LVIS_SELECTED);
 }
 
 void ListView::ItemsProxy::removeSelected()
@@ -178,6 +185,7 @@ Array<ListView::Item> ListView::ItemsProxy::getSelected() const
 	}
 	return items;
 }
+
 
 ListView& ListView::operator=(HWND hwnd)
 {
@@ -279,7 +287,7 @@ int ListView::_showCtxMenu(bool followCursor)
 		coords = lvhti.pt;
 		itemBelowCursor = lvhti.iItem; // -1 if none
 		if(itemBelowCursor != -1) { // an item was right-clicked
-			if(!hasCtrl() && !hasShift()) {
+			if(!System::HasCtrl() && !System::HasShift()) {
 				if((ListView_GetItemState(this->hWnd(), itemBelowCursor, LVIS_SELECTED) & LVIS_SELECTED) == 0) {
 					// If right-clicked item isn't currently selected, unselect all and select just it.
 					ListView_SetItemState(this->hWnd(), -1, 0, LVIS_SELECTED);
@@ -288,7 +296,7 @@ int ListView::_showCtxMenu(bool followCursor)
 				ListView_SetItemState(this->hWnd(), itemBelowCursor, LVIS_FOCUSED, LVIS_FOCUSED); // focus clicked
 			}
 		} else { // no item was right-clicked
-			if(!hasCtrl() && !hasShift())
+			if(!System::HasCtrl() && !System::HasShift())
 				ListView_SetItemState(this->hWnd(), -1, 0, LVIS_SELECTED); // unselect all
 		}
 		this->setFocus(); // because a right-click won't set the focus by default
@@ -307,7 +315,7 @@ int ListView::_showCtxMenu(bool followCursor)
 
 	// The popup menu is created with hDlg as parent, so the menu messages go to it.
 	// The lvhti coordinates are relative to listview, and will be mapped into screen-relative.
-	popMenu(this->getParent().hWnd(), _ctxMenuId, coords.x, coords.y, this->hWnd());
+	System::PopMenu(this->getParent().hWnd(), _ctxMenuId, coords.x, coords.y, this->hWnd());
 	return itemBelowCursor; // -1 if none
 }
 
@@ -316,7 +324,7 @@ LRESULT CALLBACK ListView::_Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT
 	switch(msg)
 	{
 	case WM_GETDLGCODE:
-		if(lp && wp == 'A' && hasCtrl()) { // Ctrl+A to select all items
+		if(lp && wp == 'A' && System::HasCtrl()) { // Ctrl+A to select all items
 			((MSG*)lp)->wParam = 0; // prevent propagation, therefore beep
 			ListView_SetItemState(hWnd, -1, LVIS_SELECTED, LVIS_SELECTED);
 			return DLGC_WANTCHARS;

@@ -1,13 +1,31 @@
+//
+// HWND wrapper.
+// Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
+//
 
 #include "Window.h"
+#include <process.h>
 #include <Shlobj.h>
+#include <VsStyle.h>
+#include <UxTheme.h>
+#pragma comment(lib, "UxTheme.lib")
+#pragma comment(lib, "Comctl32.lib")
+#pragma comment(linker, \
+  "\"/manifestdependency:type='Win32' " \
+  "name='Microsoft.Windows.Common-Controls' " \
+  "version='6.0.0.0' " \
+  "processorArchitecture='*' " \
+  "publicKeyToken='6595b64144ccf1df' " \
+  "language='*'\"")
 
 WindowPopup::~WindowPopup()
 {
 }
 
-static HHOOK _hHookMsgBox = NULL;
-static HWND  _hWndParent = NULL;
+static HHOOK _hHookMsgBox = nullptr;
+static HWND  _hWndParent = nullptr;
 static LRESULT CALLBACK _msgBoxHookProc(int code, WPARAM wp, LPARAM lp)
 {
 	// http://www.codeguru.com/cpp/w-p/win32/messagebox/print.php/c4541
@@ -43,25 +61,39 @@ static LRESULT CALLBACK _msgBoxHookProc(int code, WPARAM wp, LPARAM lp)
 		}
 		UnhookWindowsHookEx(_hHookMsgBox); // release hook
 	}
-	return CallNextHookEx(0, code, wp, lp);
+	return CallNextHookEx(nullptr, code, wp, lp);
 }
 
 int WindowPopup::messageBox(const wchar_t *caption, const wchar_t *body, UINT uType)
 {
 	// The hook is set to center the message box window on parent.
 	_hWndParent = this->hWnd();
-	_hHookMsgBox = SetWindowsHookEx(WH_CBT, _msgBoxHookProc, 0, GetCurrentThreadId());
+	_hHookMsgBox = SetWindowsHookEx(WH_CBT, _msgBoxHookProc, nullptr, GetCurrentThreadId());
 	return MessageBox(this->hWnd(), body, caption, uType);
 }
 
-bool WindowPopup::getFileOpen(const wchar_t *formattedFilter, String *pBuf)
+static Array<wchar_t> _formatFileFilter(const wchar_t *filterWithPipes)
+{
+	// Input filter follows same C# syntax:
+	// L"Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+
+	Array<wchar_t> ret(lstrlen(filterWithPipes) + 2); // two terminating nulls
+	ret.last() = L'\0';
+	for(int i = 0; i < ret.size() - 1; ++i)
+		ret[i] = (filterWithPipes[i] != L'|') ? filterWithPipes[i] : L'\0';
+	return ret;
+}
+
+bool WindowPopup::getFileOpen(const wchar_t *filter, String *pBuf)
 {
 	OPENFILENAME ofn = { 0 };
 	wchar_t tmpBuf[MAX_PATH] = { 0 };
+	Array<wchar_t> zfilter = _formatFileFilter(filter);
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner   = this->hWnd();
-	ofn.lpstrFilter = formattedFilter;
+	ofn.lpstrFilter = &zfilter[0];
+	ofn.lpstrFilter = filter;
 	ofn.lpstrFile   = tmpBuf;
 	ofn.nMaxFile    = ARRAYSIZE(tmpBuf);
 	ofn.Flags       = OFN_EXPLORER | OFN_ENABLESIZING | OFN_FILEMUSTEXIST;// | OFN_HIDEREADONLY;
@@ -71,16 +103,17 @@ bool WindowPopup::getFileOpen(const wchar_t *formattedFilter, String *pBuf)
 	return ret;
 }
 
-bool WindowPopup::getFileOpen(const wchar_t *formattedFilter, Array<String> *pArrBuf)
+bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
 {
 	OPENFILENAME   ofn = { 0 };
 	Array<wchar_t> multiBuf(65536); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
-	
+	Array<wchar_t> zfilter = _formatFileFilter(filter);
+
 	multiBuf[0] = L'\0';
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner   = this->hWnd();
-	ofn.lpstrFilter = formattedFilter;
+	ofn.lpstrFilter = &zfilter[0];
 	ofn.lpstrFile   = &multiBuf[0];
 	ofn.nMaxFile    = multiBuf.size() + 1; // including terminating null
 	ofn.Flags       = OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_ENABLESIZING;
@@ -108,7 +141,7 @@ bool WindowPopup::getFileOpen(const wchar_t *formattedFilter, Array<String> *pAr
 		}
 		return true;
 	}
-	
+
 	DWORD errNo = CommDlgExtendedError();
 	if(errNo == FNERR_BUFFERTOOSMALL)
 		dbg(L"GetOpenFileName: buffer too small (%d bytes).", multiBuf.size() + 1);
@@ -117,17 +150,18 @@ bool WindowPopup::getFileOpen(const wchar_t *formattedFilter, Array<String> *pAr
 	return false;
 }
 
-bool WindowPopup::getFileSave(const wchar_t *formattedFilter, String *pBuf, const wchar_t *defFile)
+bool WindowPopup::getFileSave(const wchar_t *filter, String *pBuf, const wchar_t *defFile)
 {
 	OPENFILENAME ofn = { 0 };
 	wchar_t tmpBuf[MAX_PATH] = { 0 };
+	Array<wchar_t> zfilter = _formatFileFilter(filter);
 
 	if(defFile)
 		lstrcpy(tmpBuf, defFile);
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner   = this->hWnd();
-	ofn.lpstrFilter = formattedFilter;
+	ofn.lpstrFilter = &zfilter[0];
 	ofn.lpstrFile   = tmpBuf;
 	ofn.nMaxFile    = ARRAYSIZE(tmpBuf);
 	ofn.Flags       = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
@@ -140,15 +174,15 @@ bool WindowPopup::getFileSave(const wchar_t *formattedFilter, String *pBuf, cons
 
 bool WindowPopup::getFolderChoose(String *pBuf)
 {
-	CoInitialize(0);
+	CoInitialize(nullptr);
 
 	/*LPITEMIDLIST pidlRoot = 0;
 	if(defFolder)
-		SHParseDisplayName(defFolder, NULL, &pidlRoot, 0, NULL);*/
+		SHParseDisplayName(defFolder, nullptr, &pidlRoot, 0, nullptr);*/
 
 	BROWSEINFO bi = { 0 };
 	bi.hwndOwner = this->hWnd();
-	bi.ulFlags   = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 
 	PIDLIST_ABSOLUTE pidl = SHBrowseForFolder(&bi);
 	if(!pidl)
@@ -159,7 +193,7 @@ bool WindowPopup::getFolderChoose(String *pBuf)
 		return false; // some weird error
 
 	CoUninitialize();
-	(*pBuf) = buf;
+	*pBuf = buf;
 	return true;
 }
 
@@ -186,15 +220,7 @@ Array<String> WindowPopup::getDroppedFiles(HDROP hDrop)
 	return ret;
 }
 
-BOOL CALLBACK WindowPopup::_WheelHoverApply(HWND hChild, LPARAM lp)
-{
-	// Callback to EnumChildWindows(), will run on each child.
-	static int uniqueSubId = 1;
-	SetWindowSubclass(hChild, _WheelHoverProc, uniqueSubId++, (DWORD_PTR)GetParent(hChild)); // yes, subclass every control
-	return TRUE;
-}
-
-LRESULT CALLBACK WindowPopup::_WheelHoverProc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData)
+static LRESULT CALLBACK _wheelHoverProc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData)
 {
 	switch(msg)
 	{
@@ -213,7 +239,75 @@ LRESULT CALLBACK WindowPopup::_WheelHoverProc(HWND hChild, UINT msg, WPARAM wp, 
 			break; // finally dispatch to default processing
 		}
 	case WM_NCDESTROY:
-		RemoveWindowSubclass(hChild, _WheelHoverProc, idSubclass); // http://blogs.msdn.com/b/oldnewthing/archive/2003/11/11/55653.aspx
+		RemoveWindowSubclass(hChild, _wheelHoverProc, idSubclass); // http://blogs.msdn.com/b/oldnewthing/archive/2003/11/11/55653.aspx
 	}
 	return DefSubclassProc(hChild, msg, wp, lp);
+}
+
+void WindowPopup::_setWheelHoverBehavior()
+{
+	// http://stackoverflow.com/questions/18367641/use-createthread-with-a-lambda
+	EnumChildWindows(this->hWnd(), [](HWND hChild, LPARAM lp)->BOOL {
+		static int uniqueSubId = 1;
+		SetWindowSubclass(hChild, _wheelHoverProc, uniqueSubId++,
+			(DWORD_PTR)GetParent(hChild)); // yes, subclass every control
+		return TRUE;
+	}, 0);
+}
+
+struct _CbPack { function<void()> cb; };
+void WindowPopup::_handleSendOrPostFunction(LPARAM lp)
+{
+	// This method is called by Frame and Dialog wndprocs on their ordinary processing.
+	_CbPack *cbPack = (_CbPack*)lp;
+	cbPack->cb(); // invoke user callback
+	delete cbPack; // allocated by _sendOrPostFunction()
+}
+
+void WindowPopup::_sendOrPostFunction(function<void()> callback, bool isSend)
+{
+	// This method is analog to Send/PostMessage, but intended to be called within a separated thread,
+	// so a callback function can, tunelled by wndproc, run in the same thread of the window, thus
+	// allowing GUI updates. This avoids the user to deal with a custom WM_ message.
+	_CbPack *cbPack = new _CbPack{ MOVE(callback) }; // will be deleted by _handleSendOrPostFunction()
+	isSend ? this->sendMessage(WM_APP-1, 0, (LPARAM)cbPack) :
+		this->postMessage(WM_APP-1, 0, (LPARAM)cbPack);
+}
+
+
+WindowCtrl::~WindowCtrl()
+{
+}
+
+bool WindowCtrl::_drawBorders(WPARAM wp, LPARAM lp)
+{
+	// Intended to be called within WM_NCPAINT processing.
+	if((GetWindowLongPtr(this->hWnd(), GWL_EXSTYLE) & WS_EX_CLIENTEDGE) && IsThemeActive())
+	{
+		DefWindowProc(this->hWnd(), WM_NCPAINT, wp, lp); // this will make system draw the scrollbar for us; days of struggling until this enlightenment
+
+		RECT rc = { 0 };
+		this->getWindowRect(&rc); // window outmost coordinates, including margins
+		this->screenToClient((POINT*)&rc);
+		this->screenToClient((POINT*)&rc.right);
+		rc.left += 2; rc.top += 2; rc.right += 2; rc.bottom += 2; // because it comes up anchored at -2,-2
+
+		RECT rc2; // clipping region; will draw only within this rectangle
+		HDC hdc = GetWindowDC(this->hWnd());
+		HTHEME hTheme = OpenThemeData(this->hWnd(), L"LISTVIEW"); // borrow style from listview
+
+		SetRect(&rc2, rc.left, rc.top, rc.left + 2, rc.bottom); // draw only the borders to avoid flickering
+		DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed left border
+		SetRect(&rc2, rc.left, rc.top, rc.right, rc.top + 2);
+		DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed top border
+		SetRect(&rc2, rc.right - 2, rc.top, rc.right, rc.bottom);
+		DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed right border
+		SetRect(&rc2, rc.left, rc.bottom - 2, rc.right, rc.bottom);
+		DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed bottom border
+
+		CloseThemeData(hTheme);
+		ReleaseDC(this->hWnd(), hdc);
+		return true; // caller should return 0
+	}
+	return false; // caller should call default window processing
 }

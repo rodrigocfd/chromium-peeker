@@ -1,44 +1,49 @@
 //
-// Ordinary string implementation, ever-growing, with buffer capabilities.
+// Ordinary string implementation, ever growing, with buffer capabilities.
 // Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
 //
 
 #pragma once
 #include "Array.h"
 #include <Windows.h>
 
-#define FMT(fmt, ...) ( String::Format(fmt, __VA_ARGS__).str() )
+class String;
+void dbg(const wchar_t *fmt, ...);
+void dbg(const String& s);
 
-class String {
+class String final {
+private:
+	Array<wchar_t> _arr;
 public:
+	friend void dbg(const wchar_t*, ...);
 	enum class Case { SENS, INSENS };
 	enum class Diacritics { KEEP, REM };
 
 	String()                    { }
 	String(const wchar_t *s)    { operator=(s); }
 	String(const String& other) : _arr(other._arr) { }
-	String(String&& other)      : _arr((Array<wchar_t>&&)other._arr) { }
+	String(String&& other)      : _arr(MOVE(other._arr)) { }
 
-	int            len() const                    { return _arr.size() ? ::lstrlen(&_arr[0]) : 0; }
-	const wchar_t* str() const                    { return _arr.size() ? &_arr[0] : L""; }
-	bool           isEmpty() const                { return !_arr.size() || _arr[0] == L'\0'; }
-	const wchar_t& operator[](int index) const    { return _arr[index]; }
-	wchar_t&       operator[](int index)          { return _arr[index]; }
-	const wchar_t* ptrAt(int index) const         { return &_arr[index]; }
-	wchar_t*       ptrAt(int index)               { return &_arr[index]; }
-	String&        operator=(const String& other) { return operator=(other.str()); }
-	String&        operator=(String&& other)      { _arr = (Array<wchar_t>&&)other._arr; return *this; }
+	int            len() const                     { return _arr.size() ? ::lstrlen(&_arr[0]) : 0; }
+	const wchar_t* str() const                     { return _arr.size() ? &_arr[0] : L""; }
+	bool           isEmpty() const                 { return !_arr.size() || _arr[0] == L'\0'; }
+	const wchar_t& operator[](int index) const     { return _arr[index]; }
+	wchar_t&       operator[](int index)           { return _arr[index]; }
+	const wchar_t* ptrAt(int index) const          { return &_arr[index]; }
+	wchar_t*       ptrAt(int index)                { return &_arr[index]; }
+	String&        operator=(const String& other)  { return operator=(other.str()); }
+	String&        operator=(String&& other)       { _arr = MOVE(other._arr); return *this; }
 	String&        operator=(const wchar_t *s);
 	String&        reserve(int numCharsWithoutNull);
-	int            reserved() const               { return _arr.size() - 1; }
-	String&        append(const String& other)    { return append(other.str()); }
+	int            reserved() const                { return _arr.size() - 1; }
+	String&        append(const String& s)         { return append(s.str()); }
 	String&        append(const wchar_t *s);
-	String&        append(std::initializer_list<const wchar_t*> arr);
+	String&        append(initializer_list<const wchar_t*> arr);
 	String&        append(wchar_t ch);
+	String&        insert(int at, const String& s) { return insert(at, s.str()); }
 	String&        insert(int at, const wchar_t *s);
-	String&        formatv(const wchar_t *fmt, va_list args, int at=0);
-	String&        format(const wchar_t *fmt, ...);
-	String&        appendFormat(const wchar_t *fmt, ...);
 	String         substr(int start) const;
 	String         substr(int start, int length) const;
 	String&        copyFrom(const wchar_t *src, int numChars);
@@ -61,18 +66,17 @@ public:
 	String&        invert();
 	Array<String>  explode(const wchar_t *delimiters) const;
 
-	static String        Format(const wchar_t *fmt, ...);
+	static String        Fmt(const wchar_t *fmt, ...);
 	static String        ParseUtf8(const BYTE *data, int length);
+	static String        ParseUtf8(const Array<BYTE>& data) { return data.size() ? ParseUtf8(&data[0], data.size()) : L""; }
 	static Array<String> ExplodeQuoted(const wchar_t *quotedStr);
 	static Array<String> ExplodeMulti(const wchar_t *multiStr);
 	static int           LexicalCompare(const wchar_t *a, const wchar_t *b, Case c, Diacritics d=Diacritics::KEEP);
 	static int           LexicalCompare(const String& a, const String& b, Case c, Diacritics d=Diacritics::KEEP) { return String::LexicalCompare(a.str(), b.str(), c, d); }
-
+	inline static void   CaesarCipher(String& s, int shift) { for(int i = 0, len = s.len(); i < len; ++i) s[i] += shift; }
+	inline static bool   CharIsWithin(int x, int a, int b)  { return x >= a && x <= b; }
+	inline static bool   CharIsBetween(int x, int a, int b) { return x > a && x < b; }
 private:
-	Array<wchar_t> _arr;
-
-	static void _RemDiacr(wchar_t *txt);
+	static String _Formatv(const wchar_t *fmt, va_list args);
+	static void   _RemDiacr(wchar_t *txt);
 };
-
-
-void dbg(const wchar_t *fmt, ...);

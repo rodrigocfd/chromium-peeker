@@ -1,27 +1,22 @@
 
-#include "../toolow/Dialog.h"
-#include "../toolow/Controls.h"
-#include "../toolow/ListView.h"
-#include "../toolow/Resizer.h"
+#include "../toolow/toolow.h"
 #include "../res/resource.h"
-#include "ChromiumReleaseList.h"
+#include "ChromiumRel.h"
 
-class DlgMain : public DialogApp {
-public:
-	int run(HINSTANCE hInst, int cmdShow) { return DialogApp::run(hInst, cmdShow, DLG_MAIN, ICO_CHROMIUM); }
-
+class DlgMain final : public DialogApp {
 private:
-	ChromiumReleaseList chromiumReleaseList;
-	ProgressBar         progbar;
-	ListView            listview;
-	Resizer             resizer;
-
-	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp);
-	void on_initDialog();
-	void on_initMenuPopup(WPARAM wp);
-	void on_getBasicDetails();
-	void on_getDllDetails();
-	void on_downloadZip();
-
-	void do_downloadList(const wchar_t *marker);
+	ChromiumRel       chromiumRel;
+	ListView          listview;
+	Resizer           resz;
+	Internet::Session session;
+public:
+	int run(HINSTANCE hInst, LPWSTR cmdLine, int cmdShow) { return DialogApp::run(hInst, cmdShow, DLG_MAIN, ICO_CHROMIUM); }
+private:
+	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
+	void onInitDialog();
+	void onInitMenuPopup(WPARAM wp);
+	void onBtnDownloadList();
+	void onMnuBasicDetails();
+	void onMnuDllDetails();
+	void onMnuDownloadZip();
 };

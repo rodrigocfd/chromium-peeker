@@ -1,27 +1,30 @@
 //
-// Array automation.
+// Basic array automation.
 // Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
 //
 
 #pragma once
+#include <functional>
+#include <new>
 #include <stdlib.h>
 #include <string.h>
-#include <new>
+using std::function;
+using std::initializer_list; // because these should be keywords
+#define MOVE std::move
 
-template<typename T> class Array {
+template<typename T> class Array final {
+private:
+	T  *_ptr;
+	int _sz;
 public:
-	Array()                             : _ptr(NULL), _sz(0) { }
-	Array(const Array& other)           : _ptr(NULL), _sz(0) { operator=(other); }
-	Array(Array&& other)                : _ptr(NULL), _sz(0) { operator=((Array&&)other); }
-	Array(std::initializer_list<T> arr) : _ptr(NULL), _sz(0) { operator=(arr); }
-	explicit Array(int length)          : _ptr(NULL), _sz(0) { this->realloc(length); }
-	~Array()                            { this->free(); }
-
-	int      size() const                { return _sz; }
-	const T& operator[](int index) const { return _ptr[index]; }
-	T&       operator[](int index)       { return _ptr[index]; }
-	const T& last(int revIndex=0) const  { return _ptr[_sz - revIndex - 1]; }
-	T&       last(int revIndex=0)        { return _ptr[_sz - revIndex - 1]; }
+	Array()                        : _ptr(nullptr), _sz(0) { }
+	Array(const Array& other)      : _ptr(nullptr), _sz(0) { operator=(other); }
+	Array(Array&& other)           : _ptr(nullptr), _sz(0) { operator=(MOVE(other)); }
+	Array(initializer_list<T> arr) : _ptr(nullptr), _sz(0) { operator=(arr); }
+	explicit Array(int length)     : _ptr(nullptr), _sz(0) { this->realloc(length); }
+	~Array()                       { this->free(); }
 
 	Array& realloc(int length) {
 		if(!length) return this->free();
@@ -36,28 +39,34 @@ public:
 		if(!_sz) return *this;
 		for(int i = 0; i < _sz; ++i) _ptr[i].~T();
 		::free(_ptr);
-		_ptr = NULL; _sz = 0;
+		_ptr = nullptr; _sz = 0;
 		return *this;
 	}
 
 	Array& operator=(const Array& other) {
 		this->realloc(other._sz);
 		for(int i = 0; i < other._sz; ++i)
-			_ptr[i] = other._ptr[i]; // call operator=() on each element
+			_ptr[i] = other._ptr[i]; // deep copy, call operator=() on each element
 		return *this;
 	}
 	Array& operator=(Array&& other) {
 		this->free();
 		_ptr = other._ptr; _sz = other._sz; // steal pointer
-		other._ptr = NULL; other._sz = 0;
+		other._ptr = nullptr; other._sz = 0;
 		return *this;
 	}
-	Array& operator=(std::initializer_list<T> arr) {
+	Array& operator=(initializer_list<T> arr) {
 		this->realloc((int)arr.size());
 		for(int i = 0, sz = (int)arr.size(); i < sz; ++i)
 			_ptr[i] = *(arr.begin() + i); // thanks to C++11 horrible design, this thing is necessary
 		return *this;
 	}
+
+	int      size() const                { return _sz; }
+	const T& operator[](int index) const { return _ptr[index]; }
+	T&       operator[](int index)       { return _ptr[index]; }
+	const T& last(int revIndex=0) const  { return _ptr[_sz - revIndex - 1]; }
+	T&       last(int revIndex=0)        { return _ptr[_sz - revIndex - 1]; }
 
 	Array& remove(int index) {
 		if(index > _sz - 1) return *this; // index out of bounds
@@ -79,16 +88,16 @@ public:
 		_sz += howMany;
 		return *this;
 	}
-	Array& insert(int atIndex, std::initializer_list<T> arr) { return this->insert(atIndex, arr.begin(), (int)arr.size()); }
-	Array& insert(int atIndex, const Array<T> *other)        { return this->insert(atIndex, other->_ptr, other->_sz); }
-	Array& insert(int atIndex, const T& obj)                 { return this->insert(atIndex, &obj, 1); }
-	
-	Array& append(const T *arr, int howMany)    { return this->insert(_sz, arr, howMany); }
-	Array& append(std::initializer_list<T> arr) { return this->append(arr.begin(), (int)arr.size()); }
-	Array& append(const Array<T> *other)        { return this->append(other->_ptr, other->_sz); }
-	Array& append(const T& obj)                 { return this->append(&obj, 1); }
+	Array& insert(int atIndex, initializer_list<T> arr) { return this->insert(atIndex, arr.begin(), (int)arr.size()); }
+	Array& insert(int atIndex, const Array<T> *other)   { return this->insert(atIndex, other->_ptr, other->_sz); }
+	Array& insert(int atIndex, const T& obj)            { return this->insert(atIndex, &obj, 1); }
 
-	Array& move(int index, int newIndex) {
+	Array& append(const T *arr, int howMany) { return this->insert(_sz, arr, howMany); }
+	Array& append(initializer_list<T> arr)   { return this->append(arr.begin(), (int)arr.size()); }
+	Array& append(const Array<T> *other)     { return this->append(other->_ptr, other->_sz); }
+	Array& append(const T& obj)              { return this->append(&obj, 1); }
+
+	Array& reorder(int index, int newIndex) {
 		if(index >= _sz || newIndex >= _sz) return *this;
 		T *tmp = (T*)::_alloca(sizeof(T));
 		::memcpy(tmp, _ptr + index, sizeof(T)); // store element to be moved
@@ -106,7 +115,32 @@ public:
 		return *this;
 	}
 
-	template<typename F> Array filter(F&& callback) {
+	void each(function<void(int i, T& elem)> callback) {
+		// Example usage:
+		// Array<int> nums;
+		// nums.each([](int i, int& elem) { elem += 10; });
+		for(int i = 0; i < _sz; ++i)
+			callback(i, _ptr[i]);
+	}
+	void each(function<void(int i, const T& elem)> callback) const {
+		// Example usage:
+		// Array<int> nums;
+		// nums.each([](int i, const int& elem) { int x = elem; });
+		for(int i = 0; i < _sz; ++i)
+			callback(i, _ptr[i]);
+	}
+
+	template<typename Ty> Array<Ty> transform(function<Ty(int i, const T& elem)> callback) {
+		// Example usage:
+		// Array<int> nums;
+		// Array<float> trans = nums.transform<float>([](int i, const int& elem)->float { return (float)elem; });
+		Array<Ty> ret(_sz); // prealloc
+		for(int i = 0; i < _sz; ++i)
+			ret[i] = callback(i, _ptr[i]); // invokes operator= on elements
+		return ret;
+	}
+
+	Array filter(function<bool(int i, const T& elem)> callback) {
 		// Example usage:
 		// Array<float> nums;
 		// Array<float> filtered = nums.filter([](int i, const float& elem)->bool { return elem < 25; });
@@ -117,30 +151,15 @@ public:
 		return ret;
 	}
 
-	template<typename X, typename F> Array<X> transform(F&& callback) {
-		// Example usage:
-		// Array<int> nums;
-		// Array<float> trans = nums.transform<float>([](int i, const int& elem)->float { return (float)elem; });
-		Array<X> ret(_sz); // prealloc
-		for(int i = 0; i < _sz; ++i)
-			ret[i] = callback(i, _ptr[i]); // invokes operator= on elements
-		return ret;
-	}
-
-	template<typename F> Array& sort(F&& callback) {
+	Array& sort(function<int(const T& a, const T& b)> callback) {
 		// Example usage:
 		// Array<float> nums;
-		// nums.sort([](const float& a, const float& b)->int { return (int)(a - b); });
-		::qsort_s(_ptr, _sz, sizeof(T), this->_SortShim<F>, &callback);
+		// nums.sort([](const float& a, const float& b)->int { return (int)(a - b); }); // lowest to highest
+		::qsort_s(_ptr, _sz, sizeof(T), [](void *compareFunc, const void *a, const void *b)->int {
+			typedef function<int(const T& a, const T& b)> Fun;
+			Fun *callback = (Fun*)compareFunc;
+			return (*callback)(*((const T*)a), *((const T*)b));
+		}, &callback);
 		return *this;
-	}
-
-private:
-	T  *_ptr;
-	int _sz;
-
-	template<typename F> static int __cdecl _SortShim(void *compareFunc, const void *a, const void *b) {
-		F *callback = (F*)compareFunc;
-		return (*callback)(*((const T*)a), *((const T*)b));
 	}
 };

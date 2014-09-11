@@ -1,15 +1,20 @@
 //
 // HWND wrapper.
 // Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
 //
 
 #pragma once
 #include "String.h"
+#include <CommCtrl.h>
 
 //__________________________________________________________________________________________________
 // Base HWND wrapper.
 //
 class Window {
+private:
+	HWND _hWnd;
 public:
 	Window()                    : _hWnd(0) { }
 	Window(HWND hwnd)           : _hWnd(hwnd) { }
@@ -24,6 +29,7 @@ public:
 	LRESULT   sendMessage(UINT msg, WPARAM wp, LPARAM lp) const { return ::SendMessage(_hWnd, msg, wp, lp); }
 	LRESULT   postMessage(UINT msg, WPARAM wp, LPARAM lp) const { return ::PostMessage(_hWnd, msg, wp, lp); }
 	Window&   setText(const wchar_t *text)                      { ::SetWindowText(_hWnd, text); return *this; }
+	Window&   setText(const String& text)                       { return setText(text.str()); }
 	wchar_t*  getText(wchar_t *pBuf, int szBuf) const           { ::GetWindowText(_hWnd, pBuf, szBuf); return pBuf; }
 	String*   getText(String *pBuf) const                       { pBuf->reserve(::GetWindowTextLength(_hWnd)); ::GetWindowText(_hWnd, pBuf->ptrAt(0), pBuf->reserved() + 1); return pBuf; }
 	String    getText() const                                   { String ret; getText(&ret); return ret; }
@@ -40,8 +46,6 @@ public:
 	Window&   clientToScreen(RECT *pRc)                         { clientToScreen((POINT*)&pRc->left); return clientToScreen((POINT*)&pRc->right); }
 	BOOL      getClientRect(RECT *pRc) const                    { return ::GetClientRect(_hWnd, pRc); }
 	BOOL      getWindowRect(RECT *pRc) const                    { return ::GetWindowRect(_hWnd, pRc); }
-private:
-	HWND _hWnd;
 };
 
 //__________________________________________________________________________________________________
@@ -51,21 +55,24 @@ private:
 class WindowPopup : virtual public Window {
 public:
 	virtual ~WindowPopup() = 0;
+	void sendFunction(function<void()> callback) { _sendOrPostFunction(MOVE(callback), true); }
+	void postFunction(function<void()> callback) { _sendOrPostFunction(MOVE(callback), false); }
 protected:
-	Window getChild(int id)        { return Window(::GetDlgItem(hWnd(), id)); }
+	Window getChild(int id) { return Window(::GetDlgItem(hWnd(), id)); }
+	bool   isMinimized()    { return ::IsIconic(hWnd()) == TRUE; }
+	bool   isMaximized()    { return ::IsZoomed(hWnd()) == TRUE; }
 	int    messageBox(const wchar_t *caption, const wchar_t *body, UINT uType=0);
-	bool   getFileOpen(const wchar_t *formattedFilter, String *pBuf);
-	bool   getFileOpen(const wchar_t *formattedFilter, Array<String> *pBuf);
-	bool   getFileSave(const wchar_t *formattedFilter, String *pBuf, const wchar_t *defFile=0);
+	int    messageBox(const wchar_t *caption, const String& body, UINT uType=0) { return messageBox(caption, body.str(), uType); }
+	bool   getFileOpen(const wchar_t *filter, String *pBuf);
+	bool   getFileOpen(const wchar_t *filter, Array<String> *pBuf);
+	bool   getFileSave(const wchar_t *filter, String *pBuf, const wchar_t *defFile=nullptr);
 	bool   getFolderChoose(String *pBuf);
 	void   setXButton(bool enable);
-	bool   isMinimized()           { return ::IsIconic(hWnd()) == TRUE; }
-	bool   isMaximized()           { return ::IsZoomed(hWnd()) == TRUE; }
 	Array<String> getDroppedFiles(HDROP hDrop);
-	void   setWheelHoverBehavior() { ::EnumChildWindows(hWnd(), _WheelHoverApply, 0); }
+	void   _setWheelHoverBehavior();
+	void   _handleSendOrPostFunction(LPARAM lp);
 private:
-	static BOOL    CALLBACK _WheelHoverApply(HWND hChild, LPARAM lp);
-	static LRESULT CALLBACK _WheelHoverProc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData);
+	void   _sendOrPostFunction(function<void()> callback, bool isSend);
 };
 
 //__________________________________________________________________________________________________

@@ -5,229 +5,153 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Program">
-      <UniqueIdentifier>{50bf2275-4a1e-43f5-80fa-3e4c89dab75d}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{eda5be8f-4c4d-4e6b-8b02-3839d3f215f6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TOOLOW">
-      <UniqueIdentifier>{37dbad01-022c-4a72-b46b-e60079ae5e7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TOOLOW\core">
-      <UniqueIdentifier>{74a2a086-4acd-4ef9-b92e-4bbf96f55fa5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TOOLOW\forms">
-      <UniqueIdentifier>{92c5529d-060b-411b-8e01-0b72e7aac4d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TOOLOW\others">
-      <UniqueIdentifier>{3b73ad26-046c-44e9-9bc1-ed4d86c57bc9}</UniqueIdentifier>
+    <Filter Include="toolow">
+      <UniqueIdentifier>{86c381df-bc0b-4875-b9ba-1caffa7e849a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ChromiumReleaseList.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DlgMain.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Date.cpp">
-      <Filter>TOOLOW\core</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\DeviceContext.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Dialog.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\DialogApp.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\DialogCtrl.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\DialogModal.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\DialogPopup.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\File.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FileEnum.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FileIni.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FileMapped.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FileRaw.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FileText.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Font.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FrameModal.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Frame.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FrameApp.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FrameCtrl.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\FramePopup.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Internet.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\ListView.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Resizer.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Splitter.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\StatusBar.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\String.cpp">
-      <Filter>TOOLOW\core</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\TextBox.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Xml.cpp">
-      <Filter>TOOLOW\others</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Thread.cpp">
-      <Filter>TOOLOW\core</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\util.cpp">
-      <Filter>TOOLOW\core</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\WindowCtrl.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\WindowPopup.cpp">
-      <Filter>TOOLOW\forms</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DlgDownloadList.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DlgDownloadInfo.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DlgDownloadDll.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DlgDownloadZip.cpp">
-      <Filter>Program</Filter>
-    </ClCompile>
+    <None Include=".gitignore">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ChromiumReleaseList.h">
-      <Filter>Program</Filter>
-    </ClInclude>
     <ClInclude Include="src\DlgMain.h">
-      <Filter>Program</Filter>
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Array.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\toolow.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\String.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Hash.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Date.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Window.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Dialog.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Font.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Frame.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\ListView.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\InitMenuPopup.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Controls.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\File.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\DeviceContext.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Internet.h">
+      <Filter>toolow</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Array.h">
-      <Filter>TOOLOW\core</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\ComPtr.h">
-      <Filter>TOOLOW\core</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Date.h">
-      <Filter>TOOLOW\core</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\DeviceContext.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Controls.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Dialog.h">
-      <Filter>TOOLOW\forms</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\File.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Font.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Frame.h">
-      <Filter>TOOLOW\forms</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Hash.h">
-      <Filter>TOOLOW\core</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Icon.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\InitMenuPopup.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Internet.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\ListView.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Resizer.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Splitter.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\StatusBar.h">
-      <Filter>TOOLOW\others</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\String.h">
-      <Filter>TOOLOW\core</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\TextBox.h">
-      <Filter>TOOLOW\others</Filter>
+    <ClInclude Include="toolow\Ptr.h">
+      <Filter>toolow</Filter>
     </ClInclude>
     <ClInclude Include="toolow\Xml.h">
-      <Filter>TOOLOW\others</Filter>
+      <Filter>toolow</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Thread.h">
-      <Filter>TOOLOW\core</Filter>
+    <ClInclude Include="src\ChromiumRel.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\util.h">
-      <Filter>TOOLOW\core</Filter>
+    <ClInclude Include="src\DlgDnInfo.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Window.h">
-      <Filter>TOOLOW\forms</Filter>
+    <ClInclude Include="src\DlgDnList.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\DlgDownloadList.h">
-      <Filter>Program</Filter>
+    <ClInclude Include="src\DlgDnZip.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\DlgDownloadInfo.h">
-      <Filter>Program</Filter>
+    <ClInclude Include="src\DlgDnDll.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\DlgDownloadDll.h">
-      <Filter>Program</Filter>
+    <ClInclude Include="toolow\System.h">
+      <Filter>toolow</Filter>
     </ClInclude>
-    <ClInclude Include="src\DlgDownloadZip.h">
-      <Filter>Program</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\DlgMain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\String.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Date.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Window.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Dialog.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Font.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Frame.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\ListView.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\File.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\DeviceContext.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Internet.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Xml.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Controls.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChromiumRel.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DlgDnDll.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DlgDnInfo.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DlgDnList.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DlgDnZip.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\System.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\ChromiumPeeker.rc">

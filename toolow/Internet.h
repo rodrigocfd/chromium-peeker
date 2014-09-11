@@ -1,71 +1,118 @@
 //
 // Automation for internet related operations.
-// Night of Monday, June 10, 2013.
 // Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
 //
 
 #pragma once
+#include "File.h"
 #include "Hash.h"
-#include "Thread.h"
+#include "Ptr.h"
+#include "Window.h"
 #include <Winhttp.h>
 
-class Internet {
-public:
-	explicit Internet(const wchar_t *userAgent=L"TOOLOW/1.0") : _hSession(0), _userAgent(userAgent), _hWndNotify(0), _msgNotify(0) { }
-	Internet& setUserAgent(const wchar_t *userAgent)        { _userAgent = userAgent; return *this; }
-	Internet& setReferrer(const wchar_t *referrer)          { _referrer = referrer; return *this; }
-	Internet& addRequestHeader(const wchar_t *header)       { _requestHeaders.append(header); return *this; }
-	Internet& registerNotify(HWND hWnd, UINT msgCode)       { _hWndNotify = hWnd; _msgNotify = msgCode; return *this; }
-	bool      download(const wchar_t *address, const wchar_t *verb=L"GET", String *pErr=0);
+namespace Internet
+{
+	enum class Msg { BEGIN=1, PROGRESS, END, FAIL };
+	class Download;
 
-private:
-	HINTERNET     _hSession;
-	String        _userAgent;
-	String        _referrer;
-	Array<String> _requestHeaders;
-	HWND          _hWndNotify;
-	UINT          _msgNotify;
-
-	static void _Format(const wchar_t *funcName, DWORD code, String *pBuf);
-
-private:
-	class _Worker : public Thread {
-	public:
-		_Worker(HINTERNET hSession, const wchar_t *referrer, const Array<String> *pRequestHeaders,
-			HWND hWndNotify, UINT msgNotify, const wchar_t *address, const wchar_t *verb)
-		: _hSession(hSession), _hConnect(0), _hRequest(0), _referrer(referrer), _requestHeaders(*pRequestHeaders),
-			_hWndNotify(hWndNotify), _msgNotify(msgNotify), _address(address), _verb(verb) { }
+	//__________________________________________________________________________________________________
+	// All internet operations must belong to a session.
+	//
+	class Session final {
 	private:
-		HINTERNET     _hSession, _hConnect, _hRequest;
-		String        _referrer;
-		Array<String> _requestHeaders;
-		HWND          _hWndNotify;
-		UINT          _msgNotify;
-		String        _address, _verb;
+		class _Core final {
+		private:
+			HINTERNET _hSession;
+		public:
+			_Core()                    : _hSession(nullptr) { }
+			~_Core()                   { close(); }
+			HINTERNET hSession() const { return _hSession; }
+			void      close()          { if(_hSession) { ::WinHttpCloseHandle(_hSession); _hSession = nullptr; } }
+			bool      init(const wchar_t *userAgent=L"TOOLOW/1.0", String *pErr=nullptr);
+		};
 
-		void onRun();
-		void _cleanup();
-		void _notifyError(DWORD errCode, const wchar_t *funcName);
-		Hash<String> _buildResponseHeader(const String *rh);
+	private:
+		friend Download;
+		Ptr<_Core> _sessionCore;
+	public:
+		Session()                  : _sessionCore(new _Core) { }
+		HINTERNET hSession() const { return _sessionCore->hSession(); }
+		void close()               { _sessionCore->close(); }
+		bool init(const wchar_t *userAgent=L"TOOLOW/1.0", String *pErr=nullptr) { return _sessionCore->init(userAgent, pErr); }
+		bool init(String *pErr)                                                 { return _sessionCore->init(L"TOOLOW/1.0", pErr); }
+	private:
+		static String _FormatErr(const wchar_t *funcName, DWORD code);
 	};
 
-public:
-	class Status {
-	public:
-		enum class Flag { STARTED=0, PROGRESS=1, DONE=2, FAILED=3 };
-		explicit Status(Flag theFlag) : flag(theFlag), pctDone(0) { }
-		Status& operator=(Status&& other) { flag = other.flag; msg = (String&&)other.msg; pctDone = other.pctDone; responseHeader = (Hash<String>&&)other.responseHeader; buffer = (Array<BYTE>&&)other.buffer; }
-
-		Flag         flag;
-		String       msg;
-		float        pctDone;
-		Hash<String> responseHeader;
+	//__________________________________________________________________________________________________
+	// Holds info to be delivered on download notifications.
+	//
+	struct Status final {
+		WORD         wid;
+		Hash<String> responseHeaders;
 		Array<BYTE>  buffer;
+		String       destPath, err;
+		int          contentLength, totalDownloaded;
+		Status() : wid(0), contentLength(0), totalDownloaded(0) { }
+		float pct() const { return contentLength ? ((float)totalDownloaded / contentLength) * 100 : 0; }
 	};
 
-	class Url {
+	//__________________________________________________________________________________________________
+	// Handles download operations.
+	//
+	class Download final {
+	private:
+		struct _Worker final {
+		private:
+			function<void(Msg, const Status*)> _callback;
+			Ptr<Session::_Core> _sessionCore;
+			HINTERNET     _hConnect, _hRequest;
+			String        _referrer;
+			Array<String> _requestHeaders;
+			WindowPopup  *_pWnd;
+			Status        _status;
+		public:
+			explicit _Worker(Session& session, WindowPopup *pWnd)
+				: _sessionCore(session._sessionCore), _hConnect(nullptr), _hRequest(nullptr), _pWnd(pWnd) { }
+			void setUniqueId(WORD wid)                { _status.wid = wid; }
+			void setDestFile(const wchar_t *filePath) { _status.destPath = filePath; }
+			void setReferrer(const wchar_t *referrer) { _referrer = referrer; }
+			void addRequestHeaders(initializer_list<const wchar_t*> requestHeaders);
+			void processDownload(const String& url, const String& verb, function<void(Msg, const Status*)> callback);
+		private:
+			void _closeHandles();
+			bool _initHandles(const String& url, const String& verb);
+			bool _contactServer();
+			bool _parseHeaders();
+			bool _prepareFileOutput(File::Raw& fout);
+			bool _getIncomingByteCount(DWORD& count);
+			bool _receiveBytes(UINT nBytesToRead, BYTE *pDest);
+		};
+
+	private:
+		_Worker *_worker;
 	public:
-		explicit Url(const wchar_t *address);
+		explicit Download(Session& session, WindowPopup *pWnd) : _worker(new _Worker(session, pWnd)) { }
+		~Download() { if(_worker) delete _worker; }
+		void setUniqueId(WORD wid)                { _worker->setUniqueId(wid); }
+		void setDestFile(const wchar_t *filePath) { _worker->setDestFile(filePath); }
+		void setDestFile(const String& filePath)  { setDestFile(filePath.str()); }
+		void setReferrer(const wchar_t *referrer) { _worker->setReferrer(referrer); }
+		void setReferrer(const String& referrer)  { setReferrer(referrer.str()); }
+		void addRequestHeaders(initializer_list<const wchar_t*> requestHeaders) { _worker->addRequestHeaders(requestHeaders); }
+		void download(String url, function<void(Msg, const Status*)> callback)  { download(url, L"GET", MOVE(callback)); }
+		void download(String url, String verb, function<void(Msg, const Status*)> callback);
+	};
+
+	//__________________________________________________________________________________________________
+	// URL cracking.
+	//
+	class Url final {
+	public:
+		bool           crack(const wchar_t *address, DWORD *dwErr=nullptr);
+		bool           crack(const String& address, DWORD *dwErr=nullptr) { return crack(address.str(), dwErr); }
 		const wchar_t* scheme() const       { return _scheme; }
 		const wchar_t* host() const         { return _host; }
 		const wchar_t* user() const         { return _user; }
@@ -77,6 +124,6 @@ public:
 		bool           isHttps() const      { return _uc.nScheme == INTERNET_SCHEME_HTTPS; }
 	private:
 		URL_COMPONENTS _uc;
-		wchar_t _scheme[16], _host[64], _user[64], _pwd[64], _path[256], _extra[256];
+		wchar_t        _scheme[16], _host[64], _user[64], _pwd[64], _path[256], _extra[256];
 	};
-};
+}

@@ -1,26 +1,53 @@
+//
+// Ordinary string implementation, ever growing, with buffer capabilities.
+// Part of TOOLOW - Thin Object Oriented Layer Over Win32.
+// @author Rodrigo Cesar de Freitas Dias
+// @see https://github.com/rodrigocfd/toolow
+//
 
 #pragma warning(disable:4996) // _vsnwprintf
 #include <stdio.h>
 #include "String.h"
 
+void dbg(const wchar_t *fmt, ...)
+{
+#ifdef _DEBUG
+	va_list args;
+	va_start(args, fmt);
+	String buf = String::_Formatv(fmt, args);
+	va_end(args);
+	OutputDebugString(buf.str()); // no linebreak; if you want it, provide it on formatting string
+#endif
+}
+
+void dbg(const String& s)
+{
+#ifdef _DEBUG
+	OutputDebugString(s.str());
+	OutputDebugString(L"\n");
+#endif
+}
+
 #define WCHAR_ALLOC_STACK_OR_HEAP(nchars) \
 	( ((nchars) * sizeof(wchar_t) > 1024 * 2) ? \
-		(wchar_t*)::malloc(sizeof(wchar_t) * (nchars)) : \
-		(wchar_t*)::_alloca(sizeof(wchar_t) * (nchars)) )
+		(wchar_t*)malloc(sizeof(wchar_t) * (nchars)) : \
+		(wchar_t*)_alloca(sizeof(wchar_t) * (nchars)) )
 
 #define WCHAR_FREE_STACK_OR_HEAP(ptr, nchars) \
 	if((nchars) * sizeof(wchar_t) > 1024 * 2) \
-		::free(ptr)
+		free(ptr)
 
 #define WCHAR_CPY(dest, src, nchars) \
-	::memcpy(dest, src, sizeof(wchar_t) * (nchars))
+	memcpy(dest, src, sizeof(wchar_t) * (nchars))
 
 String& String::operator=(const wchar_t *s)
 {
-	int newLen = ::lstrlen(s);
-	if(!_arr.size() && !newLen) return *this; // still unallocated and no new string: do nothing
-	this->reserve(newLen); // also places terminating null
-	WCHAR_CPY(&_arr[0], s, newLen);
+	if(s) {
+		int newLen = lstrlen(s);
+		if(!_arr.size() && !newLen) return *this; // still unallocated and no new string: do nothing
+		this->reserve(newLen); // also places terminating null
+		WCHAR_CPY(&_arr[0], s, newLen);
+	}
 	return *this;
 }
 
@@ -40,24 +67,24 @@ String& String::append(const wchar_t *s)
 {
 	if(!_arr.size()) return operator=(s);
 	int ourLen = this->len();
-	int theirLen = ::lstrlen(s);
+	int theirLen = lstrlen(s);
 	this->reserve(ourLen + theirLen); // also places terminating null
 	WCHAR_CPY(&_arr[ourLen], s, theirLen);
 	return *this;
 }
 
-String& String::append(std::initializer_list<const wchar_t*> arr)
+String& String::append(initializer_list<const wchar_t*> arr)
 {
-	int *newLens = (int*)::_alloca(sizeof(int) * arr.size());
-	int moreLen = 0;
+	int *newLens = (int*)_alloca(sizeof(int) * arr.size()); // lenghts of each string to be appended
+	int moreLen = 0; // sum of all lengthts
 	for(int i = 0, tot = (int)arr.size(); i < tot; ++i)
-		moreLen += ( newLens[i] = ::lstrlen(*(arr.begin() + i)) );
+		moreLen += ( newLens[i] = lstrlen(*(arr.begin() + i)) );
 	
 	int ourLen = this->len();
-	this->reserve(ourLen + moreLen);
+	this->reserve(ourLen + moreLen); // make room for all strings to be appended
 	wchar_t *pRun = &_arr[ourLen];
 	for(int i = 0, tot = (int)arr.size(); i < tot; ++i) {
-		WCHAR_CPY(pRun, *(arr.begin() + i), newLens[i]);
+		WCHAR_CPY(pRun, *(arr.begin() + i), newLens[i]); // copy new string into place
 		pRun += newLens[i];
 	}
 
@@ -76,33 +103,7 @@ String& String::insert(int at, const wchar_t *s)
 {
 	if(at < 0) at = 0;
 	if(at >= this->len()) return this->append(s);
-	_arr.insert(at, s, ::lstrlen(s));
-	return *this;
-}
-
-String& String::formatv(const wchar_t *fmt, va_list args, int at)
-{
-	int newLen = ::_vscwprintf(fmt, args); // calculate length, without terminating null
-	this->reserve(newLen + at);
-	::_vsnwprintf(&_arr[at], newLen, fmt, args); // do the job
-	return *this;
-}
-
-String& String::format(const wchar_t *fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	this->formatv(fmt, args);
-	va_end(args);
-	return *this;
-}
-
-String& String::appendFormat(const wchar_t *fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	this->formatv(fmt, args, this->len());
-	va_end(args);
+	_arr.insert(at, s, lstrlen(s));
 	return *this;
 }
 
@@ -174,7 +175,7 @@ String& String::trim()
 	bool onlySpaces = true;
 	
 	for(int i = 0; i < len; ++i) {
-		if(!::iswspace(_arr[i])) {
+		if(!iswspace(_arr[i])) {
 			iFirst = i;
 			onlySpaces = false;
 			break;
@@ -186,12 +187,12 @@ String& String::trim()
 	}
 
 	for(int i = len - 1; i >= 0; --i) {
-		if(!::iswspace(_arr[i])) {
+		if(!iswspace(_arr[i])) {
 			iLast = i;
 			break;
 		}
 	}
-	::memmove(&_arr[0], &_arr[iFirst], sizeof(wchar_t) * (iLast - iFirst + 1));
+	memmove(&_arr[0], &_arr[iFirst], sizeof(wchar_t) * (iLast - iFirst + 1));
 	_arr[iLast - iFirst + 1] = L'\0';
 	return *this;
 }
@@ -200,7 +201,7 @@ bool String::beginsWith(const wchar_t *s, String::Case c, String::Diacritics d) 
 {
 	if(this->isEmpty()) return false;
 
-	int theirLen = ::lstrlen(s);
+	int theirLen = lstrlen(s);
 	if(theirLen > this->len()) return false;
 
 	wchar_t *ourBuf = WCHAR_ALLOC_STACK_OR_HEAP(theirLen + 1);
@@ -217,7 +218,7 @@ bool String::endsWith(const wchar_t *s, Case c, Diacritics d) const
 	if(this->isEmpty()) return false;
 
 	int ourLen = this->len();
-	int theirLen = ::lstrlen(s);
+	int theirLen = lstrlen(s);
 	if(theirLen > ourLen) return false;
 
 	return !this->LexicalCompare(&_arr[ourLen - theirLen], s, c, d);
@@ -269,15 +270,15 @@ bool String::isFloat() const
 
 int String::find(wchar_t ch) const
 {
-	const wchar_t *p = ::wcschr(this->str(), ch);
+	const wchar_t *p = wcschr(this->str(), ch);
 	if(!p) return -1; // not found
 	return (int)(p - &_arr[0]); // return index of position
 }
 
 int String::find(const wchar_t *substring, String::Case c, String::Diacritics d) const
 {
-	wchar_t *ourBuf = NULL,       *theirBuf = NULL;
-	int      ourLen = this->len(), theirLen = ::lstrlen(substring);
+	wchar_t *ourBuf = nullptr,    *theirBuf = nullptr;
+	int      ourLen = this->len(), theirLen = lstrlen(substring);
 
 	if(!ourLen || theirLen > ourLen) return -1;
 
@@ -285,12 +286,12 @@ int String::find(const wchar_t *substring, String::Case c, String::Diacritics d)
 		DWORD flags = LCMAP_LINGUISTIC_CASING | LCMAP_LOWERCASE;
 		
 		ourBuf = WCHAR_ALLOC_STACK_OR_HEAP(ourLen + 1);
-		if(c == Case::INSENS) ::LCMapString(LOCALE_SYSTEM_DEFAULT, flags, this->str(), ourLen + 1, ourBuf, ourLen + 1);
+		if(c == Case::INSENS) LCMapString(LOCALE_SYSTEM_DEFAULT, flags, this->str(), ourLen + 1, ourBuf, ourLen + 1);
 			else WCHAR_CPY(ourBuf, this->str(), ourLen + 1);
 		if(d == Diacritics::REM) this->_RemDiacr(ourBuf);
 
 		theirBuf = WCHAR_ALLOC_STACK_OR_HEAP(theirLen + 1);
-		if(c == Case::INSENS) ::LCMapString(LOCALE_SYSTEM_DEFAULT, flags, substring, theirLen + 1, theirBuf, theirLen + 1);
+		if(c == Case::INSENS) LCMapString(LOCALE_SYSTEM_DEFAULT, flags, substring, theirLen + 1, theirBuf, theirLen + 1);
 			else WCHAR_CPY(theirBuf, substring, theirLen + 1);
 		if(d == Diacritics::REM) this->_RemDiacr(theirBuf);
 	} else {
@@ -299,7 +300,7 @@ int String::find(const wchar_t *substring, String::Case c, String::Diacritics d)
 	}
 
 	int iRet = -1;
-	wchar_t *p = ::wcsstr(ourBuf, theirBuf);
+	wchar_t *p = wcsstr(ourBuf, theirBuf);
 	if(p) iRet = (int)(p - ourBuf); // index of position
 
 	if(c == Case::INSENS || d == Diacritics::REM) {
@@ -312,26 +313,26 @@ int String::find(const wchar_t *substring, String::Case c, String::Diacritics d)
 
 int String::findr(wchar_t ch) const
 {
-	const wchar_t *p = ::wcsrchr(this->str(), ch);
+	const wchar_t *p = wcsrchr(this->str(), ch);
 	if(!p) return -1; // not found
 	return (int)(p - &_arr[0]); // return index of position
 }
 
 String& String::replace(const wchar_t *target, const wchar_t *replacement, String::Case c, String::Diacritics d)
 {
-	wchar_t *ourBuf = NULL,       *targBuf = NULL;
-	int      ourLen = this->len(), targLen = ::lstrlen(target);
+	wchar_t *ourBuf = nullptr,    *targBuf = nullptr;
+	int      ourLen = this->len(), targLen = lstrlen(target);
 
 	if(c == Case::INSENS || d == Diacritics::REM) { // duplicate str() and target to normalize
 		DWORD flags = LCMAP_LINGUISTIC_CASING | LCMAP_LOWERCASE; // diacritics removal not supported on WinXP
 		
 		ourBuf = WCHAR_ALLOC_STACK_OR_HEAP(ourLen + 1);
-		if(c == Case::INSENS) ::LCMapString(LOCALE_SYSTEM_DEFAULT, flags, this->str(), ourLen + 1, ourBuf, ourLen + 1);
+		if(c == Case::INSENS) LCMapString(LOCALE_SYSTEM_DEFAULT, flags, this->str(), ourLen + 1, ourBuf, ourLen + 1);
 			else WCHAR_CPY(ourBuf, this->str(), ourLen + 1);
 		if(d == Diacritics::REM) this->_RemDiacr(ourBuf);
 
 		targBuf = WCHAR_ALLOC_STACK_OR_HEAP(targLen + 1);
-		if(c == Case::INSENS) ::LCMapString(LOCALE_SYSTEM_DEFAULT, flags, target, targLen + 1, targBuf, targLen + 1);
+		if(c == Case::INSENS) LCMapString(LOCALE_SYSTEM_DEFAULT, flags, target, targLen + 1, targBuf, targLen + 1);
 			else WCHAR_CPY(targBuf, target, targLen + 1);
 		if(d == Diacritics::REM) this->_RemDiacr(targBuf);
 	} else {
@@ -339,12 +340,12 @@ String& String::replace(const wchar_t *target, const wchar_t *replacement, Strin
 		targBuf = (wchar_t*)target;
 	}
 
-	int replacementLen = ::lstrlen(replacement);
+	int replacementLen = lstrlen(replacement);
 
 	// Count occurrences of target.
 	int occurrences = 0;
 	const wchar_t *p = ourBuf;
-	while(p = ::wcsstr(p, targBuf)) {
+	while(p = wcsstr(p, targBuf)) {
 		++occurrences;
 		p += targLen; // go beyond
 	}
@@ -357,7 +358,7 @@ String& String::replace(const wchar_t *target, const wchar_t *replacement, Strin
 	wchar_t *pFinBuf = &finalBuf[0];
 	const wchar_t *base = ourBuf, *orig = &_arr[0];
 	p = ourBuf;
-	while(p = ::wcsstr(p, targBuf)) {
+	while(p = wcsstr(p, targBuf)) {
 		WCHAR_CPY(pFinBuf, orig, (int)(p - base)); // copy chars until before replacement
 		pFinBuf += p - base;
 		WCHAR_CPY(pFinBuf, replacement, replacementLen);
@@ -395,7 +396,7 @@ Array<String> String::explode(const wchar_t *delimiters) const
 	int num = 0;
 	const wchar_t *pBase = &_arr[0];
 	for(;;) {
-		int lenSub = (int)::wcscspn(pBase, delimiters);
+		int lenSub = (int)wcscspn(pBase, delimiters);
 		if(lenSub) ++num;
 		if(pBase[lenSub] == L'\0') break;
 		pBase += lenSub + 1;
@@ -407,7 +408,7 @@ Array<String> String::explode(const wchar_t *delimiters) const
 	num = 0;
 	pBase = &_arr[0];
 	for(;;) {
-		int lenSub = (int)::wcscspn(pBase, delimiters);
+		int lenSub = (int)wcscspn(pBase, delimiters);
 		if(lenSub) ret[num++].copyFrom(pBase, lenSub);
 		if(pBase[lenSub] == L'\0') break;
 		pBase += lenSub + 1;
@@ -415,14 +416,11 @@ Array<String> String::explode(const wchar_t *delimiters) const
 	return ret;
 }
 
-String String::Format(const wchar_t *fmt, ...)
+String String::Fmt(const wchar_t *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-
-	String ret;
-	ret.formatv(fmt, args);
-
+	String ret = _Formatv(fmt, args);
 	va_end(args);
 	return ret;
 }
@@ -430,9 +428,11 @@ String String::Format(const wchar_t *fmt, ...)
 String String::ParseUtf8(const BYTE *data, int length)
 {
 	String ret;
-	int neededLen = ::MultiByteToWideChar(CP_UTF8, 0, (const char*)data, length, 0, 0);
-	ret.reserve(neededLen);
-	::MultiByteToWideChar(CP_UTF8, 0, (const char*)data, length, ret.ptrAt(0), neededLen);
+	if(data && length) {
+		int neededLen = MultiByteToWideChar(CP_UTF8, 0, (const char*)data, length, 0, 0);
+		ret.reserve(neededLen);
+		MultiByteToWideChar(CP_UTF8, 0, (const char*)data, length, ret.ptrAt(0), neededLen);
+	}
 	return ret;
 }
 
@@ -457,9 +457,9 @@ Array<String> String::ExplodeQuoted(const wchar_t *quotedStr)
 				}
 				++pRun;
 			}
-		} else if(!::iswspace(*pRun)) { // 1st char of non-quoted string
+		} else if(!iswspace(*pRun)) { // 1st char of non-quoted string
 			++pRun; // point to 2nd char of string
-			while(*pRun && !::iswspace(*pRun) && *pRun != L'\"') ++pRun; // passed string
+			while(*pRun && !iswspace(*pRun) && *pRun != L'\"') ++pRun; // passed string
 			++numStrings;
 		} else {
 			++pRun; // some white space
@@ -489,10 +489,10 @@ Array<String> String::ExplodeQuoted(const wchar_t *quotedStr)
 				}
 				++pRun;
 			}
-		} else if(!::iswspace(*pRun)) { // 1st char of non-quoted string
+		} else if(!iswspace(*pRun)) { // 1st char of non-quoted string
 			pBase = pRun;
 			++pRun; // point to 2nd char of string
-			while(*pRun && !::iswspace(*pRun) && *pRun != L'\"') ++pRun; // passed string
+			while(*pRun && !iswspace(*pRun) && *pRun != L'\"') ++pRun; // passed string
 			
 			ret[i].copyFrom(pBase, (int)(pRun - pBase)); // copy to buffer
 			++i; // next string
@@ -515,7 +515,7 @@ Array<String> String::ExplodeMulti(const wchar_t *multiStr)
 	const wchar_t *pRun = multiStr;
 	while(*pRun) {
 		++numStrings;
-		pRun += ::lstrlen(pRun) + 1;
+		pRun += lstrlen(pRun) + 1;
 	}
 
 	// Alloc return array of strings.
@@ -525,7 +525,7 @@ Array<String> String::ExplodeMulti(const wchar_t *multiStr)
 	pRun = multiStr;
 	for(int i = 0; i < numStrings; ++i) {
 		ret[i] = pRun;
-		pRun += ::lstrlen(pRun) + 1;
+		pRun += lstrlen(pRun) + 1;
 	}
 
 	return ret;
@@ -536,7 +536,16 @@ int String::LexicalCompare(const wchar_t *a, const wchar_t *b, Case c, Diacritic
 	DWORD flags = 0;
 	if(c == Case::INSENS) flags |= (NORM_IGNORECASE | NORM_IGNOREKANATYPE | NORM_LINGUISTIC_CASING);
 	if(d == Diacritics::REM) flags |= NORM_IGNORENONSPACE;
-	return ::CompareString(LOCALE_SYSTEM_DEFAULT, flags, a, -1, b, -1) - 2;
+	return CompareString(LOCALE_SYSTEM_DEFAULT, flags, a, -1, b, -1) - 2;
+}
+
+String String::_Formatv(const wchar_t *fmt, va_list args)
+{
+	int newLen = _vscwprintf(fmt, args); // calculate length, without terminating null
+	String ret;
+	ret.reserve(newLen);
+	_vsnwprintf(ret.ptrAt(0), newLen, fmt, args); // do the job
+	return ret;
 }
 
 void String::_RemDiacr(wchar_t *txt)
@@ -557,18 +566,4 @@ void String::_RemDiacr(wchar_t *txt)
 		}
 		++pTxt;
 	}
-}
-
-void dbg(const wchar_t *fmt, ...)
-{
-#ifdef _DEBUG
-	va_list args;
-	va_start(args, fmt);
-	
-	String buf;
-	buf.formatv(fmt, args);
-	
-	va_end(args);
-	::OutputDebugString(buf.str());
-#endif
 }

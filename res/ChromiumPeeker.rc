@@ -89,7 +89,7 @@ BEGIN
     BEGIN
         MENUITEM "Get &details",                MNU_MAIN_GETBASIC
         MENUITEM "Get DLL &version",            MNU_MAIN_GETDLL
-		MENUITEM "Download &zip",               MNU_MAIN_DLZIP
+        MENUITEM "Download &zip",               MNU_MAIN_DLZIP
     END
 END
 
