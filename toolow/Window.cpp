@@ -137,7 +137,9 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
 				(*pArrBuf)[i] = (*basePath);
 				(*pArrBuf)[i].append(L"\\").append(strs[i + 1]); // concat folder + file
 			}
-			pArrBuf->sort([](const String& a, const String& b)->int { return String::LexicalCompare(a, b, String::Case::INSENS); });
+			pArrBuf->sort([](const String& a, const String& b)->int {
+				return String::CompareCI(a.str(), b.str());
+			});
 		}
 		return true;
 	}

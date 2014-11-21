@@ -35,9 +35,14 @@ public:
 	Elem*       at(int index)                    { return &_elems[index]; }
 
 	const T& operator[](const String& key) const  { return operator[](key.str()); }
-	T&       operator[](const String& key)        { return operator[](key.str()); }
-	const T& operator[](const wchar_t *key) const { return operator[](key); }
-	T&       operator[](const wchar_t *key) {
+	const T& operator[](const wchar_t *key) const {
+		int idx = this->_byKey(key);
+		if(idx == -1) // key not found
+			return _elems[0].val; // not right... lame C++ won't allow null references!
+		return _elems[idx].val;
+	}
+	T& operator[](const String& key)  { return operator[](key.str()); }
+	T& operator[](const wchar_t *key) {
 		int idx = this->_byKey(key);
 		if(idx == -1) { // key not found
 			this->reserve(++_szUsed); // so let's insert it
@@ -95,7 +100,7 @@ public:
 private:
 	int _byKey(const wchar_t *keyName) const {
 		for(int i = 0; i < _szUsed; ++i) // linear search
-			if(_elems[i].key.equals(keyName, String::Case::SENS)) // an empty string is also a valid key
+			if(_elems[i].key.equalsCS(keyName)) // an empty string is also a valid key
 				return i;
 		return -1; // not found
 	}

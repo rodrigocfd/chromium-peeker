@@ -235,7 +235,7 @@ bool Internet::Download::_Worker::_parseHeaders()
 	key.reserve(32); val.reserve(32); // temp buffers to save reallocs
 	for(int i = 0; i < lines.size(); ++i) {
 		if(lines[i].isEmpty()) continue;
-		int colonIdx = lines[i].find(L':');
+		int colonIdx = lines[i].findCS(L':');
 		if(colonIdx == -1) { // not a key/value pair, probably response line
 			_status.responseHeaders[L""] = lines[i]; // empty key
 		} else {

@@ -100,10 +100,10 @@ String System::GetExePath()
 	ret.reserve(MAX_PATH);
 
 	GetModuleFileName(nullptr, ret.ptrAt(0), ret.reserved() + 1); // retrieves EXE itself directory
-	ret[ ret.findr(L'\\') ] = L'\0'; // truncate removing EXE file name, remove trailing backslash
+	ret[ ret.findrCS(L'\\') ] = L'\0'; // truncate removing EXE file name, remove trailing backslash
 
 #ifdef _DEBUG
-	ret[ ret.findr(L'\\') ] = L'\0'; // bypass "Debug" folder, remove trailing backslash
+	ret[ ret.findrCS(L'\\') ] = L'\0'; // bypass "Debug" folder, remove trailing backslash
 #endif
 
 	return ret;

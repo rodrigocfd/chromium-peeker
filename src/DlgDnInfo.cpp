@@ -84,7 +84,7 @@ void DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 
 	Array<Xml::Node*> cnodes = xml.root.getChildrenByName(L"Contents");
 	for(int i = 0; i < cnodes.size(); ++i) {
-		if(cnodes[i]->firstChildByName(L"Key")->value.endsWith(L"chrome-win32.zip", String::Case::SENS)) {
+		if(cnodes[i]->firstChildByName(L"Key")->value.endsWithCS(L"chrome-win32.zip")) {
 			this->data.last().releaseDate = cnodes[i]->firstChildByName(L"LastModified")->value;
 			this->data.last().packageSize = cnodes[i]->firstChildByName(L"Size")->value.toInt();
 			break;

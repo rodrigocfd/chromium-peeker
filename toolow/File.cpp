@@ -542,13 +542,13 @@ bool File::Ini::load(String *pErr)
 
 	String line, name, valstr; // name/val declared here to save reallocs
 	while(fin.nextLine(&line)) {
-		if(line[0] == L'[' && line.endsWith(L']')) { // begin section found
+		if(line[0] == L'[' && line.endsWithCS(L']')) { // begin section found
 			name.copyFrom(line.ptrAt(1), line.len() - 2);
 			this->sections[name] = Hash<String>(); // new section is an empty hash
 			continue;
 		}
 		if(this->sections.size() && line.len()) { // keys will be read only if within a section
-			int idxEq = line.find(L'=');
+			int idxEq = line.findCS(L'=');
 			if(idxEq > -1) {
 				name.copyFrom(line.ptrAt(0), idxEq);
 				valstr.copyFrom(line.ptrAt(idxEq + 1), line.len() - (idxEq + 1));
@@ -599,7 +599,7 @@ int File::Ini::_countSections(File::Text *fin) const
 	String line;
 	fin->rewind();
 	while(fin->nextLine(&line))
-		if(line[0] == L'[' && line.endsWith(L']'))
+		if(line[0] == L'[' && line.endsWithCS(L']'))
 			++count;
 	fin->rewind();
 	return count;

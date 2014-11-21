@@ -5,18 +5,18 @@ bool ChromiumRel::append(Xml& data)
 {
 	Xml::Node& root = data.root;
 
-	if(!root.name.equals(L"ListBucketResult", String::Case::SENS)) return false;
+	if(!root.name.equalsCS(L"ListBucketResult")) return false;
 
-	if(!root.children[0].name.equals(L"Name", String::Case::SENS) ||
-		!root.children[0].value.equals(L"chromium-browser-continuous", String::Case::SENS)) return false;
+	if(!root.children[0].name.equalsCS(L"Name") ||
+		!root.children[0].value.equalsCS(L"chromium-browser-continuous")) return false;
 
 	String *isTruncated = &root.firstChildByName(L"IsTruncated")->value;
-	if(!isTruncated->equals(L"true", String::Case::SENS) &&
-		!isTruncated->equals(L"false", String::Case::SENS)) return false;
+	if(!isTruncated->equalsCS(L"true") &&
+		!isTruncated->equalsCS(L"false")) return false;
 
 	if(!this->_parseMorePrefixes(root)) return false;
 
-	if(isTruncated->equals(L"true", String::Case::SENS)) { // more to come
+	if(isTruncated->equalsCS(L"true")) { // more to come
 		_nextMarker = root.firstChildByName(L"NextMarker")->value; // eg.: "Win/93883/"
 	} else { // finished loading last piece of list
 		_nextMarker = L"";

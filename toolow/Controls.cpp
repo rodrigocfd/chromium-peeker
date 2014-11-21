@@ -175,7 +175,7 @@ Combo& Combo::itemAdd(initializer_list<const wchar_t*> arrStr)
 	return *this;
 }
 
-wchar_t* Combo::itemGetText(int i, wchar_t *pBuf, int szBuf)
+wchar_t* Combo::itemGetText(int i, wchar_t *pBuf, int szBuf) const
 {
 	int len = (int)this->sendMessage(CB_GETLBTEXTLEN, i, 0) + 1;
 	if(szBuf < len) *pBuf = 0; // buffer is too small
@@ -183,7 +183,7 @@ wchar_t* Combo::itemGetText(int i, wchar_t *pBuf, int szBuf)
 	return pBuf;
 }
 
-String* Combo::itemGetText(int i, String *pBuf)
+String* Combo::itemGetText(int i, String *pBuf) const
 {
 	pBuf->reserve((int)this->sendMessage(CB_GETLBTEXTLEN, i, 0));
 	this->sendMessage(CB_GETLBTEXT, i, (LPARAM)pBuf->ptrAt(0));
@@ -198,7 +198,7 @@ ListBox& ListBox::itemAdd(initializer_list<const wchar_t*> arrStr)
 	return *this;
 }
 
-int ListBox::itemCountSelected()
+int ListBox::itemCountSelected() const
 {
 	int cou = (int)this->sendMessage(LB_GETSELCOUNT, 0, 0);
 	if(cou == LB_ERR) // we have a single-selection listbox, zero or one items can be selected
@@ -206,7 +206,7 @@ int ListBox::itemCountSelected()
 	return cou;
 }
 
-int ListBox::itemGetSelected(Array<int> *indexesBuf)
+int ListBox::itemGetSelected(Array<int> *indexesBuf) const
 {
 	if(indexesBuf) {
 		indexesBuf->realloc(itemCountSelected());
@@ -218,7 +218,7 @@ int ListBox::itemGetSelected(Array<int> *indexesBuf)
 	return (int)this->sendMessage(LB_GETCURSEL, 0, 0); // will work for single-selection listbox only
 }
 
-wchar_t* ListBox::itemGetText(int i, wchar_t *pBuf, int szBuf)
+wchar_t* ListBox::itemGetText(int i, wchar_t *pBuf, int szBuf) const
 {
 	int len = (int)this->sendMessage(LB_GETTEXTLEN, i, 0) + 1;
 	if(szBuf < len) *pBuf = 0; // buffer is too small
@@ -226,7 +226,7 @@ wchar_t* ListBox::itemGetText(int i, wchar_t *pBuf, int szBuf)
 	return pBuf;
 }
 
-String* ListBox::itemGetText(int i, String *pBuf)
+String* ListBox::itemGetText(int i, String *pBuf) const
 {
 	pBuf->reserve((int)this->sendMessage(LB_GETTEXTLEN, i, 0));
 	this->sendMessage(LB_GETTEXT, i, (LPARAM)pBuf->ptrAt(0));

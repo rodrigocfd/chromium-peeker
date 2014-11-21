@@ -87,13 +87,14 @@ public:
 	Combo&   operator=(HWND hwnd)          { ((Window*)this)->operator=(hwnd); return *this; }
 	Combo&   operator=(const Window& wnd)  { return operator=(wnd.hWnd()); }
 	Combo&   operator=(const Combo& other) { return operator=(other.hWnd()); }
-	int      itemCount()                   { return (int)sendMessage(CB_GETCOUNT, 0, 0); }
+	int      itemCount() const             { return (int)sendMessage(CB_GETCOUNT, 0, 0); }
 	Combo&   itemSetSelected(int i)        { sendMessage(CB_SETCURSEL, i, 0); return *this; }
-	int      itemGetSelected()             { return (int)sendMessage(CB_GETCURSEL, 0, 0); }
+	int      itemGetSelected() const       { return (int)sendMessage(CB_GETCURSEL, 0, 0); }
 	Combo&   itemAdd(initializer_list<const wchar_t*> arrStr);
-	wchar_t* itemGetText(int i, wchar_t *pBuf, int szBuf);
-	String*  itemGetText(int i, String *pBuf);
-	String   itemGetText(int i)            { String ret; itemGetText(i, &ret); return ret; }
+	wchar_t* itemGetText(int i, wchar_t *pBuf, int szBuf) const;
+	String*  itemGetText(int i, String *pBuf) const;
+	String   itemGetText(int i) const      { String ret; itemGetText(i, &ret); return ret; }
+	String   itemGetSelectedText() const   { return itemGetText(itemGetSelected()); }
 	Combo&   itemRemoveAll()               { sendMessage(CB_RESETCONTENT, 0, 0); return *this; }
 };
 
@@ -111,12 +112,12 @@ public:
 	ListBox& operator=(const Window& wnd)    { return operator=(wnd.hWnd()); }
 	ListBox& operator=(const ListBox& other) { return operator=(other.hWnd()); }
 	ListBox& itemAdd(initializer_list<const wchar_t*> arrStr);
-	int      itemCount()                     { return (int)sendMessage(LB_GETCOUNT, 0, 0); }
-	int      itemCountSelected();
-	int      itemGetSelected(Array<int> *indexesBuf=nullptr);
-	wchar_t* itemGetText(int i, wchar_t *pBuf, int szBuf);
-	String*  itemGetText(int i, String *pBuf);
-	String   itemGetText(int i)              { String ret; itemGetText(i, &ret); return ret; }
+	int      itemCount() const               { return (int)sendMessage(LB_GETCOUNT, 0, 0); }
+	int      itemCountSelected() const;
+	int      itemGetSelected(Array<int> *indexesBuf=nullptr) const;
+	wchar_t* itemGetText(int i, wchar_t *pBuf, int szBuf) const;
+	String*  itemGetText(int i, String *pBuf) const;
+	String   itemGetText(int i) const        { String ret; itemGetText(i, &ret); return ret; }
 	ListBox& itemRemoveAll()                 { sendMessage(LB_RESETCONTENT, 0, 0); return *this; }
 };
 

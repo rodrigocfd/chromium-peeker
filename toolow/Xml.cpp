@@ -108,12 +108,12 @@ static void _BuildNode(ComPtr<IXMLDOMNode> xmlnode, Xml::Node& nodebuf)
 }
 
 
-Array<Xml::Node*> Xml::Node::getChildrenByName(const wchar_t *elemName, String::Case sens)
+Array<Xml::Node*> Xml::Node::getChildrenByName(const wchar_t *elemName)
 {
 	int howMany = 0;
 	int firstIndex = -1, lastIndex = -1;
 	for(int i = 0; i < this->children.size(); ++i) {
-		if(this->children[i].name.equals(elemName, sens)) {
+		if(this->children[i].name.equalsCI(elemName)) { // case-insensitive match
 			++howMany;
 			if(firstIndex == -1) firstIndex = i;
 			lastIndex = i;
@@ -124,17 +124,17 @@ Array<Xml::Node*> Xml::Node::getChildrenByName(const wchar_t *elemName, String::
 
 	howMany = 0;
 	for(int i = firstIndex; i <= lastIndex; ++i)
-		if(this->children[i].name.equals(elemName, sens))
+		if(this->children[i].name.equalsCI(elemName))
 			nodeBuf[howMany++] = &this->children[i];
 	
 	return nodeBuf;
 }
 
-Xml::Node* Xml::Node::firstChildByName(const wchar_t *elemName, String::Case sens)
+Xml::Node* Xml::Node::firstChildByName(const wchar_t *elemName)
 {
 	int iChild = -1;
 	for(int i = 0; i < this->children.size(); ++i) {
-		if(this->children[i].name.equals(elemName, sens)) {
+		if(this->children[i].name.equalsCI(elemName)) { // case-insensitive match
 			iChild = i;
 			break;
 		}

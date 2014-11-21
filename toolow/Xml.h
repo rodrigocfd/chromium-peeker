@@ -23,8 +23,8 @@ public:
 		Node(Node&& other)                 : name(MOVE(other.name)), value(MOVE(other.value)), attrs(MOVE(other.attrs)), children(MOVE(other.children)) { }
 		Node& operator=(const Node& other) { name = other.name; value = other.value; attrs = other.attrs; children = other.children; return *this; }
 		Node& operator=(Node&& other)      { name = MOVE(other.name); value = MOVE(other.value); attrs = MOVE(other.attrs); children = MOVE(other.children); return *this; }
-		Array<Node*> getChildrenByName(const wchar_t *elemName, String::Case sens=String::Case::SENS);
-		Node*        firstChildByName(const wchar_t *elemName, String::Case sens=String::Case::SENS);
+		Array<Node*> getChildrenByName(const wchar_t *elemName);
+		Node*        firstChildByName(const wchar_t *elemName);
 	};
 
 public:
