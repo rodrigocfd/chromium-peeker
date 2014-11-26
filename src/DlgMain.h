@@ -7,6 +7,7 @@ class DlgMain final : public DialogApp {
 private:
 	ChromiumRel       chromiumRel;
 	ListView          listview;
+	Window            lblLoaded;
 	Resizer           resz;
 	Internet::Session session;
 public:

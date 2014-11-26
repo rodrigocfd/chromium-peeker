@@ -38,8 +38,10 @@ void DlgMain::onInitDialog()
 		.columnAdd(L"DLL version", 90)
 		.columnFit(3);
 
+	this->lblLoaded = this->getChild(LBL_LOADED);
+
 	this->resz.create(2)
-		.add({ BTN_DLLIST }, this->hWnd(), Resizer::Do::NOTHING, Resizer::Do::NOTHING)
+		.add({ BTN_DLLIST, LBL_LOADED }, this->hWnd(), Resizer::Do::NOTHING, Resizer::Do::NOTHING)
 		.add({ this->listview.hWnd() }, Resizer::Do::RESIZE, Resizer::Do::RESIZE)
 		.afterResize([&]() { this->listview.columnFit(3); });
 
@@ -72,14 +74,16 @@ void DlgMain::onBtnDownloadList()
 	DlgDnList ddl;
 	if(ddl.show(this, &this->session, &this->chromiumRel) == IDOK) {
 		const Array<String>& markers = this->chromiumRel.markers();
-		this->setText( String::Fmt(L"Chromium Peeker - %d markers", markers.size()) );
 
 		this->listview.setRedraw(false);
-		for(int i = markers.size() - 1100; i < markers.size(); ++i) // display only last markers
+		const int iShown = 1100;
+		for(int i = markers.size() - iShown; i < markers.size(); ++i) // display only last markers
 			this->listview.items.add(markers[i]);
+
+		this->lblLoaded.setText( String::Fmt(L"%d/%d markers", iShown, markers.size()) );
 		this->listview.setRedraw(true).columnFit(3);
 	}
-
+	
 	this->getChild(BTN_DLLIST).setEnable(true);
 	this->listview.setFocus();
 }
@@ -111,6 +115,12 @@ void DlgMain::onMnuDllDetails()
 {
 	Array<ListView::Item> sels = this->listview.items.getSelected();
 	if(!sels.size()) return;
+	if(sels.size() > 1) {
+		if(this->messageBox(L"Too much download",
+			L"You are about to download more than one package.\nThat's a lot of data, proceed?",
+			MB_ICONEXCLAMATION | MB_YESNO | MB_DEFBUTTON2) == IDNO) return;
+	}
+
 	Array<String> markers = sels.transform<String>(
 		[](int i, const ListView::Item& item)->String { return item.getText(0); } );
 

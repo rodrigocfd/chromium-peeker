@@ -10,7 +10,7 @@ private:
 public:
 	int show(Window *parent, Internet::Session *session, const String& marker);
 private:
-	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp);
+	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
 	void doDownload();
 };
