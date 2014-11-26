@@ -17,70 +17,80 @@ using std::initializer_list; // because these should be keywords
 template<typename T> class Array final {
 private:
 	T  *_ptr;
-	int _sz;
+	int _sz, _stor;
 public:
-	Array()                        : _ptr(nullptr), _sz(0) { }
-	Array(const Array& other)      : _ptr(nullptr), _sz(0) { operator=(other); }
-	Array(Array&& other)           : _ptr(nullptr), _sz(0) { operator=(MOVE(other)); }
-	Array(initializer_list<T> arr) : _ptr(nullptr), _sz(0) { operator=(arr); }
-	explicit Array(int length)     : _ptr(nullptr), _sz(0) { this->realloc(length); }
-	~Array()                       { this->free(); }
+	Array()                        : _ptr(nullptr), _sz(0), _stor(0) { }
+	Array(const Array& other)      : _ptr(nullptr), _sz(0), _stor(0) { operator=(other); }
+	Array(Array&& other)           : _ptr(nullptr), _sz(0), _stor(0) { operator=(MOVE(other)); }
+	Array(initializer_list<T> arr) : _ptr(nullptr), _sz(0), _stor(0) { operator=(arr); }
+	explicit Array(int length)     : _ptr(nullptr), _sz(0), _stor(0) { this->resize(length); }
+	~Array()                       { this->resize(0).compact(); }
 
-	Array& realloc(int length) {
-		if(!length) return this->free();
-		for(int i = length; i < _sz; ++i) _ptr[i].~T(); // when size < _sz, call destructors
-		_ptr = (T*)::realloc(_ptr, sizeof(T) * length);
-		for(int i = _sz; i < length; ++i) new(_ptr + i) T; // when size > _sz, call constructors
-		_sz = length;
+	Array& reserve(int length) {
+		if(length > _stor) { // only grows
+			_ptr = (T*)::realloc(_ptr, sizeof(T) * length); // increase storage room
+			_stor = length;
+		}
 		return *this;
 	}
-
-	Array& free() {
-		if(!_sz) return *this;
-		for(int i = 0; i < _sz; ++i) _ptr[i].~T();
-		::free(_ptr);
-		_ptr = nullptr; _sz = 0;
+	Array& resize(int length) {
+		if(length >= 0) {
+			for(int i = length; i < _sz; ++i) _ptr[i].~T(); // when size < _sz, call destructors
+			this->reserve(length);
+			for(int i = _sz; i < length; ++i) new(_ptr + i) T; // when size > _sz, call constructors
+			_sz = length;
+		}
+		return *this;
+	}
+	Array& compact() {
+		_stor = _sz;
+		if(_stor) {
+			_ptr = (T*)::realloc(_ptr, sizeof(T) * _stor); // decrease storage room
+		} else {
+			::free(_ptr);
+			_ptr = nullptr;
+		}
 		return *this;
 	}
 
 	Array& operator=(const Array& other) {
-		this->realloc(other._sz);
+		this->resize(other._sz);
 		for(int i = 0; i < other._sz; ++i)
 			_ptr[i] = other._ptr[i]; // deep copy, call operator=() on each element
 		return *this;
 	}
 	Array& operator=(Array&& other) {
-		this->free();
-		_ptr = other._ptr; _sz = other._sz; // steal pointer
-		other._ptr = nullptr; other._sz = 0;
+		this->resize(0).compact();
+		_ptr = other._ptr;    _sz = other._sz; _stor = other._stor; // steal pointer
+		other._ptr = nullptr; other._sz = 0;   other._stor = 0;
 		return *this;
 	}
-	Array& operator=(initializer_list<T> arr) {
-		this->realloc((int)arr.size());
-		for(int i = 0, sz = (int)arr.size(); i < sz; ++i)
-			_ptr[i] = *(arr.begin() + i); // thanks to C++11 horrible design, this thing is necessary
+	Array& operator=(initializer_list<T> vals) {
+		this->resize((int)vals.size());
+		for(int i = 0, sz = (int)vals.size(); i < sz; ++i)
+			_ptr[i] = *(vals.begin() + i); // thanks to C++11 horrible design, this thing is necessary
 		return *this;
 	}
 
 	int      size() const                { return _sz; }
 	const T& operator[](int index) const { return _ptr[index]; }
 	T&       operator[](int index)       { return _ptr[index]; }
-	const T& last(int revIndex=0) const  { return _ptr[_sz - revIndex - 1]; }
-	T&       last(int revIndex=0)        { return _ptr[_sz - revIndex - 1]; }
+	const T& last() const                { return _ptr[_sz - 1]; }
+	T&       last()                      { return _ptr[_sz - 1]; }
 
 	Array& remove(int index) {
-		if(index > _sz - 1) return *this; // index out of bounds
-		if(_sz == 1) return this->free();
-		_ptr[index].~T();
-		if(index < _sz - 1)
-			::memmove(_ptr + index, _ptr + index + 1, (_sz - index - 1) * sizeof(T));
-		_ptr = (T*)::realloc(_ptr, sizeof(T) * --_sz);
+		if(index >= 0 && index < _sz) {
+			_ptr[index].~T();
+			if(index < _sz - 1)
+				::memmove(_ptr + index, _ptr + index + 1, (_sz - index - 1) * sizeof(T));
+			--_sz;
+		}
 		return *this;
 	}
 
 	Array& insert(int atIndex, const T *arr, int howMany) {
-		if(atIndex > _sz) atIndex = _sz;
-		_ptr = (T*)::realloc(_ptr, sizeof(T) * (_sz + howMany));
+		if(atIndex > _sz) atIndex = _sz; // avoid index out of bounds
+		this->reserve(_sz + howMany);
 		if(atIndex < _sz)
 			::memmove(_ptr + atIndex + howMany, _ptr + atIndex, (_sz - atIndex) * sizeof(T));
 		for(int i = 0; i < howMany; ++i)
@@ -88,13 +98,13 @@ public:
 		_sz += howMany;
 		return *this;
 	}
-	Array& insert(int atIndex, initializer_list<T> arr) { return this->insert(atIndex, arr.begin(), (int)arr.size()); }
-	Array& insert(int atIndex, const Array<T> *other)   { return this->insert(atIndex, other->_ptr, other->_sz); }
-	Array& insert(int atIndex, const T& obj)            { return this->insert(atIndex, &obj, 1); }
+	Array& insert(int atIndex, initializer_list<T> vals) { return this->insert(atIndex, vals.begin(), (int)vals.size()); }
+	Array& insert(int atIndex, const Array<T>& other)    { return this->insert(atIndex, other._ptr, other._sz); }
+	Array& insert(int atIndex, const T& obj)             { return this->insert(atIndex, &obj, 1); }
 
 	Array& append(const T *arr, int howMany) { return this->insert(_sz, arr, howMany); }
-	Array& append(initializer_list<T> arr)   { return this->append(arr.begin(), (int)arr.size()); }
-	Array& append(const Array<T> *other)     { return this->append(other->_ptr, other->_sz); }
+	Array& append(initializer_list<T> vals)  { return this->append(vals.begin(), (int)vals.size()); }
+	Array& append(const Array<T>& other)     { return this->append(other._ptr, other._sz); }
 	Array& append(const T& obj)              { return this->append(&obj, 1); }
 
 	Array& reorder(int index, int newIndex) {
@@ -109,9 +119,9 @@ public:
 	}
 
 	Array& swap(Array& other) {
-		T *tmpPtr = _ptr;    int tmpSz = _sz;
-		_ptr = other._ptr;   _sz = other._sz;
-		other._ptr = tmpPtr; other._sz = tmpSz;
+		T *tmpPtr = _ptr;    int tmpSz = _sz;   int tmpStor = _stor;
+		_ptr = other._ptr;   _sz = other._sz;   _stor = other._stor;
+		other._ptr = tmpPtr; other._sz = tmpSz; other._stor = tmpStor;
 		return *this;
 	}
 

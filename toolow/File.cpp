@@ -284,7 +284,7 @@ bool File::Raw::getContent(Array<BYTE> *pBuf, String *pErr) const
 		return false;
 	}
 
-	pBuf->realloc(this->size());
+	pBuf->resize(this->size());
 	DWORD bytesRead = 0;
 	if(!ReadFile(_hFile, &(*pBuf)[0], pBuf->size(), &bytesRead, nullptr)) {
 		if(pErr) *pErr = String::Fmt(L"ReadFile() failed to read %d bytes.", pBuf->size());
@@ -425,7 +425,7 @@ bool File::Mapped::getContent(Array<BYTE> *pBuf, int offset, int numBytes, Strin
 		numBytes = _size - offset; // avoid reading beyond EOF
 	}
 	
-	pBuf->realloc(numBytes);
+	pBuf->resize(numBytes);
 	memcpy(&(*pBuf)[0], this->pMem(), numBytes * sizeof(BYTE));
 	
 	if(pErr) *pErr = L"";

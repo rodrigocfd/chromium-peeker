@@ -23,16 +23,22 @@ public:
 
 private:
 	Array<Elem> _elems;
-	int         _szUsed;
 public:
-	Hash()                  : _szUsed(0) { }
-	Hash(const Hash& other) : _szUsed(0) { operator=(other); }
-	Hash(Hash&& other)      : _szUsed(0) { operator=(MOVE(other)); }
+	Hash()                  { }
+	Hash(const Hash& other) { operator=(other); }
+	Hash(Hash&& other)      { operator=(MOVE(other)); }
 
-	int         size() const                     { return _szUsed; }
+	int         size() const                     { return _elems.size(); }
 	bool        exists(const wchar_t *key) const { return this->_byKey(key) > -1; }
 	const Elem* at(int index) const              { return &_elems[index]; }
 	Elem*       at(int index)                    { return &_elems[index]; }
+
+	Hash& operator=(const Hash& other) { _elems.resize(0).append(other._elems); return *this; }
+	Hash& operator=(Hash&& other)      { _elems = MOVE(other._elems); return *this; }
+	Hash& reserve(int howMany)         { _elems.reserve(howMany); return *this; }
+	Hash& removeAll()                  { _elems.resize(0); return *this; }
+	Hash& remove(const wchar_t *key)   { return this->remove(this->_byKey(key)); }
+	Hash& remove(int index)            { _elems.remove(index); return *this; }
 
 	const T& operator[](const String& key) const  { return operator[](key.str()); }
 	const T& operator[](const wchar_t *key) const {
@@ -44,62 +50,30 @@ public:
 	T& operator[](const String& key)  { return operator[](key.str()); }
 	T& operator[](const wchar_t *key) {
 		int idx = this->_byKey(key);
-		if(idx == -1) { // key not found
-			this->reserve(++_szUsed); // so let's insert it
-			_elems[_szUsed - 1] = Elem(key); // create entry with default constructor
-			idx = _szUsed - 1;
+		if(idx == -1) { // key not found, let's insert it
+			_elems.append(Elem(key)); // create entry with default constructor
+			idx = _elems.size() - 1;
 		}
 		return _elems[idx].val;
 	}
-
-	Hash& reserve(int howMany) {
-		if(howMany > _elems.size())
-			_elems.realloc(howMany); // always grows
-		return *this;
-	}
-
-	Hash& operator=(const Hash& other) {
-		this->reserve(other._szUsed);
-		for(int i = 0; i < other._szUsed; ++i) {
-			_elems[i].key = other._elems[i].key;
-			_elems[i].val = other._elems[i].val;
-		}
-		_szUsed = other._szUsed;
-		return *this;
-	}
-	Hash& operator=(Hash&& other) {
-		_elems = MOVE(other._elems);
-		_szUsed = other._szUsed;
-		return *this;
-	}
-
-	Hash& removeAll()                { _elems.free(); _szUsed = 0; return *this; }
-	Hash& remove(const wchar_t *key) { return this->remove(this->_byKey(key)); }
-	Hash& remove(int index) {
-		if(index >= 0 && index <= _szUsed - 1) {
-			_elems.remove(index);
-			--_szUsed;
-		}
-		return *this;
-	}
-
+	
 	void each(function<void(Elem& elem)> callback) {
 		// Example usage:
 		// Hash<int> nums;
 		// nums.each([](Hash<int>::Elem& elem) { elem.val += 10; });
-		for(int i = 0; i < _szUsed; ++i)
+		for(int i = 0; i < _elems.size(); ++i)
 			callback(_elems[i]);
 	}
 	void each(function<void(const Elem& elem)> callback) const {
 		// Example usage:
 		// Hash<int> nums;
 		// nums.each([](const Hash<int>::Elem& elem) { int x = elem.val; });
-		for(int i = 0; i < _szUsed; ++i)
+		for(int i = 0; i < _elems.size(); ++i)
 			callback(_elems[i]);
 	}
 private:
 	int _byKey(const wchar_t *keyName) const {
-		for(int i = 0; i < _szUsed; ++i) // linear search
+		for(int i = 0; i < _elems.size(); ++i) // linear search
 			if(_elems[i].key.equalsCS(keyName)) // an empty string is also a valid key
 				return i;
 		return -1; // not found

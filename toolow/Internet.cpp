@@ -92,7 +92,7 @@ void Internet::Download::_Worker::processDownload(const String& url, const Strin
 	if(isToFile) {
 		if(!this->_prepareFileOutput(fout)) return;
 	} else {
-		if(_status.contentLength) _status.buffer.realloc(_status.contentLength);
+		if(_status.contentLength) _status.buffer.resize(_status.contentLength);
 	}
 
 	// Receive the data from server.
@@ -102,7 +102,7 @@ void Internet::Download::_Worker::processDownload(const String& url, const Strin
 		if(!incomingBytes) break; // no more bytes to be downloaded
 
 		if(isToFile) {
-			fbuf.realloc(incomingBytes);
+			fbuf.resize(incomingBytes);
 			if(!this->_receiveBytes(incomingBytes, &fbuf[0])) return;
 			if(!fout.write(fbuf, &_status.err)) { // data is appended to file
 				this->_closeHandles();
@@ -111,7 +111,7 @@ void Internet::Download::_Worker::processDownload(const String& url, const Strin
 				return;
 			}
 		} else {
-			if(!_status.contentLength) _status.buffer.realloc(_status.totalDownloaded + incomingBytes);
+			if(!_status.contentLength) _status.buffer.resize(_status.totalDownloaded + incomingBytes);
 			if(!this->_receiveBytes(incomingBytes, &_status.buffer[0] + _status.totalDownloaded)) return; // data is appended to buffer
 		}
 

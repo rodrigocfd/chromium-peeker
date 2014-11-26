@@ -80,7 +80,7 @@ void DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 	this->setText( String::Fmt(L"Downloading (%.2f KB)...", (float)this->totDownloaded / 1024) );
 
 	Xml xml = String::ParseUtf8(buf).str();
-	this->data.realloc( this->data.size() + 1 ); // realloc public return buffer
+	this->data.resize( this->data.size() + 1 ); // realloc public return buffer
 
 	Array<Xml::Node*> cnodes = xml.root.getChildrenByName(L"Contents");
 	for(int i = 0; i < cnodes.size(); ++i) {

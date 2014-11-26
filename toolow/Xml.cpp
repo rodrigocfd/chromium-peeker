@@ -76,7 +76,7 @@ static void _BuildNode(ComPtr<IXMLDOMNode> xmlnode, Xml::Node& nodebuf)
 	if(vb) {
 		ComPtr<IXMLDOMNodeList> nodeList;
 		xmlnode->get_childNodes(&nodeList);
-		nodebuf.children.realloc(_CountChildNodes(nodeList));
+		nodebuf.children.resize(_CountChildNodes(nodeList));
 
 		int childCount = 0;
 		long totalCount = 0;

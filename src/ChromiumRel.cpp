@@ -43,11 +43,11 @@ bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)
 	Array<Xml::Node*> commonPrefixes = root.getChildrenByName(L"CommonPrefixes");
 	
 	int prevsz = _markers.size();
-	_markers.realloc(prevsz + commonPrefixes.size()); // make room for more
+	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
 	for(int i = 0; i < commonPrefixes.size(); ++i) {
 		Xml::Node *prefix = &commonPrefixes[i]->children[0];
-		_markers[prevsz + i] = prefix->value; // append to array, eg.: "Win/93883/"
+		_markers.append(prefix->value); // eg.: "Win/93883/"
 	}
 
 	return true;

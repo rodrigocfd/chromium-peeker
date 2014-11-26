@@ -10,7 +10,7 @@
 
 Resizer& Resizer::create(int numCtrls)
 {
-	_ctrls.realloc(numCtrls);
+	_ctrls.resize(numCtrls);
 	return *this;
 }
 
@@ -31,7 +31,7 @@ Resizer& Resizer::add(initializer_list<int> ctrlIds, HWND hParent, Do modeHorz, 
 void Resizer::_addOne(HWND hCtrl, Do modeHorz, Do modeVert)
 {
 	if(_idxLastInserted >= _ctrls.size() - 1) // protection against buffer overflow
-		_ctrls.realloc(_ctrls.size() + 1);
+		_ctrls.resize(_ctrls.size() + 1);
 
 	if(_idxLastInserted == -1) { // first call to _addOne()
 		RECT rcP;
@@ -209,7 +209,7 @@ int ListBox::itemCountSelected() const
 int ListBox::itemGetSelected(Array<int> *indexesBuf) const
 {
 	if(indexesBuf) {
-		indexesBuf->realloc(itemCountSelected());
+		indexesBuf->resize(itemCountSelected());
 		if(this->sendMessage(LB_GETSELITEMS, (WPARAM)indexesBuf->size(), (LPARAM)&(*indexesBuf)[0]) == LB_ERR)
 			if(indexesBuf->size() > 0) // a single-selection listbox
 				(*indexesBuf)[0] = (int)this->sendMessage(LB_GETCURSEL, 0, 0);
@@ -260,9 +260,9 @@ StatusBar& StatusBar::create(HWND hOwner, int numPartsItWillHave)
 		(isStretch ? SBARS_SIZEGRIP : 0) | WS_CHILD | WS_VISIBLE,
 		0, 0, 0, 0, hOwner, nullptr, (HINSTANCE)GetWindowLongPtr(hOwner, GWLP_HINSTANCE), 0);
 
-	_parts.realloc(numPartsItWillHave);
+	_parts.resize(numPartsItWillHave);
 	_lastInsertedPart = -1;
-	_rightEdges.realloc(numPartsItWillHave); // only used during resizing; allocated through object life for performance
+	_rightEdges.resize(numPartsItWillHave); // only used during resizing; allocated through object life for performance
 	return *this;
 }
 

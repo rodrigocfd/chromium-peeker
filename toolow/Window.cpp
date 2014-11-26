@@ -126,11 +126,10 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
 		}
 
 		if(strs.size() == 1) { // if user selected only 1 file, the string is the full path, and that's all
-			pArrBuf->realloc(1); // alloc return buffer
-			(*pArrBuf)[0] = strs[0];
+			pArrBuf->append(strs[0]);
 		} else { // user selected 2 or more files
 			String *basePath = &strs[0]; // 1st string is the base path; others are the filenames
-			pArrBuf->realloc(strs.size() - 1); // alloc return buffer
+			pArrBuf->resize(strs.size() - 1); // alloc return buffer
 
 			for(int i = 0; i < strs.size() - 1; ++i) {
 				(*pArrBuf)[i].reserve(basePath->len() + strs[i + 1].len() + 1); // room for backslash

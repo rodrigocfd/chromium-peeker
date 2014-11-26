@@ -44,7 +44,7 @@ String& String::reserve(int numCharsWithoutNull)
 {
 	if(numCharsWithoutNull > _arr.size() - 1) { // grow only
 		bool firstAlloc = _arr.size() == 0;
-		_arr.realloc(numCharsWithoutNull + 1); // also make room for terminating null
+		_arr.resize(numCharsWithoutNull + 1); // also make room for terminating null
 		if(firstAlloc)
 			_arr[0] = L'\0';
 	}
