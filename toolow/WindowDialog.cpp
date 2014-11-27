@@ -5,7 +5,7 @@
 // @see https://github.com/rodrigocfd/toolow
 //
 
-#include "Dialog.h"
+#include "WindowDialog.h"
 #include "Font.h"
 
 Dialog::~Dialog()
@@ -58,7 +58,7 @@ INT_PTR DialogPopup::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 
 BOOL DialogPopup::endDialog(INT_PTR nResult)
 {
-	return EndDialog(this->hWnd(), nResult);
+	return EndDialog(this->hWnd(), nResult); // should always be called on the same window thread
 }
 
 
@@ -132,9 +132,8 @@ INT_PTR DialogModal::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 	{
 	case WM_INITDIALOG:
 		{
-			RECT rcPop = { 0 }, rcParent = { 0 };
-			this->getWindowRect(&rcPop);
-			this->getParent().getWindowRect(&rcParent); // all relative to screen
+			RECT rcPop = this->getWindowRect();
+			RECT rcParent = this->getParent().getWindowRect(); // all relative to screen
 			this->setPos(nullptr,
 				rcParent.left + (rcParent.right - rcParent.left) / 2 - (rcPop.right - rcPop.left) / 2,
 				rcParent.top + (rcParent.bottom - rcParent.top) / 2 - (rcPop.bottom - rcPop.top) / 2,

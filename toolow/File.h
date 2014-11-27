@@ -25,6 +25,7 @@ namespace File
 	inline Date   DateCreated(const String& path)                  { return DateCreated(path.str()); }
 	bool          WriteUtf8(const wchar_t *path, const wchar_t *data, String *pErr=nullptr);
 	bool          Unzip(const wchar_t *zip, const wchar_t *destFolder, String *pErr=nullptr);
+	inline bool   Unzip(const String& zip, const String& destFolder, String *pErr=nullptr) { return Unzip(zip.str(), destFolder.str(), pErr); }
 	int           IndexOfBin(const BYTE *pData, int dataLen, const wchar_t *what, bool asWideChar);
 
 	class Path final { // path string utilities

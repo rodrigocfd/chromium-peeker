@@ -14,6 +14,7 @@ public:
 private:
 	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
-	void doDownload();
-	void doReadVersion(String zipPath);
+	bool doDownload();
+	bool doReadVersion(String zipPath);
+	bool doShowErrAndClose(const wchar_t *msg, const String& err);
 };

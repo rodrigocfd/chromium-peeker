@@ -16,10 +16,10 @@ void ListView::Item::swapWith(int index)
 	int numCols = this->_list->columnCount();
 	String oldTxt, newTxt;
 	for(int c = 0; c < numCols; ++c) { // swap texts of all columns
-		this->getText(&oldTxt, c); // get both texts
-		newItem.getText(&newTxt, c);
-		this->setText(newTxt.str(), c); // swap the texts
-		newItem.setText(oldTxt.str(), c);
+		this->getText(oldTxt, c); // get both texts
+		newItem.getText(newTxt, c);
+		this->setText(newTxt, c); // swap the texts
+		newItem.setText(oldTxt, c);
 	}
 
 	LPARAM oldp = this->getParam(); // swap LPARAMs
@@ -36,8 +36,7 @@ ListView::Item& ListView::Item::ensureVisible()
 	if(_list->getView() == View::VW_DETAILS) {
 		// In details view, ListView_EnsureVisible() won't center the item vertically.
 		// This new implementation has this behavior.
-		RECT rc = { 0 };
-		_list->getClientRect(&rc);
+		RECT rc = _list->getClientRect();
 		int cyList = rc.bottom; // total height of list
 
 		SecureZeroMemory(&rc, sizeof(rc));
@@ -61,7 +60,7 @@ ListView::Item& ListView::Item::ensureVisible()
 	return *this;
 }
 
-String* ListView::Item::getText(String *pBuf, int iCol) const
+String& ListView::Item::getText(String& buf, int iCol) const
 {
 	// http://forums.codeguru.com/showthread.php?351972-Getting-listView-item-text-length
 	LVITEM lvi = { 0 };
@@ -76,14 +75,14 @@ String* ListView::Item::getText(String *pBuf, int iCol) const
 	int retCode = 0;
 	do {
 		baseBufLen += 128; // buffer increasing step, arbitrary!
-		pBuf->reserve(baseBufLen);
-		lvi.cchTextMax = pBuf->reserved() + 1;
-		lvi.pszText = pBuf->ptrAt(0);
+		buf.reserve(baseBufLen);
+		lvi.cchTextMax = buf.reserved() + 1;
+		lvi.pszText = buf.ptrAt(0);
 		retCode = (int)_list->sendMessage(LVM_GETITEMTEXT, this->i, (LPARAM)&lvi);
 	}
-	while(retCode == pBuf->reserved()); // if could not get all chars, try again
+	while(retCode == buf.reserved()); // if could not get all chars, try again
 
-	return pBuf;
+	return buf;
 }
 
 LPARAM ListView::Item::getParam() const
@@ -250,8 +249,7 @@ ListView& ListView::columnFit(int iCol)
 		}
 	}
 
-	RECT rc;
-	this->getClientRect(&rc); // listview client area
+	RECT rc = this->getClientRect(); // listview client area
 	ListView_SetColumnWidth(this->hWnd(), iCol,
 		rc.right /*- GetSystemMetrics(SM_CXVSCROLL)*/ - cxUsed); // fit the rest of available space
 	return *this;

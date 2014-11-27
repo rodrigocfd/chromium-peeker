@@ -10,7 +10,7 @@
 
 Resizer& Resizer::create(int numCtrls)
 {
-	_ctrls.resize(numCtrls);
+	_ctrls.reserve(numCtrls); // just to save reallocs
 	return *this;
 }
 
@@ -30,10 +30,7 @@ Resizer& Resizer::add(initializer_list<int> ctrlIds, HWND hParent, Do modeHorz, 
 
 void Resizer::_addOne(HWND hCtrl, Do modeHorz, Do modeVert)
 {
-	if(_idxLastInserted >= _ctrls.size() - 1) // protection against buffer overflow
-		_ctrls.resize(_ctrls.size() + 1);
-
-	if(_idxLastInserted == -1) { // first call to _addOne()
+	if(!_ctrls.size()) { // first call to _addOne()
 		RECT rcP;
 		GetClientRect(GetParent(hCtrl), &rcP);
 		_szOrig.cx = rcP.right;
@@ -41,14 +38,14 @@ void Resizer::_addOne(HWND hCtrl, Do modeHorz, Do modeVert)
 		SetWindowSubclass(GetParent(hCtrl), _Proc, 1, (DWORD_PTR)this); // subclass parent, we'll manage WM_SIZE
 	}
 
-	_Ctrl *pCtrl = &_ctrls[++_idxLastInserted]; // current child control being added
-	pCtrl->hWnd = hCtrl;
-	pCtrl->modeHorz = modeHorz;
-	pCtrl->modeVert = modeVert;
+	_ctrls.append(_Ctrl());
+	_ctrls.last().hWnd = hCtrl;
+	_ctrls.last().modeHorz = modeHorz;
+	_ctrls.last().modeVert = modeVert;
 
-	GetWindowRect(pCtrl->hWnd, &pCtrl->rcOrig);
-	ScreenToClient(GetParent(hCtrl), (POINT*)&pCtrl->rcOrig);
-	ScreenToClient(GetParent(hCtrl), (POINT*)&pCtrl->rcOrig.right); // client coordinates relative to parent
+	GetWindowRect(_ctrls.last().hWnd, &_ctrls.last().rcOrig);
+	ScreenToClient(GetParent(hCtrl), (POINT*)&_ctrls.last().rcOrig);
+	ScreenToClient(GetParent(hCtrl), (POINT*)&_ctrls.last().rcOrig.right); // client coordinates relative to parent
 }
 
 LRESULT CALLBACK Resizer::_Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData)
@@ -110,13 +107,6 @@ TextBox& TextBox::operator=(HWND hwnd)
 	_notifyKeyUp = 0;
 	SetWindowSubclass(this->hWnd(), _Proc, IDSUBCLASS, (DWORD_PTR)this);
 	return *this;
-}
-
-Array<String> TextBox::getTextLines()
-{
-	String text;
-	this->getText(&text);
-	return text.explode(L"\r\n");
 }
 
 TextBox& TextBox::setFont(const Font& font)
@@ -276,8 +266,7 @@ StatusBar& StatusBar::addFixedPart(BYTE sizePixels)
 	_parts[_lastInsertedPart].resizeWeight = 0;
 
 	if(_lastInsertedPart == _parts.size() - 1) {
-		RECT rc = { 0 };
-		_sb.getParent().getClientRect(&rc);
+		RECT rc = _sb.getParent().getClientRect();
 		this->_putParts(rc.right);
 	}
 	return *this;
@@ -298,8 +287,7 @@ StatusBar& StatusBar::addResizablePart(float resizeWeight)
 	_parts[_lastInsertedPart].resizeWeight = resizeWeight;
 
 	if(_lastInsertedPart == _parts.size() - 1) {
-		RECT rc = { 0 };
-		_sb.getParent().getClientRect(&rc);
+		RECT rc = _sb.getParent().getClientRect();
 		this->_putParts(rc.right);
 	}
 	return *this;

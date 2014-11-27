@@ -14,6 +14,7 @@ public:
 private:
 	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
-	void doDownloadList(const wchar_t *marker);
-	void doReadXml(const Array<BYTE>& buf);
+	bool doDownloadList(const wchar_t *marker);
+	bool doReadXml(const Array<BYTE>& buf);
+	bool doShowErrAndClose(const wchar_t *msg, const String& err);
 };

@@ -29,12 +29,9 @@ private:
 
 private:
 	Array<_Ctrl> _ctrls;
-	int          _idxLastInserted;
-	SIZE         _szOrig;
+	SIZE _szOrig;
 	std::function<void()> _afterResize;
 public:
-	Resizer() : _idxLastInserted(-1) { }
-
 	Resizer& create(int numCtrls);
 	Resizer& add(initializer_list<HWND> hChildren, Do modeHorz, Do modeVert);
 	Resizer& add(initializer_list<int> ctrlIds, HWND hParent, Do modeHorz, Do modeVert);
@@ -61,7 +58,7 @@ public:
 	TextBox&      operator=(const Window& wnd)    { return operator=(wnd.hWnd()); }
 	TextBox&      operator=(const TextBox& other) { return operator=(other.hWnd()); }
 	int           getTextLen() const              { return ::GetWindowTextLength(hWnd()); }
-	Array<String> getTextLines();
+	Array<String> getTextLines() const            { return getText().explode(L"\r\n"); }
 	TextBox&      setFont(const Font& font);
 	const Font&   getFont() const                 { return _font; }
 	TextBox&      selSetAll()                     { sendMessage(EM_SETSEL, 0, -1); return *this; }

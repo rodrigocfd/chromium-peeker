@@ -25,10 +25,10 @@ public:
 		bool     isSelected() const      { return (ListView_GetItemState(_list->hWnd(), i, LVIS_SELECTED) & LVIS_SELECTED) != 0; }
 		Item&    setFocus()              { ListView_SetItemState(_list->hWnd(), i, LVIS_FOCUSED, LVIS_FOCUSED); return *this; }
 		bool     isFocused() const       { return (ListView_GetItemState(_list->hWnd(), i, LVIS_FOCUSED) & LVIS_FOCUSED) != 0; }
-		Item&    getRect(RECT *rc)       { ListView_GetItemRect(_list->hWnd(), i, rc, LVIR_BOUNDS); return *this; }
+		RECT     getRect() const         { RECT r = { 0 }; ListView_GetItemRect(_list->hWnd(), i, &r, LVIR_BOUNDS); return r; }
 		wchar_t* getText(wchar_t *pBuf, int szBuf, int iCol=0) const { ListView_GetItemText(_list->hWnd(), i, iCol, pBuf, szBuf); return pBuf; }
-		String*  getText(String *pBuf, int iCol=0) const;
-		String   getText(int iCol=0) const                           { String ret; getText(&ret, iCol); return ret; }
+		String&  getText(String& buf, int iCol=0) const;
+		String   getText(int iCol=0) const                           { String ret; getText(ret, iCol); return ret; }
 		Item&    setText(const wchar_t *text, int iCol=0)            { ListView_SetItemText(_list->hWnd(), i, iCol, (wchar_t*)text); return *this; }
 		Item&    setText(const String& text, int iCol=0)             { return setText(text.str(), iCol); }
 		LPARAM   getParam() const;

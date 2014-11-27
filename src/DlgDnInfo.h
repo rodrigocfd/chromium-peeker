@@ -20,6 +20,7 @@ public:
 private:
 	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
-	void doGetOneFile(const wchar_t *marker);
-	void doProcessFile(const Array<BYTE>& buf);
+	bool doGetOneFile(const wchar_t *marker);
+	bool doProcessFile(const Array<BYTE>& buf);
+	bool doShowErrAndClose(const wchar_t *msg, const String& err);
 };

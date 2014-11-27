@@ -31,55 +31,50 @@ void DlgDnInfo::onInitDialog()
 		.setRange(0, 100)
 		.setPos(0);
 
-	this->doGetOneFile( (*this->pMarkers)[0].str() ); // proceed with first file
+	System::Thread([&]() {
+		this->doGetOneFile( (*this->pMarkers)[0].str() ); // proceed with first file
+	});
 }
 
-void DlgDnInfo::doGetOneFile(const wchar_t *marker)
+bool DlgDnInfo::doGetOneFile(const wchar_t *marker)
 {
 	String lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=";
 	lnk.append(marker);
-	
-	Internet::Download dl(*this->pSession, this);
+
+	Internet::Download dl(*this->pSession, lnk);
+	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
 		L"DNT: 1",
 		L"Host: commondatastorage.googleapis.com"
 	});
-	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
-	dl.download(lnk, [&](Internet::Msg msgType, const Internet::Status *s) {
-		switch(msgType) {
-		case Internet::Msg::FAIL:
-			this->messageBox(L"Download error",
-				String::Fmt(L"Download failed.\n%s", s->err.str()),
-				MB_ICONERROR);
-			this->endDialog(IDCANCEL);
-			break;
-		case Internet::Msg::BEGIN:
-			this->label.setText( String::Fmt(L"Downloading file %d/%d...",
-				this->data.size() + 1, this->pMarkers->size()) );
-			/*for(int i = 0; i < pStatus->responseHeader.size(); ++i)
-				dbg(L"[%s] [%s]\n",
-					pStatus->responseHeader.at(i)->key.str(),
-					pStatus->responseHeader.at(i)->val.str() );*/
-			break;
-		/*case Internet::Msg::PROGRESS:
-			this->label.setText( String::Fmt(L"%.2f%% downloaded (%d bytes)...\n", s->pct(), s->totalDownloaded) );
-			this->progBar.setPos( Rounds(s->pct()) );
-			break;*/
-		case Internet::Msg::END:
-			this->progBar.setPos( ((float)this->data.size() / this->pMarkers->size()) * 100 );
-			this->doProcessFile(s->buffer);
-		}
-	});
+
+	String err;
+	if(!dl.start(&err))
+		return this->doShowErrAndClose(L"Error at download start", err);
+
+	Array<BYTE> xmlbuf;
+	xmlbuf.reserve(dl.getContentLength());
+	while(dl.hasData(&err)) // each file is small, we don't need to display progress info
+		xmlbuf.append(dl.getBuffer());
+
+	if(!err.isEmpty())
+		return this->doShowErrAndClose(L"Download error", err);
+
+	return this->doProcessFile(xmlbuf);
 }
 
-void DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
+bool DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 {
 	this->totDownloaded += buf.size();
-	this->setText( String::Fmt(L"Downloading (%.2f KB)...", (float)this->totDownloaded / 1024) );
+	this->sendFunction([&]() {
+		this->label.setText( String::Fmt(L"%d/%d markers (%.2f KB)...",
+			this->data.size(), this->pMarkers->size(), (float)this->totDownloaded / 1024) );
+		this->progBar.setPos( ((float)this->data.size() / this->pMarkers->size()) * 100 );
+	});
 
-	Xml xml = String::ParseUtf8(buf).str();
+	Xml xml = String::ParseUtf8(buf);
 	this->data.resize( this->data.size() + 1 ); // realloc public return buffer
 
 	Array<Xml::Node*> cnodes = xml.root.getChildrenByName(L"Contents");
@@ -92,8 +87,18 @@ void DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 	}
 
 	if(this->data.size() == this->pMarkers->size()) {
-		this->endDialog(IDOK); // last file has been processed
+		this->sendFunction([&]() { this->endDialog(IDOK); }); // last file has been processed
 	} else {
 		this->doGetOneFile( (*this->pMarkers)[this->data.size()].str() ); // proceed to next file
 	}
+	return true;
+}
+
+bool DlgDnInfo::doShowErrAndClose(const wchar_t *msg, const String& err)
+{
+	this->sendFunction([&]() {
+		this->messageBox(msg, err, MB_ICONERROR);
+		this->endDialog(IDCANCEL);
+	});
+	return false;
 }

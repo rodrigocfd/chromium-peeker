@@ -12,5 +12,7 @@ public:
 private:
 	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
-	void doDownload();
+	bool doDownload();
+	bool doReceiveData(Internet::Download& zipdl, File::Raw& fout);
+	bool doShowErrAndClose(const wchar_t *msg, const String& err);
 };

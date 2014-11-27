@@ -84,7 +84,7 @@ static Array<wchar_t> _formatFileFilter(const wchar_t *filterWithPipes)
 	return ret;
 }
 
-bool WindowPopup::getFileOpen(const wchar_t *filter, String *pBuf)
+bool WindowPopup::getFileOpen(const wchar_t *filter, String& buf)
 {
 	OPENFILENAME ofn = { 0 };
 	wchar_t tmpBuf[MAX_PATH] = { 0 };
@@ -99,11 +99,11 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, String *pBuf)
 	ofn.Flags       = OFN_EXPLORER | OFN_ENABLESIZING | OFN_FILEMUSTEXIST;// | OFN_HIDEREADONLY;
 
 	bool ret = GetOpenFileName(&ofn) != 0;
-	if(ret) (*pBuf) = tmpBuf;
+	if(ret) buf = tmpBuf;
 	return ret;
 }
 
-bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
+bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String>& arrBuf)
 {
 	OPENFILENAME   ofn = { 0 };
 	Array<wchar_t> multiBuf(65536); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
@@ -126,17 +126,17 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
 		}
 
 		if(strs.size() == 1) { // if user selected only 1 file, the string is the full path, and that's all
-			pArrBuf->append(strs[0]);
+			arrBuf.append(strs[0]);
 		} else { // user selected 2 or more files
 			String *basePath = &strs[0]; // 1st string is the base path; others are the filenames
-			pArrBuf->resize(strs.size() - 1); // alloc return buffer
+			arrBuf.resize(strs.size() - 1); // alloc return buffer
 
 			for(int i = 0; i < strs.size() - 1; ++i) {
-				(*pArrBuf)[i].reserve(basePath->len() + strs[i + 1].len() + 1); // room for backslash
-				(*pArrBuf)[i] = (*basePath);
-				(*pArrBuf)[i].append(L"\\").append(strs[i + 1]); // concat folder + file
+				arrBuf[i].reserve(basePath->len() + strs[i + 1].len() + 1); // room for backslash
+				arrBuf[i] = (*basePath);
+				arrBuf[i].append(L"\\").append(strs[i + 1]); // concat folder + file
 			}
-			pArrBuf->sort([](const String& a, const String& b)->int {
+			arrBuf.sort([](const String& a, const String& b)->int {
 				return String::CompareCI(a.str(), b.str());
 			});
 		}
@@ -151,7 +151,7 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, Array<String> *pArrBuf)
 	return false;
 }
 
-bool WindowPopup::getFileSave(const wchar_t *filter, String *pBuf, const wchar_t *defFile)
+bool WindowPopup::getFileSave(const wchar_t *filter, String& buf, const wchar_t *defFile)
 {
 	OPENFILENAME ofn = { 0 };
 	wchar_t tmpBuf[MAX_PATH] = { 0 };
@@ -169,17 +169,17 @@ bool WindowPopup::getFileSave(const wchar_t *filter, String *pBuf, const wchar_t
 	ofn.lpstrDefExt = L"txt"; // apparently could be anything, will just force append of combo selected extension
 
 	bool ret = GetSaveFileName(&ofn) != 0;
-	if(ret) (*pBuf) = tmpBuf;
+	if(ret) buf = tmpBuf;
 	return ret;
 }
 
-bool WindowPopup::getFolderChoose(String *pBuf)
+bool WindowPopup::getFolderChoose(String& buf)
 {
 	CoInitialize(nullptr);
 
-	/*LPITEMIDLIST pidlRoot = 0;
-	if(defFolder)
-		SHParseDisplayName(defFolder, nullptr, &pidlRoot, 0, nullptr);*/
+	//LPITEMIDLIST pidlRoot = 0;
+	//if(defFolder)
+		//SHParseDisplayName(defFolder, nullptr, &pidlRoot, 0, nullptr);
 
 	BROWSEINFO bi = { 0 };
 	bi.hwndOwner = this->hWnd();
@@ -189,12 +189,12 @@ bool WindowPopup::getFolderChoose(String *pBuf)
 	if(!pidl)
 		return false; // user cancelled
 
-	wchar_t buf[MAX_PATH] = { 0 };
-	if(!SHGetPathFromIDList(pidl, buf))
+	wchar_t tmpbuf[MAX_PATH] = { 0 };
+	if(!SHGetPathFromIDList(pidl, tmpbuf))
 		return false; // some weird error
 
 	CoUninitialize();
-	*pBuf = buf;
+	buf = tmpbuf;
 	return true;
 }
 
@@ -259,7 +259,7 @@ void WindowPopup::_setWheelHoverBehavior()
 struct _CbPack { function<void()> cb; };
 void WindowPopup::_handleSendOrPostFunction(LPARAM lp)
 {
-	// This method is called by Frame and Dialog wndprocs on their ordinary processing.
+	// This method is called by FramePopup and DialogPopup wndprocs on their ordinary processing.
 	_CbPack *cbPack = (_CbPack*)lp;
 	cbPack->cb(); // invoke user callback
 	delete cbPack; // allocated by _sendOrPostFunction()
@@ -287,13 +287,12 @@ bool WindowCtrl::_drawBorders(WPARAM wp, LPARAM lp)
 	{
 		DefWindowProc(this->hWnd(), WM_NCPAINT, wp, lp); // this will make system draw the scrollbar for us; days of struggling until this enlightenment
 
-		RECT rc = { 0 };
-		this->getWindowRect(&rc); // window outmost coordinates, including margins
+		RECT rc = this->getWindowRect(); // window outmost coordinates, including margins
 		this->screenToClient((POINT*)&rc);
 		this->screenToClient((POINT*)&rc.right);
 		rc.left += 2; rc.top += 2; rc.right += 2; rc.bottom += 2; // because it comes up anchored at -2,-2
 
-		RECT rc2; // clipping region; will draw only within this rectangle
+		RECT rc2 = { 0 }; // clipping region; will draw only within this rectangle
 		HDC hdc = GetWindowDC(this->hWnd());
 		HTHEME hTheme = OpenThemeData(this->hWnd(), L"LISTVIEW"); // borrow style from listview
 

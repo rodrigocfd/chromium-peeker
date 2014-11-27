@@ -54,13 +54,13 @@ void DlgMain::onInitDialog()
 
 void DlgMain::onInitMenuPopup(WPARAM wp)
 {
-	InitMenuPopup menu(wp);
+	Menu menu = (HMENU)wp;
 
-	if(menu.isFirst(MNU_MAIN_GETBASIC)) {
+	if(menu.getCmdId(0) == MNU_MAIN_GETBASIC) {
 		bool hasSel = this->listview.items.countSelected() >= 1;
-		menu.enable(MNU_MAIN_GETBASIC, hasSel)
-			.enable(MNU_MAIN_GETDLL, hasSel)
-			.enable(MNU_MAIN_DLZIP, this->listview.items.countSelected() == 1);
+		menu.enableItem(MNU_MAIN_GETBASIC, hasSel)
+			.enableItem(MNU_MAIN_GETDLL, hasSel)
+			.enableItem(MNU_MAIN_DLZIP, this->listview.items.countSelected() == 1);
 	}
 }
 

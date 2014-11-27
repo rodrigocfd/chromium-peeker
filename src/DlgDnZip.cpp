@@ -31,44 +31,77 @@ void DlgDnZip::onInitDialog()
 		.setPos(0);
 
 	String defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
-	this->getFileSave(L"Zip file (*.zip)|*.zip", &this->dest, defSave.str()) ?
-		this->doDownload() : this->endDialog(IDCANCEL);
+	if(this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.str())) {
+		System::Thread([&]() {
+			this->doDownload();
+		});
+	} else {
+		this->endDialog(IDCANCEL);
+	}
 }
 
-void DlgDnZip::doDownload()
+bool DlgDnZip::doDownload()
 {
-	Internet::Download dlzip(*this->pSession, this);
-	dlzip.setDestFile(this->dest);
-	dlzip.addRequestHeaders({
+	String lnk = String::Fmt(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
+		this->marker.str() );
+
+	Internet::Download zipdl(*this->pSession, lnk);
+	zipdl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
+	zipdl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
 		L"DNT: 1",
 		L"Host: commondatastorage.googleapis.com"
 	});
-	dlzip.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 
-	String lnk = String::Fmt(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
-		this->marker.str() );
+	String err;
+	File::Raw fout;
+	if(!fout.open(this->dest, File::Access::READWRITE, &err))
+		return this->doShowErrAndClose(L"File creation error", err);
 
-	dlzip.download(lnk, [&](Internet::Msg msgType, const Internet::Status *s) {
-		switch(msgType) {
-		case Internet::Msg::FAIL:
-			this->messageBox(L"Download error", String::Fmt(L"Download failed.\n%s", s->err.str()), MB_ICONERROR);
-			this->endDialog(IDCANCEL);
-			break;
-		case Internet::Msg::BEGIN:
-			this->setText( String::Fmt(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
-			/*s->responseHeaders.each([](const Hash<String>::Elem& elem) {
-				dbg(L"[%s] [%s]\n", elem.key.str(), elem.val.str() );
-			});*/
-			break;
-		case Internet::Msg::PROGRESS:
-			this->label.setText( String::Fmt(L"%.0f%% downloaded (%.1f MB)...\n",
-				s->pct(), (float)s->totalDownloaded / 1024 / 1024 ));
-			this->progBar.setPos((int)s->pct());
-			break;
-		case Internet::Msg::END:
-			this->endDialog(IDOK);
-		}
+	if(!zipdl.start(&err))
+		return this->doShowErrAndClose(L"Error at download start", err);
+	this->sendFunction([&]() {
+		this->setText( String::Fmt(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
 	});
+
+	if(!fout.setNewSize(zipdl.getContentLength(), &err))
+		return this->doShowErrAndClose(L"Error when resizing file", err);
+
+	return this->doReceiveData(zipdl, fout);
+}
+
+bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
+{
+	dbg(L"Response headers:\n");
+	zipdl.getResponseHeaders().each([](const Hash<String>::Elem& rh) { // informational debug
+		dbg(L"- %s: %s\n", rh.key.str(), rh.val.str());
+	});
+
+	String err;
+	while(zipdl.hasData(&err)) {
+		if(!fout.write(zipdl.getBuffer(), &err))
+			return this->doShowErrAndClose(L"File writing error", err);
+
+		this->sendFunction([&]() {
+			this->label.setText( String::Fmt(L"%.0f%% downloaded (%.1f MB)...\n",
+				zipdl.getPercent(), (float)zipdl.getTotalDownloaded() / 1024 / 1024 ));
+			this->progBar.setPos((int)zipdl.getPercent());
+		});
+	}
+
+	if(!err.isEmpty())
+		return this->doShowErrAndClose(L"Download error", err);
+	
+	this->sendFunction([&]() { this->endDialog(IDOK); }); // download finished
+	return true;
+}
+
+bool DlgDnZip::doShowErrAndClose(const wchar_t *msg, const String& err)
+{
+	this->sendFunction([&]() {
+		this->messageBox(msg, err, MB_ICONERROR);
+		this->endDialog(IDCANCEL);
+	});
+	return false;
 }

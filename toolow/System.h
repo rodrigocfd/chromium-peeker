@@ -34,6 +34,8 @@ public:
 };
 
 
+// To use this macro, main window must have:
+// int run(HINSTANCE hInst, LPWSTR cmdLine, int cmdShow);
 #include <crtdbg.h>
 #define RUN(AppClass) \
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE h0, LPWSTR cmdLine, int cmdShow) { \

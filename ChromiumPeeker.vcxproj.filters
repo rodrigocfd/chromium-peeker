@@ -39,19 +39,10 @@
     <ClInclude Include="toolow\Window.h">
       <Filter>toolow</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Dialog.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
     <ClInclude Include="toolow\Font.h">
       <Filter>toolow</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Frame.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
     <ClInclude Include="toolow\ListView.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\InitMenuPopup.h">
       <Filter>toolow</Filter>
     </ClInclude>
     <ClInclude Include="toolow\Controls.h">
@@ -61,9 +52,6 @@
       <Filter>toolow</Filter>
     </ClInclude>
     <ClInclude Include="toolow\DeviceContext.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Internet.h">
       <Filter>toolow</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.h">
@@ -93,6 +81,18 @@
     <ClInclude Include="toolow\System.h">
       <Filter>toolow</Filter>
     </ClInclude>
+    <ClInclude Include="toolow\Internet.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\WindowDialog.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\WindowFrame.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
+    <ClInclude Include="toolow\Menu.h">
+      <Filter>toolow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DlgMain.cpp">
@@ -107,13 +107,7 @@
     <ClCompile Include="toolow\Window.cpp">
       <Filter>toolow</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\Dialog.cpp">
-      <Filter>toolow</Filter>
-    </ClCompile>
     <ClCompile Include="toolow\Font.cpp">
-      <Filter>toolow</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Frame.cpp">
       <Filter>toolow</Filter>
     </ClCompile>
     <ClCompile Include="toolow\ListView.cpp">
@@ -123,9 +117,6 @@
       <Filter>toolow</Filter>
     </ClCompile>
     <ClCompile Include="toolow\DeviceContext.cpp">
-      <Filter>toolow</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\Internet.cpp">
       <Filter>toolow</Filter>
     </ClCompile>
     <ClCompile Include="toolow\Xml.cpp">
@@ -150,6 +141,15 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="toolow\System.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\Internet.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\WindowDialog.cpp">
+      <Filter>toolow</Filter>
+    </ClCompile>
+    <ClCompile Include="toolow\WindowFrame.cpp">
       <Filter>toolow</Filter>
     </ClCompile>
   </ItemGroup>

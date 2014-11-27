@@ -6,10 +6,250 @@
 //
 
 #include "Internet.h"
-#include "System.h"
 #pragma comment(lib, "Winhttp.lib")
 
-String Internet::Session::_FormatErr(const wchar_t *funcName, DWORD code)
+bool Internet::Session::init(String *pErr, const wchar_t *userAgent)
+{
+	if(!_hSession) {
+		// http://social.msdn.microsoft.com/forums/en-US/vclanguage/thread/45ccd91c-6794-4f9b-8f4f-865c76cc146d
+		if(!WinHttpCheckPlatform()) {
+			if(pErr) *pErr = L"WinHttpCheckPlatform() failed. This platform is not supported by WinHTTP.";
+			return false;
+		}
+
+		_hSession = WinHttpOpen(userAgent, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+		if(!_hSession) {
+			if(pErr) *pErr = _FormatErr(L"WinHttpOpen", GetLastError());
+			return false;
+		}
+	}
+
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+
+void Internet::Download::abort()
+{
+	if(_hRequest) {
+		WinHttpCloseHandle(_hRequest);
+		_hRequest = nullptr;
+	}
+	if(_hConnect) {
+		WinHttpCloseHandle(_hConnect);
+		_hConnect = nullptr;
+	}
+}
+
+Internet::Download& Internet::Download::addRequestHeaders(initializer_list<const wchar_t*> requestHeaders)
+{
+	for(int i = 0, sz = (int)requestHeaders.size(); i < sz; ++i)
+		_requestHeaders.append( *(requestHeaders.begin() + i) );
+	return *this;
+}
+
+bool Internet::Download::start(String *pErr)
+{
+	if(_hConnect) {
+		if(pErr) *pErr = L"A download is already in progress.";
+		return false;
+	}
+
+	if( !this->_initHandles(pErr) ||
+		!this->_contactServer(pErr) ||
+		!this->_parseHeaders(pErr) ) return false;
+
+	_buffer.resize(0);
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+bool Internet::Download::hasData(String *pErr)
+{
+	// Receive the data from server; user must call this until false;
+	DWORD incomingBytes = 0;
+	if(!this->_getIncomingByteCount(incomingBytes, pErr)) return false;
+	if(!incomingBytes) { // no more bytes to be downloaded
+		_buffer.resize(0);
+		this->abort();
+		if(pErr) *pErr = L"";
+		return false;
+	}
+
+	_buffer.resize(incomingBytes); // overwrite buffer, user must collect it each iteration
+	if(!this->_receiveBytes(incomingBytes, pErr)) return false;
+	_totalDownloaded += incomingBytes;
+
+	if(pErr) *pErr = L"";
+	return true; // more data to come, call again
+}
+
+bool Internet::Download::_initHandles(String *pErr)
+{
+	// Crack the URL.
+	DWORD dwErr = ERROR_SUCCESS;
+	_Url crackedUrl;
+	if(!crackedUrl.crack(_url, &dwErr)) {
+		if(pErr) *pErr = _FormatErr(L"WinHttpCrackUrl", dwErr);
+		return false;
+	}
+
+	// Open the connection handle.
+	if(!( _hConnect = WinHttpConnect(_session.hSession(), crackedUrl.host(), crackedUrl.port(), 0) )) {
+		if(pErr) *pErr = _FormatErr(L"WinHttpConnect", GetLastError());
+		return false;
+	}
+
+	// Build the request handle.
+	String fullPath = crackedUrl.pathAndExtra();
+	_hRequest = WinHttpOpenRequest(_hConnect, _verb.str(), fullPath.str(), nullptr,
+		_referrer.isEmpty() ? WINHTTP_NO_REFERER : _referrer.str(),
+		WINHTTP_DEFAULT_ACCEPT_TYPES,
+		crackedUrl.isHttps() ? WINHTTP_FLAG_SECURE : 0);
+	if(!_hRequest) {
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpOpenRequest", dwErr);
+		return false;
+	}
+
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+bool Internet::Download::_contactServer(String *pErr)
+{
+	// Add the request headers to request handle.
+	for(int i = 0; i < _requestHeaders.size(); ++i) {
+		if(!WinHttpAddRequestHeaders(_hRequest, _requestHeaders[i].str(), (ULONG)-1L, WINHTTP_ADDREQ_FLAG_ADD)) {
+			DWORD dwErr = GetLastError();
+			this->abort();
+			if(pErr) *pErr = _FormatErr(L"WinHttpAddRequestHeaders", dwErr);
+			return false;
+		}
+	}
+
+	// Send the request to server.
+	if(!WinHttpSendRequest(_hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0)) {
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpSendRequest", dwErr);
+		return false;
+	}
+
+	// Receive the response from server.
+	if(!WinHttpReceiveResponse(_hRequest, nullptr)) {
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpReceiveResponse", dwErr);
+		return false;
+	}
+
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+bool Internet::Download::_parseHeaders(String *pErr)
+{
+	// Retrieve the response header.
+	DWORD dwSize = 0;
+	WinHttpQueryHeaders(_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX,
+		WINHTTP_NO_OUTPUT_BUFFER, &dwSize, WINHTTP_NO_HEADER_INDEX);
+
+	String rawReh; // raw response headers
+	rawReh.reserve(dwSize / sizeof(wchar_t));
+
+	if(!WinHttpQueryHeaders(_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX,
+		rawReh.ptrAt(0), &dwSize, WINHTTP_NO_HEADER_INDEX))
+	{
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpQueryHeaders", dwErr);
+		return false;
+	}
+
+	// Parse the raw response headers into a hash.
+	_responseHeaders.removeAll();
+	Array<String> lines = rawReh.explode(L"\r\n");
+	String key, val;
+	key.reserve(32); val.reserve(32); // temp buffers to save reallocs
+	for(int i = 0; i < lines.size(); ++i) {
+		if(lines[i].isEmpty()) continue;
+		int colonIdx = lines[i].findCS(L':');
+		if(colonIdx == -1) { // not a key/value pair, probably response line
+			_responseHeaders[L""] = lines[i]; // empty key
+		} else {
+			key = lines[i].substr(0, colonIdx);
+			val = lines[i].substr(colonIdx + 1, lines[i].len() - (colonIdx + 1));
+			_responseHeaders[key.trim()] = val.trim();
+		}
+	}
+
+	// Retrieve content length, if informed by server.
+	if(_responseHeaders.exists(L"Content-Length")) {
+		const String& strContentLength = _responseHeaders[L"Content-Length"];
+		if(strContentLength.isInt()) // yes, server informed content length
+			_contentLength = strContentLength.toInt();
+	}
+
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+bool Internet::Download::_getIncomingByteCount(DWORD& count, String *pErr)
+{
+	DWORD dwSize = 0;
+	if(!WinHttpQueryDataAvailable(_hRequest, &dwSize)) { // how many bytes are about to come
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpQueryDataAvailable", dwErr);
+		return false;
+	}
+	count = dwSize;
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+bool Internet::Download::_receiveBytes(UINT nBytesToRead, String *pErr)
+{
+	DWORD dwRead = 0;
+	if(!WinHttpReadData(_hRequest, (void*)&_buffer[0], nBytesToRead, &dwRead)) {
+		DWORD dwErr = GetLastError();
+		this->abort();
+		if(pErr) *pErr = _FormatErr(L"WinHttpReadData", dwErr);
+		return false;
+	}
+	if(pErr) *pErr = L"";
+	return true;
+}
+
+
+bool Internet::_Url::crack(const wchar_t *address, DWORD *dwErr)
+{
+	// This helper class simply breaks an URL address into several parts.
+
+	SecureZeroMemory(&_uc, sizeof(_uc));
+	_uc.dwStructSize = sizeof(_uc);
+
+	_uc.lpszScheme    = _scheme; _uc.dwSchemeLength    = ARRAYSIZE(_scheme);
+	_uc.lpszHostName  = _host;   _uc.dwHostNameLength  = ARRAYSIZE(_host);
+	_uc.lpszUserName  = _user;   _uc.dwUserNameLength  = ARRAYSIZE(_user);
+	_uc.lpszPassword  = _pwd;    _uc.dwPasswordLength  = ARRAYSIZE(_pwd);
+	_uc.lpszUrlPath   = _path;   _uc.dwUrlPathLength   = ARRAYSIZE(_path);
+	_uc.lpszExtraInfo = _extra;  _uc.dwExtraInfoLength = ARRAYSIZE(_extra);
+
+	if(!WinHttpCrackUrl(address, 0, 0, &_uc)) {
+		if(dwErr) *dwErr = GetLastError();
+		return false;
+	}
+
+	if(dwErr) *dwErr = ERROR_SUCCESS;
+	return true;
+}
+
+
+String Internet::_FormatErr(const wchar_t *funcName, DWORD code)
 {
 	const wchar_t *s = nullptr;
 
@@ -42,312 +282,4 @@ String Internet::Session::_FormatErr(const wchar_t *funcName, DWORD code)
 
 	return String::Fmt(L"%s() failed. Error: %s.", funcName,
 		s ? s : String::Fmt(L"(unhandled, %08X)", code).str() );
-}
-
-bool Internet::Session::_Core::init(const wchar_t *userAgent, String *pErr)
-{
-	if(!_hSession) {
-		// http://social.msdn.microsoft.com/forums/en-US/vclanguage/thread/45ccd91c-6794-4f9b-8f4f-865c76cc146d
-		if(!WinHttpCheckPlatform()) {
-			if(pErr) *pErr = L"WinHttpCheckPlatform() failed. This platform is not supported by WinHTTP.";
-			return false;
-		}
-
-		_hSession = WinHttpOpen(userAgent, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-			WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-		if(!_hSession) {
-			if(pErr) *pErr = _FormatErr(L"WinHttpOpen", GetLastError());
-			return false;
-		}
-	}
-
-	if(pErr) *pErr = L"";
-	return true;
-}
-
-
-void Internet::Download::_Worker::addRequestHeaders(initializer_list<const wchar_t*> requestHeaders)
-{
-	for(int i = 0, sz = (int)requestHeaders.size(); i < sz; ++i)
-		_requestHeaders.append( *(requestHeaders.begin() + i) );
-}
-
-void Internet::Download::_Worker::processDownload(const String& url, const String& verb, function<void(Msg, const Status*)> callback)
-{
-	_callback = MOVE(callback); // keep the user callback
-
-	if(!this->_initHandles(url, verb)) return;
-	if(!this->_contactServer()) return;
-	if(!this->_parseHeaders()) return;
-
-	// Send first good notification to client. The processing keeps going (asynchronous),
-	// note the postMessage() instead of sendMessage().
-	_pWnd->postFunction([&]() { _callback(Msg::BEGIN, &_status); });
-
-	bool isToFile = !_status.destPath.isEmpty(); // will directly save downloaded data into file?
-	File::Raw fout;
-	Array<BYTE> fbuf;
-
-	// Prepare destination buffer.
-	if(isToFile) {
-		if(!this->_prepareFileOutput(fout)) return;
-	} else {
-		if(_status.contentLength) _status.buffer.resize(_status.contentLength);
-	}
-
-	// Receive the data from server.
-	for(;;) {
-		DWORD incomingBytes = 0;
-		if(!this->_getIncomingByteCount(incomingBytes)) return;
-		if(!incomingBytes) break; // no more bytes to be downloaded
-
-		if(isToFile) {
-			fbuf.resize(incomingBytes);
-			if(!this->_receiveBytes(incomingBytes, &fbuf[0])) return;
-			if(!fout.write(fbuf, &_status.err)) { // data is appended to file
-				this->_closeHandles();
-				_status.err.insert(0, String::Fmt(L"Failed to write %d received bytes to file.\n", incomingBytes));
-				_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-				return;
-			}
-		} else {
-			if(!_status.contentLength) _status.buffer.resize(_status.totalDownloaded + incomingBytes);
-			if(!this->_receiveBytes(incomingBytes, &_status.buffer[0] + _status.totalDownloaded)) return; // data is appended to buffer
-		}
-
-		_status.totalDownloaded += incomingBytes;
-
-		// Notify client of the progress. The downloading keeps going (asynchronous),
-		// note the PostMessage() instead of SendMessage().
-		_pWnd->postFunction([&]() { _callback(Msg::PROGRESS, &_status); });
-	}
-
-	fout.close();
-	this->_closeHandles();
-	_pWnd->sendFunction([&]() { _callback(Msg::END, &_status); });
-}
-
-void Internet::Download::_Worker::_closeHandles()
-{
-	if(_hRequest) {
-		WinHttpCloseHandle(_hRequest);
-		_hRequest = nullptr;
-	}
-	if(_hConnect) {
-		WinHttpCloseHandle(_hConnect);
-		_hConnect = nullptr;
-	}
-}
-
-bool Internet::Download::_Worker::_initHandles(const String& url, const String& verb)
-{
-	// Crack the URL.
-	DWORD dwErr = ERROR_SUCCESS;
-	Url crackedUrl;
-	if(!crackedUrl.crack(url, &dwErr)) {
-		_status.err = Session::_FormatErr(L"WinHttpCrackUrl", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	// Open the connection handle.
-	if(!( _hConnect = WinHttpConnect(_sessionCore->hSession(), crackedUrl.host(), crackedUrl.port(), 0) )) {
-		_status.err = Session::_FormatErr(L"WinHttpConnect", GetLastError());
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	// Build the request handle.
-	String fullPath = crackedUrl.pathAndExtra();
-	_hRequest = WinHttpOpenRequest(_hConnect, verb.str(), fullPath.str(), nullptr,
-		_referrer.isEmpty() ? WINHTTP_NO_REFERER : _referrer.str(),
-		WINHTTP_DEFAULT_ACCEPT_TYPES,
-		crackedUrl.isHttps() ? WINHTTP_FLAG_SECURE : 0);
-	if(!_hRequest) {
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpOpenRequest", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	return true;
-}
-
-bool Internet::Download::_Worker::_contactServer()
-{
-	// Add the request headers to request handle.
-	for(int i = 0; i < _requestHeaders.size(); ++i) {
-		if(!WinHttpAddRequestHeaders(_hRequest, _requestHeaders[i].str(), (ULONG)-1L, WINHTTP_ADDREQ_FLAG_ADD)) {
-			DWORD dwErr = GetLastError();
-			this->_closeHandles();
-			_status.err = Session::_FormatErr(L"WinHttpAddRequestHeaders", dwErr);
-			_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-			return false;
-		}
-	}
-
-	// Send the request to server.
-	if(!WinHttpSendRequest(_hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0)) {
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpSendRequest", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	// Receive the response from server.
-	if(!WinHttpReceiveResponse(_hRequest, nullptr)) {
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpReceiveResponse", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	return true;
-}
-
-bool Internet::Download::_Worker::_parseHeaders()
-{
-	// Retrieve the response header.
-	DWORD dwSize = 0;
-	WinHttpQueryHeaders(_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX,
-		WINHTTP_NO_OUTPUT_BUFFER, &dwSize, WINHTTP_NO_HEADER_INDEX);
-
-	String rawReh; // raw response headers
-	rawReh.reserve(dwSize / sizeof(wchar_t));
-
-	if(!WinHttpQueryHeaders(_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX,
-		rawReh.ptrAt(0), &dwSize, WINHTTP_NO_HEADER_INDEX))
-	{
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpQueryHeaders", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	// Parse the raw response headers into a hash.
-	_status.responseHeaders.removeAll();
-	Array<String> lines = rawReh.explode(L"\r\n");
-	String key, val;
-	key.reserve(32); val.reserve(32); // temp buffers to save reallocs
-	for(int i = 0; i < lines.size(); ++i) {
-		if(lines[i].isEmpty()) continue;
-		int colonIdx = lines[i].findCS(L':');
-		if(colonIdx == -1) { // not a key/value pair, probably response line
-			_status.responseHeaders[L""] = lines[i]; // empty key
-		} else {
-			key = lines[i].substr(0, colonIdx);
-			val = lines[i].substr(colonIdx + 1, lines[i].len() - (colonIdx + 1));
-			_status.responseHeaders[key.trim()] = val.trim();
-		}
-	}
-
-	// Retrieve content length, if informed by server.
-	if(_status.responseHeaders.exists(L"Content-Length")) {
-		const String& strContentLength = _status.responseHeaders[L"Content-Length"];
-		if(strContentLength.isInt()) // yes, server informed content length
-			_status.contentLength = strContentLength.toInt();
-	}
-
-	return true;
-}
-
-bool Internet::Download::_Worker::_prepareFileOutput(File::Raw& fout)
-{
-	// If output file already exists, delete it.
-	if(File::Exists(_status.destPath)) {
-		if(!File::Delete(_status.destPath, &_status.err)) {
-			this->_closeHandles();
-			_status.err.insert(0, L"Failed to delete existing file.\n");
-			_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-			return false;
-		}
-	}
-
-	// Open the file for writing.
-	if(!fout.open(_status.destPath, File::Access::READWRITE, &_status.err)) {
-		this->_closeHandles();
-		_status.err.insert(0, L"Failed to open output file for writing.\n");
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-
-	// Alloc destination file.
-	if(_status.contentLength) {
-		if(!fout.setNewSize(_status.contentLength, &_status.err)) {
-			fout.close();
-			this->_closeHandles();
-			_status.err.insert(0, L"Failed to resize output file.\n");
-			_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool Internet::Download::_Worker::_getIncomingByteCount(DWORD& count)
-{
-	DWORD dwSize = 0;
-	if(!WinHttpQueryDataAvailable(_hRequest, &dwSize)) { // how many bytes are about to come
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpQueryDataAvailable", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-	count = dwSize;
-	return true;
-}
-
-bool Internet::Download::_Worker::_receiveBytes(UINT nBytesToRead, BYTE *pDest)
-{
-	DWORD dwRead = 0;
-	if(!WinHttpReadData(_hRequest, (void*)pDest, nBytesToRead, &dwRead)) {
-		DWORD dwErr = GetLastError();
-		this->_closeHandles();
-		_status.err = Session::_FormatErr(L"WinHttpReadData", dwErr);
-		_pWnd->sendFunction([&]() { _callback(Msg::FAIL, &_status); });
-		return false;
-	}
-	return true;
-}
-
-
-void Internet::Download::download(String url, String verb, function<void(Msg, const Status*)> callback)
-{
-	_Worker *_worker2 = _worker;
-	_worker = nullptr; // so destructor won't delete our pointer
-
-	System::Thread([=]() {
-		_worker2->processDownload(url, verb, MOVE(callback));
-		delete _worker2;
-	});
-}
-
-
-bool Internet::Url::crack(const wchar_t *address, DWORD *dwErr)
-{
-	// This helper class simply breaks an URL address into several parts.
-
-	SecureZeroMemory(&_uc, sizeof(_uc));
-	_uc.dwStructSize = sizeof(_uc);
-
-	_uc.lpszScheme    = _scheme; _uc.dwSchemeLength    = ARRAYSIZE(_scheme);
-	_uc.lpszHostName  = _host;   _uc.dwHostNameLength  = ARRAYSIZE(_host);
-	_uc.lpszUserName  = _user;   _uc.dwUserNameLength  = ARRAYSIZE(_user);
-	_uc.lpszPassword  = _pwd;    _uc.dwPasswordLength  = ARRAYSIZE(_pwd);
-	_uc.lpszUrlPath   = _path;   _uc.dwUrlPathLength   = ARRAYSIZE(_path);
-	_uc.lpszExtraInfo = _extra;  _uc.dwExtraInfoLength = ARRAYSIZE(_extra);
-
-	if(!WinHttpCrackUrl(address, 0, 0, &_uc)) {
-		if(dwErr) *dwErr = GetLastError();
-		return false;
-	}
-
-	if(dwErr) *dwErr = ERROR_SUCCESS;
-	return true;
 }

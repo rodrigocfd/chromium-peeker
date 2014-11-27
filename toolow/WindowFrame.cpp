@@ -5,7 +5,7 @@
 // @see https://github.com/rodrigocfd/toolow
 //
 
-#include "Frame.h"
+#include "WindowFrame.h"
 #include "Font.h"
 
 Frame::~Frame()
@@ -184,9 +184,7 @@ FrameModal::~FrameModal()
 int FrameModal::show(Window *parent, ATOM atom, const wchar_t *caption, int cxClient, int cyClient,
 	FramePopup::Style::Resize resizable, HACCEL hAccel)
 {
-	RECT rcP = { 0 };
-	parent->getWindowRect(&rcP);
-
+	RECT rcP = parent->getWindowRect();
 	DWORD dwStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_VISIBLE | resizable;
 	RECT rc = { 0, 0, cxClient, cyClient };
 	AdjustWindowRect(&rc, dwStyle, FALSE); // compensate different theme window borders
