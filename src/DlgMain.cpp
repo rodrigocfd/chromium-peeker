@@ -98,7 +98,8 @@ void DlgMain::onMnuBasicDetails()
 	DlgDnInfo ddi;
 	if(ddi.show(this, &this->session, &markers) == IDOK) {
 		this->listview.setRedraw(false);
-		markers.each([&](int i, const String& marker) {
+
+		for(int i = 0; i < markers.size(); ++i) {
 			String relDate = String::Fmt(L"%s %s",
 				ddi.data[i].releaseDate.substr(0, 10).str(),
 				ddi.data[i].releaseDate.substr(11, 5).str() );
@@ -106,7 +107,7 @@ void DlgMain::onMnuBasicDetails()
 
 			String packSz = String::Fmt(L"%.2f MB", (float)ddi.data[i].packageSize / 1024 / 1024);
 			this->listview.items[sels[i].i].setText(packSz, 2);
-		});
+		}
 		this->listview.setRedraw(true);
 	}
 }
@@ -124,11 +125,11 @@ void DlgMain::onMnuDllDetails()
 	Array<String> markers = sels.transform<String>(
 		[](int i, const ListView::Item& item)->String { return item.getText(0); } );
 
-	markers.each([&](int itemNo, const String& marker) {
+	for(int i = 0; i < markers.size(); ++i) {
 		DlgDnDll ddd;
-		if(ddd.show(this, &this->session, marker) == IDOK)
-			this->listview.items[sels[itemNo].i].setText(ddd.version, 3);
-	});
+		if(ddd.show(this, &this->session, markers[i]) == IDOK)
+			this->listview.items[sels[i].i].setText(ddd.version, 3);
+	}
 }
 
 void DlgMain::onMnuDownloadZip()

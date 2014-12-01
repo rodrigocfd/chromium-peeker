@@ -78,10 +78,10 @@ bool DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 	this->data.resize( this->data.size() + 1 ); // realloc public return buffer
 
 	Array<Xml::Node*> cnodes = xml.root.getChildrenByName(L"Contents");
-	for(int i = 0; i < cnodes.size(); ++i) {
-		if(cnodes[i]->firstChildByName(L"Key")->value.endsWithCS(L"chrome-win32.zip")) {
-			this->data.last().releaseDate = cnodes[i]->firstChildByName(L"LastModified")->value;
-			this->data.last().packageSize = cnodes[i]->firstChildByName(L"Size")->value.toInt();
+	for(Xml::Node *cnode : cnodes) {
+		if(cnode->firstChildByName(L"Key")->value.endsWithCS(L"chrome-win32.zip")) {
+			this->data.last().releaseDate = cnode->firstChildByName(L"LastModified")->value;
+			this->data.last().packageSize = cnode->firstChildByName(L"Size")->value.toInt();
 			break;
 		}
 	}

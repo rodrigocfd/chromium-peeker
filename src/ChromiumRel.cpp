@@ -45,8 +45,8 @@ bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)
 	int prevsz = _markers.size();
 	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
-	for(int i = 0; i < commonPrefixes.size(); ++i) {
-		Xml::Node *prefix = &commonPrefixes[i]->children[0];
+	for(Xml::Node *cp : commonPrefixes) {
+		Xml::Node *prefix = &cp->children[0];
 		_markers.append(prefix->value); // eg.: "Win/93883/"
 	}
 
