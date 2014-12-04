@@ -9,12 +9,12 @@ RUN(DlgMain);
 
 INT_PTR DlgMain::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:    this->onInitDialog(); break;
 	case WM_INITMENUPOPUP: this->onInitMenuPopup(wp); break;
 	case WM_COMMAND:
-		switch(LOWORD(wp))
+		switch (LOWORD(wp))
 		{
 		case IDCANCEL:          this->sendMessage(WM_CLOSE, 0, 0); break;
 		case BTN_DLLIST:        this->onBtnDownloadList(); break;
@@ -46,7 +46,7 @@ void DlgMain::onInitDialog()
 		.afterResize([&]() { this->listview.columnFit(3); });
 
 	String err;
-	if(!this->session.init(&err)) { // initialize internet session, for the whole program running time
+	if (!this->session.init(&err)) { // initialize internet session, for the whole program running time
 		this->messageBox(L"Fail", err, MB_ICONERROR);
 		this->endDialog(IDCANCEL);
 	}
@@ -56,7 +56,7 @@ void DlgMain::onInitMenuPopup(WPARAM wp)
 {
 	Menu menu = (HMENU)wp;
 
-	if(menu.getCmdId(0) == MNU_MAIN_GETBASIC) {
+	if (menu.getCmdId(0) == MNU_MAIN_GETBASIC) {
 		bool hasSel = this->listview.items.countSelected() >= 1;
 		menu.enableItem(MNU_MAIN_GETBASIC, hasSel)
 			.enableItem(MNU_MAIN_GETDLL, hasSel)
@@ -72,12 +72,12 @@ void DlgMain::onBtnDownloadList()
 	this->listview.columnFit(3);
 	
 	DlgDnList ddl;
-	if(ddl.show(this, &this->session, &this->chromiumRel) == IDOK) {
+	if (ddl.show(this, &this->session, &this->chromiumRel) == IDOK) {
 		const Array<String>& markers = this->chromiumRel.markers();
 
 		this->listview.setRedraw(false);
 		const int iShown = 1100;
-		for(int i = markers.size() - iShown; i < markers.size(); ++i) // display only last markers
+		for (int i = markers.size() - iShown; i < markers.size(); ++i) // display only last markers
 			this->listview.items.add(markers[i]);
 
 		this->lblLoaded.setText( String::Fmt(L"%d/%d markers", iShown, markers.size()) );
@@ -91,15 +91,15 @@ void DlgMain::onBtnDownloadList()
 void DlgMain::onMnuBasicDetails()
 {
 	Array<ListView::Item> sels = this->listview.items.getSelected();
-	if(!sels.size()) return;
+	if (!sels.size()) return;
 	Array<String> markers = sels.transform<String>(
 		[](int i, const ListView::Item& item)->String { return item.getText(0); } );
 
 	DlgDnInfo ddi;
-	if(ddi.show(this, &this->session, &markers) == IDOK) {
+	if (ddi.show(this, &this->session, &markers) == IDOK) {
 		this->listview.setRedraw(false);
 
-		for(int i = 0; i < markers.size(); ++i) {
+		for (int i = 0; i < markers.size(); ++i) {
 			String relDate = String::Fmt(L"%s %s",
 				ddi.data[i].releaseDate.substr(0, 10).str(),
 				ddi.data[i].releaseDate.substr(11, 5).str() );
@@ -115,9 +115,9 @@ void DlgMain::onMnuBasicDetails()
 void DlgMain::onMnuDllDetails()
 {
 	Array<ListView::Item> sels = this->listview.items.getSelected();
-	if(!sels.size()) return;
-	if(sels.size() > 1) {
-		if(this->messageBox(L"Too much download",
+	if (!sels.size()) return;
+	if (sels.size() > 1) {
+		if (this->messageBox(L"Too much download",
 			L"You are about to download more than one package.\nThat's a lot of data, proceed?",
 			MB_ICONEXCLAMATION | MB_YESNO | MB_DEFBUTTON2) == IDNO) return;
 	}
@@ -125,16 +125,16 @@ void DlgMain::onMnuDllDetails()
 	Array<String> markers = sels.transform<String>(
 		[](int i, const ListView::Item& item)->String { return item.getText(0); } );
 
-	for(int i = 0; i < markers.size(); ++i) {
+	for (int i = 0; i < markers.size(); ++i) {
 		DlgDnDll ddd;
-		if(ddd.show(this, &this->session, markers[i]) == IDOK)
+		if (ddd.show(this, &this->session, markers[i]) == IDOK)
 			this->listview.items[sels[i].i].setText(ddd.version, 3);
 	}
 }
 
 void DlgMain::onMnuDownloadZip()
 {
-	if(this->listview.items.countSelected() != 1)
+	if (this->listview.items.countSelected() != 1)
 		return;
 
 	DlgDnZip ddz;

@@ -5,18 +5,18 @@ bool ChromiumRel::append(Xml& data)
 {
 	Xml::Node& root = data.root;
 
-	if(!root.name.equalsCS(L"ListBucketResult")) return false;
+	if (!root.name.equalsCS(L"ListBucketResult")) return false;
 
-	if(!root.children[0].name.equalsCS(L"Name") ||
+	if (!root.children[0].name.equalsCS(L"Name") ||
 		!root.children[0].value.equalsCS(L"chromium-browser-continuous")) return false;
 
 	String *isTruncated = &root.firstChildByName(L"IsTruncated")->value;
-	if(!isTruncated->equalsCS(L"true") &&
+	if (!isTruncated->equalsCS(L"true") &&
 		!isTruncated->equalsCS(L"false")) return false;
 
-	if(!this->_parseMorePrefixes(root)) return false;
+	if (!this->_parseMorePrefixes(root)) return false;
 
-	if(isTruncated->equalsCS(L"true")) { // more to come
+	if (isTruncated->equalsCS(L"true")) { // more to come
 		_nextMarker = root.firstChildByName(L"NextMarker")->value; // eg.: "Win/93883/"
 	} else { // finished loading last piece of list
 		_nextMarker = L"";
@@ -29,8 +29,8 @@ bool ChromiumRel::append(Xml& data)
 			int i1 = s1.toInt(),
 				i2 = s2.toInt();
 
-			if(i1 < i2) return -1;
-			else if(i1 == i2) return 0;
+			if (i1 < i2) return -1;
+			else if (i1 == i2) return 0;
 			return 1;
 		});
 	}
@@ -45,7 +45,7 @@ bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)
 	int prevsz = _markers.size();
 	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
-	for(Xml::Node *cp : commonPrefixes) {
+	for (Xml::Node *cp : commonPrefixes) {
 		Xml::Node *prefix = &cp->children[0];
 		_markers.append(prefix->value); // eg.: "Win/93883/"
 	}

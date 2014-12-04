@@ -11,7 +11,7 @@ int DlgDnZip::show(Window *parent, Internet::Session *session, const String& mar
 
 INT_PTR DlgDnZip::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG: onInitDialog(); break;
 	}
@@ -31,7 +31,7 @@ void DlgDnZip::onInitDialog()
 		.setPos(0);
 
 	String defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
-	if(this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.str())) {
+	if (this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.str())) {
 		System::Thread([&]() {
 			this->doDownload();
 		});
@@ -56,16 +56,16 @@ bool DlgDnZip::doDownload()
 
 	String err;
 	File::Raw fout;
-	if(!fout.open(this->dest, File::Access::READWRITE, &err))
+	if (!fout.open(this->dest, File::Access::READWRITE, &err))
 		return this->doShowErrAndClose(L"File creation error", err);
 
-	if(!zipdl.start(&err))
+	if (!zipdl.start(&err))
 		return this->doShowErrAndClose(L"Error at download start", err);
 	this->sendFunction([&]() {
 		this->setText( String::Fmt(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
 	});
 
-	if(!fout.setNewSize(zipdl.getContentLength(), &err))
+	if (!fout.setNewSize(zipdl.getContentLength(), &err))
 		return this->doShowErrAndClose(L"Error when resizing file", err);
 
 	return this->doReceiveData(zipdl, fout);
@@ -79,8 +79,8 @@ bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
 	});
 
 	String err;
-	while(zipdl.hasData(&err)) {
-		if(!fout.write(zipdl.getBuffer(), &err))
+	while (zipdl.hasData(&err)) {
+		if (!fout.write(zipdl.getBuffer(), &err))
 			return this->doShowErrAndClose(L"File writing error", err);
 
 		this->sendFunction([&]() {
@@ -90,7 +90,7 @@ bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
 		});
 	}
 
-	if(!err.isEmpty())
+	if (!err.isEmpty())
 		return this->doShowErrAndClose(L"Download error", err);
 	
 	this->sendFunction([&]() { this->endDialog(IDOK); }); // download finished

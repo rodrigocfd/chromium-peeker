@@ -12,7 +12,7 @@ int DlgDnList::show(Window *parent, Internet::Session *session, ChromiumRel *lis
 
 INT_PTR DlgDnList::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG: this->onInitDialog(); break;
 	}
@@ -38,7 +38,7 @@ void DlgDnList::onInitDialog()
 bool DlgDnList::doDownloadList(const wchar_t *marker)
 {
 	String lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
-	if(*marker) lnk.append(L"&marker=").append(marker);	
+	if (*marker) lnk.append(L"&marker=").append(marker);	
 
 	Internet::Download dl(*pSession, lnk);
 	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
@@ -50,7 +50,7 @@ bool DlgDnList::doDownloadList(const wchar_t *marker)
 	});
 
 	String err;
-	if(!dl.start(&err))
+	if (!dl.start(&err))
 		return this->doShowErrAndClose(L"Error at download start", err);
 	this->sendFunction([&]() {
 		this->progBar.setPos(0);
@@ -59,7 +59,7 @@ bool DlgDnList::doDownloadList(const wchar_t *marker)
 
 	Array<BYTE> xmlbuf;
 	xmlbuf.reserve(dl.getContentLength());
-	while(dl.hasData(&err)) {
+	while (dl.hasData(&err)) {
 		xmlbuf.append(dl.getBuffer());
 		this->sendFunction([&]() {
 			this->progBar.setPos((int)dl.getPercent());
@@ -68,7 +68,7 @@ bool DlgDnList::doDownloadList(const wchar_t *marker)
 		});
 	}
 
-	if(!err.isEmpty())
+	if (!err.isEmpty())
 		return this->doShowErrAndClose(L"Download error", err);
 
 	return this->doReadXml(xmlbuf);
@@ -84,7 +84,7 @@ bool DlgDnList::doReadXml(const Array<BYTE>& buf)
 			this->pCList->markers().size(), (float)this->totBytes / 1024) );
 	});
 	
-	if(!this->pCList->isFinished()) {
+	if (!this->pCList->isFinished()) {
 		this->sendFunction([&]() {
 			this->label.setText( String::Fmt(L"Next marker: %s...\n", this->pCList->nextMarker()) );
 		});

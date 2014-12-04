@@ -12,7 +12,7 @@ int DlgDnInfo::show(Window *parent, Internet::Session *session, const Array<Stri
 
 INT_PTR DlgDnInfo::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG: this->onInitDialog(); break;
 	}
@@ -51,15 +51,15 @@ bool DlgDnInfo::doGetOneFile(const wchar_t *marker)
 	});
 
 	String err;
-	if(!dl.start(&err))
+	if (!dl.start(&err))
 		return this->doShowErrAndClose(L"Error at download start", err);
 
 	Array<BYTE> xmlbuf;
 	xmlbuf.reserve(dl.getContentLength());
-	while(dl.hasData(&err)) // each file is small, we don't need to display progress info
+	while (dl.hasData(&err)) // each file is small, we don't need to display progress info
 		xmlbuf.append(dl.getBuffer());
 
-	if(!err.isEmpty())
+	if (!err.isEmpty())
 		return this->doShowErrAndClose(L"Download error", err);
 
 	return this->doProcessFile(xmlbuf);
@@ -78,15 +78,15 @@ bool DlgDnInfo::doProcessFile(const Array<BYTE>& buf)
 	this->data.resize( this->data.size() + 1 ); // realloc public return buffer
 
 	Array<Xml::Node*> cnodes = xml.root.getChildrenByName(L"Contents");
-	for(Xml::Node *cnode : cnodes) {
-		if(cnode->firstChildByName(L"Key")->value.endsWithCS(L"chrome-win32.zip")) {
+	for (Xml::Node *cnode : cnodes) {
+		if (cnode->firstChildByName(L"Key")->value.endsWithCS(L"chrome-win32.zip")) {
 			this->data.last().releaseDate = cnode->firstChildByName(L"LastModified")->value;
 			this->data.last().packageSize = cnode->firstChildByName(L"Size")->value.toInt();
 			break;
 		}
 	}
 
-	if(this->data.size() == this->pMarkers->size()) {
+	if (this->data.size() == this->pMarkers->size()) {
 		this->sendFunction([&]() { this->endDialog(IDOK); }); // last file has been processed
 	} else {
 		this->doGetOneFile( (*this->pMarkers)[this->data.size()].str() ); // proceed to next file
