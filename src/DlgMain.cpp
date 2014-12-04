@@ -57,10 +57,9 @@ void DlgMain::onInitMenuPopup(WPARAM wp)
 	Menu menu = (HMENU)wp;
 
 	if (menu.getCmdId(0) == MNU_MAIN_GETBASIC) {
-		bool hasSel = this->listview.items.countSelected() >= 1;
-		menu.enableItem(MNU_MAIN_GETBASIC, hasSel)
-			.enableItem(MNU_MAIN_GETDLL, hasSel)
-			.enableItem(MNU_MAIN_DLZIP, this->listview.items.countSelected() == 1);
+		int numSelec = this->listview.items.countSelected();
+		menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
+			.enableItem({ MNU_MAIN_DLZIP }, numSelec == 1);
 	}
 }
 
