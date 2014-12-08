@@ -11,7 +11,7 @@ private:
 	Resizer           resz;
 	Internet::Session session;
 public:
-	int run(HINSTANCE hInst, LPWSTR cmdLine, int cmdShow) { return DialogApp::run(hInst, cmdShow, DLG_MAIN, ICO_CHROMIUM); }
+	int run(HINSTANCE hInst, int cmdShow) { return DialogApp::run(hInst, cmdShow, DLG_MAIN, ICO_CHROMIUM); }
 private:
 	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
 	void onInitDialog();
