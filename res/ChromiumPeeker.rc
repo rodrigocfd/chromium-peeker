@@ -66,7 +66,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     PUSHBUTTON      "&Download list",BTN_DLLIST,7,6,59,14
     CONTROL         "",LST_BUILDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,2,25,234,369
-    LTEXT           "no markers",LBL_LOADED,81,8,92,8
+    LTEXT           "no markers",LBL_LOADED,81,8,145,8
 END
 
 DLG_PROGRESS DIALOGEX 0, 0, 203, 39
@@ -76,22 +76,6 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",PRO_PRO,"msctls_progress32",WS_BORDER,5,19,193,14
     LTEXT           "Text",LBL_LBL,7,5,187,8
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-MEN_MAIN MENU
-BEGIN
-    POPUP ""
-    BEGIN
-        MENUITEM "Get &details",                MNU_MAIN_GETBASIC
-        MENUITEM "Get DLL &version",            MNU_MAIN_GETDLL
-        MENUITEM "Download &zip",               MNU_MAIN_DLZIP
-    END
 END
 
 

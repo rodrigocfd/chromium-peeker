@@ -1,12 +1,17 @@
-//
-// Automation for some resources.
-// Part of WOLF - Win32 Object Lambda Framework.
-// @author Rodrigo Cesar de Freitas Dias
-// @see https://github.com/rodrigocfd/wolf
-//
+/*!
+ * Automation for some Win32 resources.
+ * Part of WOLF - Win32 Object Lambda Framework.
+ * @author Rodrigo Cesar de Freitas Dias
+ * @see https://github.com/rodrigocfd/wolf
+ */
 
 #pragma once
-#include "String.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include "Window.h"
+
+namespace wolf {
 
 class Font final {
 public:
@@ -31,8 +36,8 @@ private:
 public:
 	Font()                  : _hFont(nullptr) { }
 	Font(HFONT hfont)       : _hFont(hfont)   { }
-	Font(const Font& other) : _hFont(nullptr) { operator=(other); }
-	Font(Font&& other)      : _hFont(nullptr) { operator=(MOVE(other)); }
+	Font(const Font& other) : Font() { operator=(other); }
+	Font(Font&& other)      : Font() { operator=(std::move(other)); }
 	~Font()                 { release(); }
 
 	Font& operator=(HFONT hfont)       { release(); _hFont = hfont; return *this; }
@@ -55,29 +60,6 @@ private:
 };
 
 
-class Menu {
-private:
-	HMENU _hMenu;
-public:
-	Menu()            : _hMenu(nullptr) { }
-	Menu(HMENU hMenu) : _hMenu(hMenu) { }
-	
-	HMENU hMenu() const             { return _hMenu; }
-	int   size() const              { return ::GetMenuItemCount(_hMenu); }
-	void  destroy()                 { if (_hMenu) { ::DestroyMenu(_hMenu); _hMenu = nullptr; } }
-	Menu  getSubmenu(int pos) const { return Menu(::GetSubMenu(_hMenu, pos)); }
-	WORD  getCmdId(int pos) const   { return ::GetMenuItemID(_hMenu, pos); }
-	Menu& createMain(HWND owner);
-	Menu& createPopup();
-	Menu& appendSeparator();
-	Menu& appendItem(const wchar_t *caption, WORD cmdId);
-	Menu& enableItem(initializer_list<WORD> cmdIds, bool doEnable);
-	Menu  appendSubmenu(const wchar_t *caption);
-private:
-	void _checkDummyEntry();
-};
-
-
 class Icon final {
 private:
 	HICON _hIcon;
@@ -93,3 +75,34 @@ public:
 
 	static void IconToLabel(HWND hStatic, int idIconRes, BYTE size);
 };
+
+
+class Xml final {
+public:
+	class Node final {
+	public:
+		std::wstring name;
+		std::wstring value;
+		std::unordered_map<std::wstring, std::wstring> attrs;
+		std::vector<Node> children;
+
+		std::vector<Node*> getChildrenByName(const wchar_t *elemName);
+		Node* firstChildByName(const wchar_t *elemName);
+	};
+public:
+	Node root;
+
+	Xml()                        { }
+	Xml(const Xml& other)        : root(other.root) { }
+	Xml(Xml&& other)             : root(std::move(other.root)) { }
+	Xml(const wchar_t *str)      { parse(str); }
+	Xml(const std::wstring& str) { parse(str); }
+
+	Xml& operator=(const Xml& other)    { root = other.root; return *this; }
+	Xml& operator=(Xml&& other)         { root = std::move(other.root); return *this; }
+	bool parse(const wchar_t *str);
+	bool parse(const std::wstring& str) { return parse(str.c_str()); }
+	bool load(const wchar_t *file, std::wstring *pErr=nullptr);
+};
+
+}//namespace wolf

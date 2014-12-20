@@ -1,20 +1,24 @@
 
-#include "../toolow/toolow.h"
+#include "../wolf/wolf.h"
 #include "ChromiumRel.h"
+using namespace wolf;
+using std::vector;
+using std::wstring;
 
+// Downloads the list of markers.
 class DlgDnList final : public DialogModal {
 private:
-	Internet::Session *pSession;
-	ChromiumRel       *pCList;
+	Internet::Session& session;
+	ChromiumRel&       clist;
 	int                totBytes;
 	Window             label;
 	ProgressBar        progBar;
 public:
-	int show(Window *parent, Internet::Session *session, ChromiumRel *list);
+	DlgDnList(Internet::Session& isess, ChromiumRel& list);
+	int getTotalBytes() const { return totBytes; }
 private:
-	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
-	void onInitDialog();
-	bool doDownloadList(const wchar_t *marker);
-	bool doReadXml(const Array<BYTE>& buf);
-	bool doShowErrAndClose(const wchar_t *msg, const String& err);
+	void events() override;
+	bool doDownloadList(const wstring& marker);
+	bool doReadXml(const vector<BYTE>& buf);
+	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
 };

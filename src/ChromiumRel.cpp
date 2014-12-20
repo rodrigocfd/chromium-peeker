@@ -1,37 +1,33 @@
 
 #include "ChromiumRel.h"
+#include <algorithm>
+using std::vector;
+using std::wstring;
 
 bool ChromiumRel::append(Xml& data)
 {
 	Xml::Node& root = data.root;
 
-	if (!root.name.equalsCS(L"ListBucketResult")) return false;
+	if (!EqualsS(root.name, L"ListBucketResult")) return false;
 
-	if (!root.children[0].name.equalsCS(L"Name") ||
-		!root.children[0].value.equalsCS(L"chromium-browser-continuous")) return false;
+	if (!EqualsS(root.children[0].name, L"Name") ||
+		!EqualsS(root.children[0].value, L"chromium-browser-continuous")) return false;
 
-	String *isTruncated = &root.firstChildByName(L"IsTruncated")->value;
-	if (!isTruncated->equalsCS(L"true") &&
-		!isTruncated->equalsCS(L"false")) return false;
+	const wstring& isTruncated = root.firstChildByName(L"IsTruncated")->value;
+	if (!EqualsS(isTruncated, L"true") &&
+		!EqualsS(isTruncated, L"false")) return false;
 
 	if (!this->_parseMorePrefixes(root)) return false;
 
-	if (isTruncated->equalsCS(L"true")) { // more to come
+	if (EqualsS(isTruncated, L"true")) { // more to come
 		_nextMarker = root.firstChildByName(L"NextMarker")->value; // eg.: "Win/93883/"
 	} else { // finished loading last piece of list
 		_nextMarker = L"";
 		_isFinished = true;
-		_markers.sort([](const String& a, const String& b)->int {
-			String s1, s2;
-			s1.copyFrom(a.str() + 4, a.len() - 5); // number from "Win/93883/"
-			s2.copyFrom(b.str() + 4, b.len() - 5);
-
-			int i1 = s1.toInt(),
-				i2 = s2.toInt();
-
-			if (i1 < i2) return -1;
-			else if (i1 == i2) return 0;
-			return 1;
+		std::sort(_markers.begin(), _markers.end(), [](const wstring& a, const wstring& b)->bool {
+			wstring s1 = a.substr(4, a.length() - 5),
+				s2 = b.substr(4, b.length() - 5); // number from "Win/93883/"
+			return std::stoi(s1) < std::stoi(s2);
 		});
 	}
 
@@ -40,15 +36,14 @@ bool ChromiumRel::append(Xml& data)
 
 bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)
 {
-	Array<Xml::Node*> commonPrefixes = root.getChildrenByName(L"CommonPrefixes");
+	vector<Xml::Node*> commonPrefixes = root.getChildrenByName(L"CommonPrefixes");
 	
-	int prevsz = _markers.size();
+	size_t prevsz = _markers.size();
 	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
 	for (Xml::Node *cp : commonPrefixes) {
 		Xml::Node *prefix = &cp->children[0];
-		_markers.append(prefix->value); // eg.: "Win/93883/"
+		_markers.emplace_back(prefix->value); // eg.: "Win/93883/"
 	}
-
 	return true;
 }

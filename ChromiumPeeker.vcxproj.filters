@@ -8,7 +8,7 @@
     <Filter Include="src">
       <UniqueIdentifier>{eda5be8f-4c4d-4e6b-8b02-3839d3f215f6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="toolow">
+    <Filter Include="wolf">
       <UniqueIdentifier>{86c381df-bc0b-4875-b9ba-1caffa7e849a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -39,44 +39,35 @@
     <ClInclude Include="src\DlgDnDll.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Controls.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\Controls.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\DataStructs.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\File.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\DeviceContext.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\Internet.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\File.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\Resources.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Internet.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\StrUtil.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Resources.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\System.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\String.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\Window.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\System.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\WindowDialog.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\toolow.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\WindowFrame.h">
+      <Filter>wolf</Filter>
     </ClInclude>
-    <ClInclude Include="toolow\Window.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\WindowDialog.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\WindowFrame.h">
-      <Filter>toolow</Filter>
-    </ClInclude>
-    <ClInclude Include="toolow\Array.h">
-      <Filter>toolow</Filter>
+    <ClInclude Include="wolf\wolf.h">
+      <Filter>wolf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,38 +89,32 @@
     <ClCompile Include="src\DlgDnZip.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\Controls.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\Controls.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\DataStructs.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\File.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\DeviceContext.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\Internet.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\File.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\Resources.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\Internet.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\StrUtil.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\Resources.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\System.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\String.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\Window.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\System.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\WindowDialog.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
-    <ClCompile Include="toolow\Window.cpp">
-      <Filter>toolow</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\WindowDialog.cpp">
-      <Filter>toolow</Filter>
-    </ClCompile>
-    <ClCompile Include="toolow\WindowFrame.cpp">
-      <Filter>toolow</Filter>
+    <ClCompile Include="wolf\WindowFrame.cpp">
+      <Filter>wolf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

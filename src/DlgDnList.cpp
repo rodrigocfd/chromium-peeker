@@ -2,45 +2,38 @@
 #include "DlgDnList.h"
 #include "../res/resource.h"
 
-int DlgDnList::show(Window *parent, Internet::Session *session, ChromiumRel *list)
+DlgDnList::DlgDnList(Internet::Session& isess, ChromiumRel& list)
+	: session(isess), clist(list), totBytes(0)
 {
-	this->pSession = session;
-	this->pCList = list;
-	this->totBytes = 0;
-	return DialogModal::show(parent, DLG_PROGRESS);
 }
 
-INT_PTR DlgDnList::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
+void DlgDnList::events()
 {
-	switch (msg)
-	{
-	case WM_INITDIALOG: this->onInitDialog(); break;
-	}
-	return DialogModal::msgHandler(msg, wp, lp);
-}
+	this->defineDialog(DLG_PROGRESS);
 
-void DlgDnList::onInitDialog()
-{
-	this->setXButton(false);
-	this->setText(L"No markers downloaded...");
+	this->onInitDialog([&]() {
+		this->setXButton(false);
+		this->setText(L"No markers downloaded...");
 	
-	( this->label = this->getChild(LBL_LBL) )
-		.setText(L"Waiting...");
+		( this->label = this->getChild(LBL_LBL) )
+			.setText(L"Waiting...");
 	
-	( this->progBar = this->getChild(PRO_PRO) )
-		.setRange(0, 100);
+		( this->progBar = this->getChild(PRO_PRO) )
+			.setRange(0, 100);
 
-	System::Thread([&]() {
-		this->doDownloadList(L""); // start downloading first batch of markers
+		System::Thread([&]() {
+			this->doDownloadList(L""); // start downloading first batch of markers
+		});
 	});
 }
 
-bool DlgDnList::doDownloadList(const wchar_t *marker)
+bool DlgDnList::doDownloadList(const wstring& marker)
 {
-	String lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
-	if (*marker) lnk.append(L"&marker=").append(marker);	
+	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
+	if (!marker.empty())
+		lnk.append(L"&marker=").append(marker);	
 
-	Internet::Download dl(*pSession, lnk);
+	Internet::Download dl(this->session, lnk);
 	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -49,7 +42,7 @@ bool DlgDnList::doDownloadList(const wchar_t *marker)
 		L"Host: commondatastorage.googleapis.com"
 	});
 
-	String err;
+	wstring err;
 	if (!dl.start(&err))
 		return this->doShowErrAndClose(L"Error at download start", err);
 	this->sendFunction([&]() {
@@ -57,45 +50,45 @@ bool DlgDnList::doDownloadList(const wchar_t *marker)
 		this->label.setText(L"XML download started...");
 	});
 
-	Array<BYTE> xmlbuf;
+	vector<BYTE> xmlbuf;
 	xmlbuf.reserve(dl.getContentLength());
 	while (dl.hasData(&err)) {
-		xmlbuf.append(dl.getBuffer());
+		xmlbuf.insert(xmlbuf.end(), dl.getBuffer().begin(), dl.getBuffer().end());
 		this->sendFunction([&]() {
 			this->progBar.setPos((int)dl.getPercent());
-			this->label.setText( String::Fmt(L"%.2f%% downloaded (%d bytes)...\n",
+			this->label.setText( Sprintf(L"%.2f%% downloaded (%d bytes)...\n",
 				dl.getPercent(), dl.getTotalDownloaded()) );
 		});
 	}
 
-	if (!err.isEmpty())
+	if (!err.empty())
 		return this->doShowErrAndClose(L"Download error", err);
 
 	return this->doReadXml(xmlbuf);
 }
 
-bool DlgDnList::doReadXml(const Array<BYTE>& buf)
+bool DlgDnList::doReadXml(const vector<BYTE>& buf)
 {
-	Xml xml = String::ParseUtf8(buf);
-	this->pCList->append(xml);
-	this->totBytes += buf.size();
-	this->sendFunction([=]() {
-		this->setText( String::Fmt(L"%d markers downloaded (%.2f KB)...",
-			this->pCList->markers().size(), (float)this->totBytes / 1024) );
+	Xml xml = ParseUtf8(buf);
+	this->clist.append(xml);
+	this->totBytes += static_cast<int>(buf.size());
+	this->sendFunction([&]() {
+		this->setText( Sprintf(L"%d markers downloaded (%.2f KB)...",
+			this->clist.markers().size(), (float)this->totBytes / 1024) );
 	});
 	
-	if (!this->pCList->isFinished()) {
+	if (!this->clist.isFinished()) {
 		this->sendFunction([&]() {
-			this->label.setText( String::Fmt(L"Next marker: %s...\n", this->pCList->nextMarker()) );
+			this->label.setText( Sprintf(L"Next marker: %s...\n", this->clist.nextMarker()) );
 		});
-		this->doDownloadList(this->pCList->nextMarker());
+		this->doDownloadList(this->clist.nextMarker()); // proceed to next marker
 	} else {
 		this->sendFunction([&]() { this->endDialog(IDOK); }); // all markers downloaded
 	}
 	return true;
 }
 
-bool DlgDnList::doShowErrAndClose(const wchar_t *msg, const String& err)
+bool DlgDnList::doShowErrAndClose(const wchar_t *msg, const wstring& err)
 {
 	this->sendFunction([&]() {
 		this->messageBox(msg, err, MB_ICONERROR);

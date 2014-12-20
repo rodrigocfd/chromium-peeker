@@ -1,23 +1,16 @@
 
-#include "../toolow/toolow.h"
-#include "../res/resource.h"
+#include "../wolf/wolf.h"
 #include "ChromiumRel.h"
+using namespace wolf;
 
 class DlgMain final : public DialogApp {
 private:
 	ChromiumRel       chromiumRel;
 	ListView          listview;
+	Menu              listMenu;
 	Window            lblLoaded;
 	Resizer           resz;
 	Internet::Session session;
-public:
-	int run(HINSTANCE hInst, int cmdShow) { return DialogApp::run(hInst, cmdShow, DLG_MAIN, ICO_CHROMIUM); }
-private:
-	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
-	void onInitDialog();
-	void onInitMenuPopup(WPARAM wp);
-	void onBtnDownloadList();
-	void onMnuBasicDetails();
-	void onMnuDllDetails();
-	void onMnuDownloadZip();
+
+	void events() override;
 };

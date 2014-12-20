@@ -1,18 +1,20 @@
 
-#include "../toolow/toolow.h"
+#include "../wolf/wolf.h"
+using namespace wolf;
+using std::wstring;
 
+// Download the marker zip file to disk, destination chosen by user.
 class DlgDnZip final : public DialogModal {
 private:
-	Internet::Session *pSession;
-	String             marker, dest;
+	Internet::Session& session;
+	wstring            marker, dest;
 	Window             label;
 	ProgressBar        progBar;
 public:
-	int show(Window *parent, Internet::Session *session, const String& marker);
+	DlgDnZip(Internet::Session& isess, const wstring& mark);
 private:
-	INT_PTR msgHandler(UINT msg, WPARAM wp, LPARAM lp) override;
-	void onInitDialog();
+	void events() override;
 	bool doDownload();
 	bool doReceiveData(Internet::Download& zipdl, File::Raw& fout);
-	bool doShowErrAndClose(const wchar_t *msg, const String& err);
+	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
 };

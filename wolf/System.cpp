@@ -1,28 +1,33 @@
-//
-// OS-related functions.
-// Part of WOLF - Win32 Object Lambda Framework.
-// @author Rodrigo Cesar de Freitas Dias
-// @see https://github.com/rodrigocfd/wolf
-//
+/*!
+ * OS-related functions.
+ * Part of WOLF - Win32 Object Lambda Framework.
+ * @author Rodrigo Cesar de Freitas Dias
+ * @see https://github.com/rodrigocfd/wolf
+ */
 
 #include "System.h"
-#include <math.h>
+#include "StrUtil.h"
 #include <process.h>
 #include <Shlobj.h>
 #pragma comment(lib, "Shell32.lib") // SHGetFolderPath
+using namespace wolf;
+using std::function;
+using std::wstring;
 
 void System::Thread(function<void()> callback)
 {
-	struct CbPack { function<void()> cb; };
-	CbPack *pack = new CbPack{ MOVE(callback) };
+	// Cheap alternative to std::thread([](){}).detach().
 
-	HANDLE thandle = (HANDLE)_beginthreadex(nullptr, 0, [](void *ptr)->unsigned int {
-		CbPack *pPack = (CbPack*)ptr;
+	struct CbPack { function<void()> cb; };
+	CbPack *pack = new CbPack{ std::move(callback) };
+
+	HANDLE thandle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, [](void *ptr)->unsigned int {
+		CbPack *pPack = reinterpret_cast<CbPack*>(ptr);
 		pPack->cb(); // invoke user callback
 		delete pPack;
 		_endthreadex(0); // http://www.codeproject.com/Articles/7732/A-class-to-synchronise-thread-completions/
 		return 0;
-	}, pack, 0, nullptr);
+	}, pack, 0, nullptr));
 
 	CloseHandle(thandle);
 }
@@ -55,83 +60,38 @@ DWORD System::Exec(const wchar_t *cmdLine)
 	return dwExitCode;
 }
 
-DWORD System::ShellOpen(const wchar_t *file)
+wstring System::GetExePath()
 {
-	return (DWORD)ShellExecute(nullptr, L"open", file, nullptr, nullptr, SW_SHOWNORMAL);
-}
+	wchar_t buf[MAX_PATH];
+	GetModuleFileName(nullptr, buf, ARRAYSIZE(buf)); // retrieves EXE itself directory
 
-void System::PopMenu(HWND hDlg, int popupMenuId, int x, int y, HWND hWndCoordsRelativeTo)
-{
-	// Shows a popup context menu, anchored at the given coordinates.
-	// The passed coordinates can be relative to any window.
-
-	HMENU hMenu = LoadMenu(GetModuleHandle(nullptr), MAKEINTRESOURCE(popupMenuId));
-	POINT ptDlg = { x, y }; // receives coordinates relative to hDlg
-	ClientToScreen(hWndCoordsRelativeTo ? hWndCoordsRelativeTo : hDlg, &ptDlg); // to screen coordinates
-	SetForegroundWindow(hDlg);
-	TrackPopupMenu(GetSubMenu(hMenu, 0), 0, ptDlg.x, ptDlg.y, 0, hDlg, nullptr); // owned by dialog, so messages go to it
-	PostMessage(hDlg, WM_NULL, 0, 0); // http://msdn.microsoft.com/en-us/library/ms648002%28VS.85%29.aspx
-	DestroyMenu(hMenu);
-}
-
-String System::GetExePath()
-{
-	String ret;
-	ret.reserve(MAX_PATH);
-
-	GetModuleFileName(nullptr, ret.ptrAt(0), ret.reserved() + 1); // retrieves EXE itself directory
-	ret[ ret.findrCS(L'\\') ] = L'\0'; // truncate removing EXE file name, remove trailing backslash
-
+	wstring ret = buf;
+	ret.resize(FindLastS(ret, L'\\')); // truncate removing EXE filename and trailing backslash
 #ifdef _DEBUG
-	ret[ ret.findrCS(L'\\') ] = L'\0'; // bypass "Debug" folder, remove trailing backslash
+	ret.resize(FindLastS(ret, L'\\')); // bypass "Debug" folder, remove trailing backslash too
 #endif
-
 	return ret;
 }
 
-String System::GetDesktopPath()
+wstring System::GetDesktopPath()
 {
-	String ret;
-	ret.reserve(MAX_PATH);
-	SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr, 0, ret.ptrAt(0)); // won't have trailing backslash
-	return ret;
+	wchar_t buf[MAX_PATH];
+	SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr, 0, buf); // won't have trailing backslash
+	return buf;
 }
 
-String System::GetMyDocsPath()
+wstring System::GetMyDocsPath()
 {
-	String ret;
-	ret.reserve(MAX_PATH);
-	SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, ret.ptrAt(0)); // won't have trailing backslash
-	return ret;
+	wchar_t buf[MAX_PATH];
+	SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, buf); // won't have trailing backslash
+	return buf;
 }
 
-String System::GetRoamingPath()
+wstring System::GetRoamingPath()
 {
-	String ret;
-	ret.reserve(MAX_PATH);
-	SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, ret.ptrAt(0)); // won't have trailing backslash
-	return ret;
-}
-
-
-int System::Math::Rounds(float x)
-{
-	return (int)floor(x + 0.5); // <math.h>
-}
-
-int System::Math::Rounds(double x)
-{
-	return (int)floor(x + 0.5); // <math.h>
-}
-
-int System::Math::CeilMult(int n, int multiple)
-{
-	// Ceil up to next multiple of.
-	// http://stackoverflow.com/questions/3407012/c-rounding-up-to-the-nearest-multiple-of-a-number
-	if (!multiple) return n;
-	int remainder = n % multiple;
-	if (!remainder) return n;
-	return n + multiple - remainder - (n < 0 ? multiple : 0); // bugfix for negative numbers
+	wchar_t buf[MAX_PATH];
+	SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, buf); // won't have trailing backslash
+	return buf;
 }
 
 
@@ -147,10 +107,10 @@ System::Date& System::Date::setNow()
 	return *this;
 }
 
-System::Date& System::Date::setFromFt(const FILETIME *ft)
+System::Date& System::Date::setFromFt(const FILETIME& ft)
 {
 	SYSTEMTIME st1 = { 0 };
-	FileTimeToSystemTime(ft, &st1);
+	FileTimeToSystemTime(&ft, &st1);
 
 	TIME_ZONE_INFORMATION tzi = { 0 };
 	GetTimeZoneInformation(&tzi);

@@ -2,50 +2,43 @@
 #include "DlgDnZip.h"
 #include "../res/resource.h"
 
-int DlgDnZip::show(Window *parent, Internet::Session *session, const String& marker)
+DlgDnZip::DlgDnZip(Internet::Session& isess, const wstring& mark)
+	: session(isess), marker(mark)
 {
-	this->pSession = session;
-	this->marker = marker;
-	return DialogModal::show(parent, DLG_PROGRESS);
 }
 
-INT_PTR DlgDnZip::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
+void DlgDnZip::events()
 {
-	switch (msg)
-	{
-	case WM_INITDIALOG: onInitDialog(); break;
-	}
-	return DialogModal::msgHandler(msg, wp, lp);
-}
+	this->defineDialog(DLG_PROGRESS);
 
-void DlgDnZip::onInitDialog()
-{
-	this->setXButton(false);
-	this->setText(L"Downloading chrome-win32.zip...");
+	this->onInitDialog([&]() {
+		this->setXButton(false);
+		this->setText(L"Downloading chrome-win32.zip...");
 
-	( this->label = this->getChild(LBL_LBL) )
-		.setText(L"Waiting...");
+		( this->label = this->getChild(LBL_LBL) )
+			.setText(L"Waiting...");
 
-	( this->progBar = this->getChild(PRO_PRO) )
-		.setRange(0, 100)
-		.setPos(0);
+		( this->progBar = this->getChild(PRO_PRO) )
+			.setRange(0, 100)
+			.setPos(0);
 
-	String defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
-	if (this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.str())) {
-		System::Thread([&]() {
-			this->doDownload();
-		});
-	} else {
-		this->endDialog(IDCANCEL);
-	}
+		wstring defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
+		if (this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.c_str())) {
+			System::Thread([&]() {
+				this->doDownload();
+			});
+		} else {
+			this->endDialog(IDCANCEL);
+		}
+	});
 }
 
 bool DlgDnZip::doDownload()
 {
-	String lnk = String::Fmt(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
-		this->marker.str() );
+	wstring lnk = Sprintf(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
+		this->marker.c_str() );
 
-	Internet::Download zipdl(*this->pSession, lnk);
+	Internet::Download zipdl(this->session, lnk);
 	zipdl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	zipdl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -54,7 +47,7 @@ bool DlgDnZip::doDownload()
 		L"Host: commondatastorage.googleapis.com"
 	});
 
-	String err;
+	wstring err;
 	File::Raw fout;
 	if (!fout.open(this->dest, File::Access::READWRITE, &err))
 		return this->doShowErrAndClose(L"File creation error", err);
@@ -62,7 +55,7 @@ bool DlgDnZip::doDownload()
 	if (!zipdl.start(&err))
 		return this->doShowErrAndClose(L"Error at download start", err);
 	this->sendFunction([&]() {
-		this->setText( String::Fmt(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
+		this->setText( Sprintf(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
 	});
 
 	if (!fout.setNewSize(zipdl.getContentLength(), &err))
@@ -73,31 +66,31 @@ bool DlgDnZip::doDownload()
 
 bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
 {
-	dbg(L"Response headers:\n");
+	/*dbg(L"Response headers:\n");
 	zipdl.getResponseHeaders().each([](const Hash<String>::Elem& rh) { // informational debug
 		dbg(L"- %s: %s\n", rh.key.str(), rh.val.str());
-	});
+	});*/
 
-	String err;
+	wstring err;
 	while (zipdl.hasData(&err)) {
 		if (!fout.write(zipdl.getBuffer(), &err))
 			return this->doShowErrAndClose(L"File writing error", err);
 
 		this->sendFunction([&]() {
-			this->label.setText( String::Fmt(L"%.0f%% downloaded (%.1f MB)...\n",
+			this->label.setText( Sprintf(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.getPercent(), (float)zipdl.getTotalDownloaded() / 1024 / 1024 ));
 			this->progBar.setPos((int)zipdl.getPercent());
 		});
 	}
 
-	if (!err.isEmpty())
+	if (!err.empty())
 		return this->doShowErrAndClose(L"Download error", err);
 	
 	this->sendFunction([&]() { this->endDialog(IDOK); }); // download finished
 	return true;
 }
 
-bool DlgDnZip::doShowErrAndClose(const wchar_t *msg, const String& err)
+bool DlgDnZip::doShowErrAndClose(const wchar_t *msg, const wstring& err)
 {
 	this->sendFunction([&]() {
 		this->messageBox(msg, err, MB_ICONERROR);

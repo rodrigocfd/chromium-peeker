@@ -2,46 +2,38 @@
 #include "DlgDnDll.h"
 #include "../res/resource.h"
 
-int DlgDnDll::show(Window *parent, Internet::Session *session, const String& marker)
+DlgDnDll::DlgDnDll(Internet::Session& isess, const wstring& mark)
+	: session(isess), marker(mark), totDownloaded(0)
 {
-	this->pSession = session;
-	this->marker = marker;
-	this->totDownloaded = 0;
-	return DialogModal::show(parent, DLG_PROGRESS);
 }
 
-INT_PTR DlgDnDll::msgHandler(UINT msg, WPARAM wp, LPARAM lp)
+void DlgDnDll::events()
 {
-	switch (msg)
-	{
-	case WM_INITDIALOG: onInitDialog(); break;
-	}
-	return DialogModal::msgHandler(msg, wp, lp);
-}
+	this->defineDialog(DLG_PROGRESS);
 
-void DlgDnDll::onInitDialog()
-{
-	this->setXButton(false);
-	this->setText(L"Downloading chrome-win32.zip...");
+	this->onInitDialog([&]() {
+		this->setXButton(false);
+		this->setText(L"Downloading chrome-win32.zip...");
 
-	( this->label = this->getChild(LBL_LBL) )
-		.setText(L"Waiting...");
+		( this->label = this->getChild(LBL_LBL) )
+			.setText(L"Waiting...");
 
-	( this->progBar = this->getChild(PRO_PRO) )
-		.setRange(0, 100)
-		.setPos(0);
+		( this->progBar = this->getChild(PRO_PRO) )
+			.setRange(0, 100)
+			.setPos(0);
 
-	System::Thread([&]() {
-		this->doDownload();
+		System::Thread([&]() {
+			this->doDownload();
+		});
 	});
 }
 
 bool DlgDnDll::doDownload()
 {
-	String lnk = String::Fmt(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
-		this->marker.str() );
+	wstring lnk = Sprintf(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
+		this->marker.c_str() );
 
-	Internet::Download dlfile(*this->pSession, lnk);
+	Internet::Download dlfile(this->session, lnk);
 	dlfile.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dlfile.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -50,8 +42,7 @@ bool DlgDnDll::doDownload()
 		L"Host: commondatastorage.googleapis.com"
 	});
 
-	String destPath = System::GetExePath().append(L"\\tmpchro.zip");
-	String err;
+	wstring err, destPath = System::GetExePath().append(L"\\tmpchro.zip");
 	File::Raw fout;
 	if (!fout.open(destPath, File::Access::READWRITE, &err))
 		return this->doShowErrAndClose(L"File creation error", err);
@@ -68,19 +59,19 @@ bool DlgDnDll::doDownload()
 
 		this->sendFunction([&]() {
 			this->progBar.setPos((int)dlfile.getPercent());
-			this->label.setText( String::Fmt(L"%.0f%% downloaded (%.1f MB)...\n",
+			this->label.setText( Sprintf(L"%.0f%% downloaded (%.1f MB)...\n",
 				dlfile.getPercent(), (float)dlfile.getTotalDownloaded() / 1024 / 1024 ));
 		});
 	}
 
 	fout.close();
-	if (!err.isEmpty())
+	if (!err.empty())
 		return this->doShowErrAndClose(L"Download error", err);
 
 	return this->doReadVersion(destPath);
 }
 
-bool DlgDnDll::doReadVersion(String zipPath)
+bool DlgDnDll::doReadVersion(wstring zipPath)
 {
 	// Unzip the package.
 	this->sendFunction([&]() {
@@ -88,7 +79,7 @@ bool DlgDnDll::doReadVersion(String zipPath)
 		this->label.setText(L"Unzipping chrome.dll, please wait...");
 		this->progBar.animateMarquee(true);
 	});
-	String err;
+	wstring err;
 	if (!File::Unzip(zipPath, File::Path::GetPath(zipPath), &err)) // potentially slow
 		return this->doShowErrAndClose(L"Unzipping failed", err);
 
@@ -96,10 +87,10 @@ bool DlgDnDll::doReadVersion(String zipPath)
 	this->sendFunction([&]() {
 		this->label.setText(L"Scanning chrome.dll, please wait...");
 	});
-	String dllPath = File::Path::GetPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
+	wstring dllPath = File::Path::GetPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
 	if (!File::Exists(dllPath))
 		return this->doShowErrAndClose(L"DLL not found",
-			String::Fmt(L"Could not find DLL:\n%s\n%s", dllPath.str()) );
+			Sprintf(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
 
 	File::Mapped file;
 	if (!file.open(dllPath, File::Access::READONLY, &err))
@@ -113,15 +104,15 @@ bool DlgDnDll::doReadVersion(String zipPath)
 	int match1 = File::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 1st occurrence
 	if (match1 == -1)
 		return this->doShowErrAndClose(L"Parsing error",
-			String::Fmt(L"1st version offset could not be found in:\n%s", dllPath.str()) );
+			Sprintf(L"1st version offset could not be found in:\n%s", dllPath.c_str()) );
 
 	startAt += match1 + lstrlen(term) * sizeof(wchar_t);
 	int match2 = File::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 2st occurrence
 	if (match2 == -1)
 		return this->doShowErrAndClose(L"Parsing error",
-			String::Fmt(L"2st version offset could not be found in:\n%s", dllPath.str()) );
+			Sprintf(L"2st version offset could not be found in:\n%s", dllPath.c_str()) );
 
-	this->version.copyFrom((const wchar_t*)(pData + startAt + match2 + 30), 11);
+	this->version.assign((const wchar_t*)(pData + startAt + match2 + 30), 11);
 	
 	file.close();
 	File::Delete(File::Path::GetPath(zipPath).append(L"\\chrome-win32"));
@@ -131,7 +122,7 @@ bool DlgDnDll::doReadVersion(String zipPath)
 	return true;
 }
 
-bool DlgDnDll::doShowErrAndClose(const wchar_t *msg, const String& err)
+bool DlgDnDll::doShowErrAndClose(const wchar_t *msg, const wstring& err)
 {
 	this->sendFunction([&]() {
 		this->messageBox(msg, err, MB_ICONERROR);
