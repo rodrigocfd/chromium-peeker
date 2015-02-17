@@ -1,20 +1,25 @@
 
-#include "../wolf/wolf.h"
-using namespace wolf;
+#include "DlgDn.h"
+using namespace owl;
 using std::wstring;
 
 // Download the marker zip file to disk, destination chosen by user.
-class DlgDnZip final : public DialogModal {
+class DlgDnZip final : public DlgDn {
 private:
 	Internet::Session& session;
 	wstring            marker, dest;
-	Window             label;
-	ProgressBar        progBar;
 public:
-	DlgDnZip(Internet::Session& isess, const wstring& mark);
+	DlgDnZip(Internet::Session& isess, const wstring& mark)
+		: session(isess), marker(mark) { }
 private:
-	void events() override;
+	void onInitDialog();
 	bool doDownload();
 	bool doReceiveData(Internet::Download& zipdl, File::Raw& fout);
-	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
+
+	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
+		switch (msg) {
+		case WM_INITDIALOG: this->onInitDialog(); break;
+		}
+		return DialogModal::dlgProc(msg, wp, lp);
+	}
 };

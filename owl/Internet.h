@@ -1,6 +1,6 @@
 /*!
  * Automation for internet related operations.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
@@ -12,7 +12,7 @@
 #include <Windows.h>
 #include <winhttp.h>
 
-namespace wolf {
+namespace owl {
 
 struct Internet final {
 	class Session final {
@@ -23,8 +23,8 @@ struct Internet final {
 		~Session() { close(); }
 
 		HINTERNET hSession() const { return _hSession; }
-		void close() { if (_hSession) { ::WinHttpCloseHandle(_hSession); _hSession = nullptr; } }
-		bool init(std::wstring *pErr=nullptr, const wchar_t *userAgent=L"TOOLOW/1.0");
+		void      close()          { if (_hSession) { ::WinHttpCloseHandle(_hSession); _hSession = nullptr; } }
+		bool      init(std::wstring *pErr=nullptr, const wchar_t *userAgent=L"TOOLOW/1.0");
 	};
 
 	class Download final {
@@ -84,4 +84,4 @@ private:
 	static std::wstring _FormatErr(const wchar_t *funcName, DWORD code);
 };
 
-}//namespace wolf
+}//namespace owl

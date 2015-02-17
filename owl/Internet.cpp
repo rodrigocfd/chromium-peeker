@@ -1,6 +1,6 @@
 /*!
  * Automation for internet related operations.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
@@ -8,7 +8,7 @@
 #include "Internet.h"
 #include "StrUtil.h"
 #pragma comment(lib, "Winhttp.lib")
-using namespace wolf;
+using namespace owl;
 using std::initializer_list;
 using std::vector;
 using std::wstring;
@@ -49,8 +49,9 @@ void Internet::Download::abort()
 
 Internet::Download& Internet::Download::addRequestHeaders(initializer_list<const wchar_t*> requestHeaders)
 {
-	for (const wchar_t *rh : requestHeaders)
+	for (const wchar_t *rh : requestHeaders) {
 		_requestHeaders.emplace_back(rh);
+	}
 	return *this;
 }
 
@@ -180,7 +181,7 @@ bool Internet::Download::_parseHeaders(wstring *pErr)
 
 	for (wstring& line : lines) {
 		if (line.empty()) continue;
-		int colonIdx = FindFirstS(line, L':');
+		int colonIdx = StrFind(line, L':');
 		if (colonIdx == -1) { // not a key/value pair, probably response line
 			_responseHeaders.emplace(L"", line); // empty key
 		} else {
@@ -194,8 +195,9 @@ bool Internet::Download::_parseHeaders(wstring *pErr)
 	// Retrieve content length, if informed by server.
 	if (_responseHeaders.find(L"Content-Length") != _responseHeaders.end()) {
 		const wstring& strContentLength = _responseHeaders[L"Content-Length"];
-		if (IsInt(strContentLength)) // yes, server informed content length
+		if (IsInt(strContentLength)) { // yes, server informed content length
 			_contentLength = std::stoi(strContentLength);
+		}
 	}
 
 	if (pErr) pErr->clear();
@@ -285,6 +287,7 @@ wstring Internet::_FormatErr(const wchar_t *funcName, DWORD code)
 	default:                                    s = nullptr;
 	}
 
-	return Sprintf(L"%s() failed. Error: %s.", funcName,
+	return Sprintf(L"%s() failed. Error: %s.",
+		funcName,
 		s ? s : Sprintf(L"(unhandled, %08X)", code).c_str() );
 }

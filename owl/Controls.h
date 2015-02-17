@@ -1,16 +1,39 @@
 /*!
  * Often-used controls.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
 
 #pragma once
-#include "Resources.h"
+#include "System.h"
 #include "StrUtil.h"
 #include "Window.h"
 
-namespace wolf {
+namespace owl {
+
+// HMENU wrapper.
+class Menu {
+private:
+	HMENU _hMenu;
+public:
+	Menu()            : _hMenu(nullptr) { }
+	Menu(HMENU hMenu) : _hMenu(hMenu) { }
+	
+	HMENU hMenu() const             { return _hMenu; }
+	int   size() const              { return ::GetMenuItemCount(_hMenu); }
+	void  destroy()                 { if (_hMenu) { ::DestroyMenu(_hMenu); _hMenu = nullptr; } }
+	Menu  getSubmenu(int pos) const { return Menu(::GetSubMenu(_hMenu, pos)); }
+	WORD  getCmdId(int pos) const   { return ::GetMenuItemID(_hMenu, pos); }
+	Menu& createMain(HWND owner);
+	Menu& createPopup();
+	Menu& appendSeparator();
+	Menu& appendItem(const wchar_t *caption, WORD cmdId);
+	Menu& enableItem(std::initializer_list<WORD> cmdIds, bool doEnable);
+	Menu  appendSubmenu(const wchar_t *caption);
+private:
+	void _checkDummyEntry();
+};
 
 // Fit size and position of a bunch of controls inside a window.
 class Resizer final {
@@ -40,43 +63,6 @@ private:
 	void _addOne(Window ctrl, Do modeHorz, Do modeVert);
 	static LRESULT CALLBACK _Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData);
 };
-
-
-// Window and context menus.
-class Menu {
-protected:
-	HMENU              _hMenu;
-	WindowEventFrame  *_pFrame;
-	WindowEventDialog *_pDialog;
-public:
-	Menu(HMENU hMenu) : _hMenu(hMenu), _pFrame(nullptr), _pDialog(nullptr) { }
-	Menu()            : Menu(nullptr) { }
-	HMENU hMenu() const                { return _hMenu; }
-	void  release()                    { _hMenu = nullptr; _pFrame = nullptr; _pDialog = nullptr; }
-	void  destroy()                    { if (_hMenu) ::DestroyMenu(_hMenu); release(); }
-	void  popAtPos(POINT pos, HWND hWndCoordsRelativeTo);
-	int   size() const                 { return ::GetMenuItemCount(_hMenu); }
-	Menu  getSubmenu(int pos) const    { return Menu(::GetSubMenu(_hMenu, pos)); }
-	WORD  getCmdIdByPos(int pos) const { return ::GetMenuItemID(_hMenu, pos); }
-	Menu& enableItem(std::initializer_list<int> indexes, bool doEnable);
-	void  appendSeparator();
-	virtual void appendItem(const wchar_t *caption, std::function<void()> callback);
-	virtual Menu appendMenu(const wchar_t *caption);
-	virtual void defineOwner(WindowEventFrame *owner);
-	virtual void defineOwner(WindowEventDialog *owner);
-private:
-	static WORD _NextCmdId();
-};
-
-	class MenuMain final : public Menu {
-	public:
-		void appendItem(const wchar_t *caption, std::function<void()> callback) override;
-		Menu appendMenu(const wchar_t *caption) override;
-		void defineOwner(WindowEventFrame *owner) override;
-		void defineOwner(WindowEventDialog *owner) override;
-	private:
-		void _drawMenuBarIfNotYet();
-	};
 
 
 // Ordinary textbox with some utilities.
@@ -286,7 +272,7 @@ public:
 		Item getFocused() const                  { return Item(ListView_GetNextItem(_list->hWnd(), -1, LVNI_FOCUSED), _list); }
 	};
 private:
-	Menu _contextMenu;
+	int _ctxMenuId;
 public:
 	ItemsProxy items;
 	enum class View { VW_DETAILS=LV_VIEW_DETAILS, VW_ICON=LV_VIEW_ICON,
@@ -299,14 +285,14 @@ public:
 
 	ListView& operator=(HWND hwnd);
 	ListView& operator=(const Window& wnd)     { return operator=(wnd.hWnd()); }
-	ListView& operator=(const ListView& other) { operator=(other.hWnd()); _contextMenu = other._contextMenu; return *this; }
+	ListView& operator=(const ListView& other) { operator=(other.hWnd()); _ctxMenuId = other._ctxMenuId; return *this; }
 
 	ListView& create(WindowPopup *parent, int id, POINT pos, SIZE size);
-	ListView& setFullRowSelect()               { ListView_SetExtendedListViewStyle(hWnd(), LVS_EX_FULLROWSELECT); return *this; }
-	ListView& setRedraw(bool doRedraw)         { sendMessage(WM_SETREDRAW, static_cast<WPARAM>(static_cast<BOOL>(doRedraw)), 0); return *this; }
-	ListView& setContextMenu(const Menu& menu) { _contextMenu = menu; return *this; }
-	ListView& setView(View view)               { ListView_SetView(hWnd(), static_cast<DWORD>(view)); return *this; }
-	View      getView() const                  { return static_cast<View>(ListView_GetView(hWnd())); }
+	ListView& setFullRowSelect()         { ListView_SetExtendedListViewStyle(hWnd(), LVS_EX_FULLROWSELECT); return *this; }
+	ListView& setRedraw(bool doRedraw)   { sendMessage(WM_SETREDRAW, static_cast<WPARAM>(static_cast<BOOL>(doRedraw)), 0); return *this; }
+	ListView& setContextMenu(int menuId) { _ctxMenuId = menuId; return *this; }
+	ListView& setView(View view)         { ListView_SetView(hWnd(), static_cast<DWORD>(view)); return *this; }
+	View      getView() const            { return static_cast<View>(ListView_GetView(hWnd())); }
 	
 	ListView& iconPush(int iconId);
 	ListView& iconPush(const wchar_t *fileExtension);
@@ -320,4 +306,4 @@ private:
 	static LRESULT CALLBACK _Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData);
 };
 
-}//namespace wolf
+}//namespace owl

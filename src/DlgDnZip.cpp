@@ -2,35 +2,19 @@
 #include "DlgDnZip.h"
 #include "../res/resource.h"
 
-DlgDnZip::DlgDnZip(Internet::Session& isess, const wstring& mark)
-	: session(isess), marker(mark)
+void DlgDnZip::onInitDialog()
 {
-}
+	DlgDn::initCtrls();
+	this->setText(L"Downloading chrome-win32.zip...");
 
-void DlgDnZip::events()
-{
-	this->defineDialog(DLG_PROGRESS);
-
-	this->onInitDialog([&]() {
-		this->setXButton(false);
-		this->setText(L"Downloading chrome-win32.zip...");
-
-		( this->label = this->getChild(LBL_LBL) )
-			.setText(L"Waiting...");
-
-		( this->progBar = this->getChild(PRO_PRO) )
-			.setRange(0, 100)
-			.setPos(0);
-
-		wstring defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
-		if (this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.c_str())) {
-			System::Thread([&]() {
-				this->doDownload();
-			});
-		} else {
-			this->endDialog(IDCANCEL);
-		}
-	});
+	wstring defSave = System::GetDesktopPath().append(L"\\chrome-win32.zip");
+	if (this->getFileSave(L"Zip file (*.zip)|*.zip", this->dest, defSave.c_str())) {
+		System::Thread([&]() {
+			this->doDownload(); // start right away
+		});
+	} else {
+		this->endDialog(IDCANCEL);
+	}
 }
 
 bool DlgDnZip::doDownload()
@@ -49,17 +33,20 @@ bool DlgDnZip::doDownload()
 
 	wstring err;
 	File::Raw fout;
-	if (!fout.open(this->dest, File::Access::READWRITE, &err))
-		return this->doShowErrAndClose(L"File creation error", err);
+	if (!fout.open(this->dest, File::Access::READWRITE, &err)) {
+		return DlgDn::doShowErrAndClose(L"File creation error", err);
+	}
 
-	if (!zipdl.start(&err))
-		return this->doShowErrAndClose(L"Error at download start", err);
+	if (!zipdl.start(&err)) {
+		return DlgDn::doShowErrAndClose(L"Error at download start", err);
+	}
 	this->sendFunction([&]() {
 		this->setText( Sprintf(L"Downloading %s...", File::Path::GetFilename(this->dest)) );
 	});
 
-	if (!fout.setNewSize(zipdl.getContentLength(), &err))
-		return this->doShowErrAndClose(L"Error when resizing file", err);
+	if (!fout.setNewSize(zipdl.getContentLength(), &err)) {
+		return DlgDn::doShowErrAndClose(L"Error when resizing file", err);
+	}
 
 	return this->doReceiveData(zipdl, fout);
 }
@@ -73,9 +60,9 @@ bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
 
 	wstring err;
 	while (zipdl.hasData(&err)) {
-		if (!fout.write(zipdl.getBuffer(), &err))
-			return this->doShowErrAndClose(L"File writing error", err);
-
+		if (!fout.write(zipdl.getBuffer(), &err)) {
+			return DlgDn::doShowErrAndClose(L"File writing error", err);
+		}
 		this->sendFunction([&]() {
 			this->label.setText( Sprintf(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.getPercent(), (float)zipdl.getTotalDownloaded() / 1024 / 1024 ));
@@ -83,18 +70,9 @@ bool DlgDnZip::doReceiveData(Internet::Download& zipdl, File::Raw& fout)
 		});
 	}
 
-	if (!err.empty())
-		return this->doShowErrAndClose(L"Download error", err);
-	
+	if (!err.empty()) {
+		return DlgDn::doShowErrAndClose(L"Download error", err);
+	}
 	this->sendFunction([&]() { this->endDialog(IDOK); }); // download finished
 	return true;
-}
-
-bool DlgDnZip::doShowErrAndClose(const wchar_t *msg, const wstring& err)
-{
-	this->sendFunction([&]() {
-		this->messageBox(msg, err, MB_ICONERROR);
-		this->endDialog(IDCANCEL);
-	});
-	return false;
 }

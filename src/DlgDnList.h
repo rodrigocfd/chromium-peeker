@@ -1,24 +1,29 @@
 
-#include "../wolf/wolf.h"
+#include "DlgDn.h"
 #include "ChromiumRel.h"
-using namespace wolf;
+using namespace owl;
 using std::vector;
 using std::wstring;
 
 // Downloads the list of markers.
-class DlgDnList final : public DialogModal {
+class DlgDnList final : public DlgDn {
 private:
 	Internet::Session& session;
-	ChromiumRel&       clist;
-	int                totBytes;
-	Window             label;
-	ProgressBar        progBar;
+	ChromiumRel&            clist;
+	int                     totBytes;
 public:
-	DlgDnList(Internet::Session& isess, ChromiumRel& list);
+	DlgDnList(Internet::Session& isess, ChromiumRel& list)
+		: session(isess), clist(list), totBytes(0) { }
 	int getTotalBytes() const { return totBytes; }
 private:
-	void events() override;
+	void onInitDialog();
 	bool doDownloadList(const wstring& marker);
 	bool doReadXml(const vector<BYTE>& buf);
-	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
+
+	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
+		switch (msg) {
+		case WM_INITDIALOG: this->onInitDialog(); break;
+		}
+		return DialogModal::dlgProc(msg, wp, lp);
+	}
 };

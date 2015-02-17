@@ -1,22 +1,27 @@
 
-#include "../wolf/wolf.h"
-using namespace wolf;
+#include "DlgDn.h"
+using namespace owl;
 using std::wstring;
 
 // Downloads DLL version for a marker.
-class DlgDnDll final : public DialogModal {
+class DlgDnDll final : public DlgDn {
 private:
 	Internet::Session& session;
 	wstring            marker;
 	int                totDownloaded;
-	Window             label;
-	ProgressBar        progBar;
 public:
 	wstring version;
-	DlgDnDll(Internet::Session& isess, const wstring& mark);
+	DlgDnDll(Internet::Session& isess, const wstring& mark)
+		: session(isess), marker(mark), totDownloaded(0) { }
 private:
-	void events() override;
+	void onInitDialog();
 	bool doDownload();
 	bool doReadVersion(wstring zipPath);
-	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
+
+	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
+		switch (msg) {
+		case WM_INITDIALOG: this->onInitDialog(); break;
+		}
+		return DialogModal::dlgProc(msg, wp, lp);
+	}
 };

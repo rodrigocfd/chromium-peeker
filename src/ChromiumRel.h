@@ -1,7 +1,7 @@
 
 #pragma once
-#include "../wolf/wolf.h"
-using namespace wolf;
+#include "../owl/owl.h"
+using namespace owl;
 
 class ChromiumRel final {
 private:
@@ -11,11 +11,11 @@ private:
 public:
 	ChromiumRel() : _isFinished(false) { }
 	
-	bool append(Xml& data);
-	bool isFinished() const { return _isFinished; }
+	bool           append(Xml& data);
+	bool           isFinished() const { return _isFinished; }
 	const wchar_t* nextMarker() const { return _nextMarker.c_str(); }
 	const std::vector<std::wstring>& markers() const { return _markers; }
-	void reset() { _markers.resize(0); _nextMarker = L""; _isFinished = false; }
+	void           reset()            { _markers.resize(0); _nextMarker = L""; _isFinished = false; }
 private:
 	bool _parseMorePrefixes(Xml::Node& root);
 };

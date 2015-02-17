@@ -1,29 +1,31 @@
 
-#include "../wolf/wolf.h"
-using namespace wolf;
-using std::vector;
-using std::wstring;
+#include "DlgDn.h"
 
 // Downloads information for a marker.
-class DlgDnInfo final : public DialogModal {
+class DlgDnInfo final : public DlgDn {
 public:
 	struct Data final {
-		wstring releaseDate;
-		int     packageSize;
+		std::wstring releaseDate;
+		int          packageSize;
 	};
 
 private:
-	Internet::Session&     session;
-	const vector<wstring>& markers;
-	int                    totDownloaded;
-	Window                 label;
-	ProgressBar            progBar;
+	owl::Internet::Session&          session;
+	const std::vector<std::wstring>& markers;
+	int                              totDownloaded;
 public:
-	vector<Data> data;
-	DlgDnInfo(Internet::Session& isess, const vector<wstring>& marks);
+	std::vector<Data> data;
+	DlgDnInfo(owl::Internet::Session& isess, const std::vector<std::wstring>& marks)
+		: session(isess), markers(marks), totDownloaded(0) { }
 private:
-	void events() override;
-	bool doGetOneFile(const wstring& marker);
-	bool doProcessFile(const vector<BYTE>& buf);
-	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
+	void onInitDialog();
+	bool doGetOneFile(const std::wstring& marker);
+	bool doProcessFile(const std::vector<BYTE>& buf);
+
+	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
+		switch (msg) {
+		case WM_INITDIALOG: this->onInitDialog(); break;
+		}
+		return owl::DialogModal::dlgProc(msg, wp, lp);
+	}
 };

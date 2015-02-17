@@ -1,17 +1,18 @@
 /*!
- * HWND wrapper and related classes.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * HWND wrapper.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
- * @see https://github.com/rodrigocfd/wolf
+ * @see https://github.com/rodrigocfd/owl
  */
 
-#include "Window.h"
-#include "StrUtil.h"
 #include <algorithm>
 #include <process.h>
 #include <Shlobj.h>
 #include <VsStyle.h>
 #include <UxTheme.h>
+#include "StrUtil.h"
+#include "System.h"
+#include "Window.h"
 #pragma comment(lib, "UxTheme.lib")
 #pragma comment(lib, "Comctl32.lib")
 #pragma comment(linker, \
@@ -21,7 +22,7 @@
   "processorArchitecture='*' " \
   "publicKeyToken='6595b64144ccf1df' " \
   "language='*'\"")
-using namespace wolf;
+using namespace owl;
 using std::function;
 using std::vector;
 using std::wstring;
@@ -33,7 +34,6 @@ wstring& Window::getText(wstring& buf) const
 	buf.resize(buf.size() - 1); // remove unnecessary terminating null
 	return buf;
 }
-
 
 WindowPopup::~WindowPopup()
 {
@@ -95,8 +95,9 @@ static vector<wchar_t> _formatFileFilter(const wchar_t *filterWithPipes)
 	// L"Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
 
 	vector<wchar_t> ret(lstrlen(filterWithPipes) + 2, L'\0'); // two terminating nulls
-	for (size_t i = 0; i < ret.size() - 1; ++i)
+	for (size_t i = 0; i < ret.size() - 1; ++i) {
 		ret[i] = (filterWithPipes[i] != L'|') ? filterWithPipes[i] : L'\0';
+	}
 	return ret;
 }
 
@@ -158,7 +159,7 @@ bool WindowPopup::getFileOpen(const wchar_t *filter, vector<wstring>& arrBuf)
 				arrBuf[i].append(L"\\").append(strs[i + 1]); // concat folder + file
 			}
 			std::sort(arrBuf.begin(), arrBuf.end(), [](const wstring& a, const wstring& b)->bool {
-				return CompareI(a, b) < 0;
+				return StrLexi(a, b) < 0;
 			});
 		}
 		return true; // all good
@@ -212,12 +213,14 @@ bool WindowPopup::getFolderChoose(wstring& buf)
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 
 	PIDLIST_ABSOLUTE pidl = SHBrowseForFolder(&bi);
-	if (!pidl)
+	if (!pidl) {
 		return false; // user cancelled
+	}
 
 	wchar_t tmpbuf[MAX_PATH] = { 0 };
-	if (!SHGetPathFromIDList(pidl, tmpbuf))
+	if (!SHGetPathFromIDList(pidl, tmpbuf)) {
 		return false; // some weird error
+	}
 
 	CoUninitialize();
 	buf = tmpbuf;
@@ -232,6 +235,21 @@ void WindowPopup::setXButton(bool enable)
 		UINT dwExtra = enable ? MF_ENABLED : (MF_DISABLED | MF_GRAYED);
 		EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | dwExtra);
 	}
+}
+
+vector<wstring> WindowPopup::getDroppedFiles(HDROP hDrop)
+{
+	vector<wstring> files(DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0));
+	for (size_t i = 0; i < files.size(); ++i) {
+		files[i].resize(DragQueryFile(hDrop, static_cast<UINT>(i), nullptr, 0) + 1, L'\0'); // alloc path string
+		DragQueryFile(hDrop, static_cast<UINT>(i), &files[i][0], static_cast<UINT>(files[i].size()));
+		files[i].resize(files[i].size() - 1); // trim null
+	}
+	DragFinish(hDrop);
+	std::sort(files.begin(), files.end(), [](const wstring& a, const wstring& b)->bool {
+		return StrLexi(a, b) < 0;
+	});
+	return files;
 }
 
 static LRESULT CALLBACK _wheelHoverProc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR idSubclass, DWORD_PTR refData)
@@ -307,8 +325,6 @@ bool WindowCtrl::_drawBorders(WPARAM wp, LPARAM lp)
 
 		RECT rc2 = { 0 }; // clipping region; will draw only within this rectangle
 		HDC hdc = GetWindowDC(this->hWnd());
-
-		// http://stackoverflow.com/questions/217532/what-are-the-possible-classes-for-the-openthemedata-function
 		HTHEME hTheme = OpenThemeData(this->hWnd(), L"LISTVIEW"); // borrow style from listview
 
 		SetRect(&rc2, rc.left, rc.top, rc.left + 2, rc.bottom); // draw only the borders to avoid flickering

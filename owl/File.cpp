@@ -1,6 +1,6 @@
 /*!
  * File handling.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <direct.h> // _wmkdir()
 #include <Shlobj.h>
-using namespace wolf;
+using namespace owl;
 using std::unordered_map;
 using std::vector;
 using std::wstring;
@@ -46,18 +46,18 @@ bool File::CreateDir(const wchar_t *path)
 	return _wmkdir(path) == 0;
 }
 
-System::Date File::DateLastModified(const wchar_t *path)
+Date File::DateLastModified(const wchar_t *path)
 {
 	WIN32_FILE_ATTRIBUTE_DATA fad = { 0 };
 	GetFileAttributesEx(path, GetFileExInfoStandard, &fad);
-	return System::Date(fad.ftLastWriteTime); // already converted to current timezone
+	return Date(fad.ftLastWriteTime); // already converted to current timezone
 }
 
-System::Date File::DateCreated(const wchar_t *path)
+Date File::DateCreated(const wchar_t *path)
 {
 	WIN32_FILE_ATTRIBUTE_DATA fad = { 0 };
 	GetFileAttributesEx(path, GetFileExInfoStandard, &fad);
-	return System::Date(fad.ftCreationTime); // already converted to current timezone
+	return Date(fad.ftCreationTime); // already converted to current timezone
 }
 
 bool File::WriteUtf8(const wchar_t *path, const wchar_t *data, wstring *pErr)
@@ -72,10 +72,12 @@ bool File::WriteUtf8(const wchar_t *path, const wchar_t *data, wstring *pErr)
 	}
 
 	File::Raw fout;
-	if (!fout.open(path, Access::READWRITE, pErr))
+	if (!fout.open(path, Access::READWRITE, pErr)) {
 		return false;
-	if (fout.size() && !fout.setNewSize(0, pErr)) // if already exists, truncate to empty
+	}
+	if (fout.size() && !fout.setNewSize(0, pErr)) { // if already exists, truncate to empty
 		return false;
+	}
 
 	// If the text doesn't have any char to make it UTF-8, it'll
 	// be simply converted to plain ASCII.
@@ -84,9 +86,9 @@ bool File::WriteUtf8(const wchar_t *path, const wchar_t *data, wstring *pErr)
 	if (isUtf8) memcpy(&outBuf[0], "\xEF\xBB\xBF", 3); // write UTF-8 BOM
 	WideCharToMultiByte(CP_UTF8, 0, data, dataLen,
 		reinterpret_cast<char*>(&outBuf[isUtf8 ? 3 : 0]), newLen, nullptr, nullptr);
-	if (!fout.write(outBuf, pErr)) // one single write() to all data, better performance
+	if (!fout.write(outBuf, pErr)) { // one single write() to all data, better performance
 		return false;
-
+	}
 	if (pErr) pErr->clear();
 	return true;
 }
@@ -212,41 +214,44 @@ int File::IndexOfBin(const BYTE *pData, size_t dataLen, const wchar_t *what, boo
 	if (asWideChar) {
 		memcpy(pWhat, what, whatlen * sizeof(wchar_t)); // simply copy the wide string, each char+zero
 	} else {
-		for (size_t i = 0; i < whatlen; ++i)
+		for (size_t i = 0; i < whatlen; ++i) {
 			pWhat[i] = LOBYTE(what[i]); // raw conversion from wchar_t to char
+		}
 	}
 
-	for (size_t i = 0; i < dataLen; ++i)
-		if (!memcmp(pData + i, pWhat, pWhatSz * sizeof(BYTE)))
+	for (size_t i = 0; i < dataLen; ++i) {
+		if (!memcmp(pData + i, pWhat, pWhatSz * sizeof(BYTE))) {
 			return static_cast<int>(i);
-
+		}
+	}
 	return -1; // not found
 }
 
 
 void File::Path::ChangeExtension(wstring& path, const wchar_t *extWithoutDot)
 {
-	path.resize(FindFirstS(path, L'.') + 1); // truncate after the dot
+	path.resize(StrFind(path, L'.') + 1); // truncate after the dot
 	path.append(extWithoutDot);
 }
 
 void File::Path::TrimBackslash(wstring& path)
 {
-	if (!path.empty() && path.back() == L'\\')
+	if (!path.empty() && path.back() == L'\\') {
 		path.resize(path.length() - 1);
+	}
 }
 
 wstring File::Path::GetPath(const wchar_t *path)
 {
 	wstring ret = path;
-	ret.resize(FindLastS(ret, L'\\')); // also remove trailing backslash
+	ret.resize(StrRFind(ret, L'\\')); // also remove trailing backslash
 	return ret;
 }
 
 wstring File::Path::GetFilename(const wstring& path)
 {
 	wstring ret = path;
-	ret.erase(0, FindFirstS(ret, L'\\') + 1);
+	ret.erase(0, StrRFind(ret, L'\\') + 1);
 	return ret;
 }
 
@@ -493,12 +498,14 @@ bool File::Mapped::getContent(vector<BYTE>& buf, int offset, int numBytes, wstri
 bool File::Mapped::getContent(wstring& buf, int offset, int numChars, wstring *pErr) const
 {
 	vector<BYTE> byteBuf;
-	if (!this->getContent(byteBuf, offset, numChars, pErr))
+	if (!this->getContent(byteBuf, offset, numChars, pErr)) {
 		return false;
+	}
 
 	buf.resize(byteBuf.size());
-	for (size_t i = 0; i < byteBuf.size(); ++i)
+	for (size_t i = 0; i < byteBuf.size(); ++i) {
 		buf[i] = (wchar_t)byteBuf[i]; // raw conversion
+	}
 
 	if (pErr) pErr->clear();
 	return true;
@@ -508,8 +515,9 @@ bool File::Mapped::getContent(wstring& buf, int offset, int numChars, wstring *p
 bool File::Text::load(const wchar_t *path, wstring *pErr)
 {
 	File::Mapped fm;
-	if (!fm.open(path, Access::READONLY, pErr))
+	if (!fm.open(path, Access::READONLY, pErr)) {
 		return false;
+	}
 	if (pErr) pErr->clear();
 	return this->load(fm);
 }
@@ -540,22 +548,25 @@ bool File::Text::load(const File::Mapped& fm)
 	{
 		pMem += 2;
 		_text.resize(static_cast<int>(pPast - pMem) / 2);
-		for (int i = 0; i < static_cast<int>(pPast - pMem); i += 2)
+		for (int i = 0; i < static_cast<int>(pPast - pMem); i += 2) {
 			_text[i / 2] = static_cast<wchar_t>(MAKEWORD(*(pMem + i + 1), *(pMem + i)));
+		}
 	}
 	else if ((pPast - pMem >= 2) && !memcmp(pMem, "\xFF\xFE", 2)) // UTF-16 LE
 	{
 		pMem += 2;
 		_text.resize(static_cast<int>(pPast - pMem) / 2);
-		for (int i = 0; i < static_cast<int>(pPast - pMem); i += 2)
+		for (int i = 0; i < static_cast<int>(pPast - pMem); i += 2) {
 			_text[i / 2] = static_cast<wchar_t>(MAKEWORD(*(pMem + i), *(pMem + i + 1)));
+		}
 	}
 	else // ASCII
 	{
 		int len = static_cast<int>(pPast - pMem);
 		_text.resize(len);
-		for (int i = 0; i < len; ++i)
+		for (int i = 0; i < len; ++i) {
 			_text[i] = static_cast<wchar_t>(*(pMem + i)); // brute-force char to wchar_t
+		}
 	}
 	
 	TrimNulls(_text);
@@ -569,8 +580,12 @@ bool File::Text::nextLine(wstring& buf)
 
 	if (_idxLine > -1) { // not 1st line; avoid a 1st blank like to be skipped
 		if ( (*_p == L'\r' && *(_p + 1) == L'\n') || // CRLF || LFCR
-			(*_p == L'\n' && *(_p + 1) == L'\r') ) _p += 2;
-		else if (*_p == L'\r' || *_p == L'\n') ++_p; // CR || LF
+			(*_p == L'\n' && *(_p + 1) == L'\r') )
+		{
+			_p += 2;
+		} else if (*_p == L'\r' || *_p == L'\n') {
+			++_p; // CR || LF
+		}
 	}
 	++_idxLine;
 
@@ -609,7 +624,7 @@ bool File::Ini::load(wstring *pErr)
 			continue;
 		}
 		if (this->sections.size() && line.length()) { // keys will be read only if within a section
-			int idxEq = FindFirstS(line, L'=');
+			int idxEq = StrFind(line, L'=');
 			if (idxEq > -1) {
 				name.clear();
 				name.insert(0, &line[0], idxEq);
@@ -660,8 +675,9 @@ int File::Ini::_countSections(File::Text *fin) const
 	wstring line;
 	fin->rewind();
 	while (fin->nextLine(line)) {
-		if (line[0] == L'[' && line.back() == L']')
+		if (line[0] == L'[' && line.back() == L']') {
 			++count;
+		}
 	}
 	fin->rewind();
 	return count;
@@ -708,7 +724,7 @@ bool File::Listing::next(wstring& buf)
 		}
 	}
 
-	if (FindFirstS(_pattern, L'\\') != -1) { // user pattern contains an absolute path
+	if (StrFind(_pattern, L'\\') != -1) { // user pattern contains an absolute path
 		buf = Path::GetPath(_pattern);
 		buf.append(L"\\").append(_wfd.cFileName);
 	} else {
@@ -722,11 +738,11 @@ static vector<wstring> _ListingGetAll(File::Listing& listing)
 {
 	vector<wstring> ret;
 	wstring f;
-	while (listing.next(f))
+	while (listing.next(f)) {
 		ret.emplace_back(f);
-
+	}
 	std::sort(ret.begin(), ret.end(), [](const wstring& a, const wstring& b)->bool {
-		return CompareI(a, b) < 0;
+		return StrLexi(a, b) < 0;
 	});
 	return ret;
 }

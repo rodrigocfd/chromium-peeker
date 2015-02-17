@@ -1,6 +1,6 @@
 /*!
  * File handling.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
@@ -9,21 +9,21 @@
 #include <unordered_map>
 #include "System.h"
 
-namespace wolf {
+namespace owl {
 
 struct File final {
-	static inline bool  Exists(const wchar_t *path)                       { return ::GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES; }
-	static inline bool  Exists(const std::wstring& path)                  { return Exists(path.c_str()); }
-	static inline bool  IsDir(const wchar_t *path)                        { return (::GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY) != 0; }
-	static inline bool  IsDir(const std::wstring& path)                   { return IsDir(path.c_str()); }
+	static inline bool  Exists(const wchar_t *path)                { return ::GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES; }
+	static inline bool  Exists(const std::wstring& path)           { return Exists(path.c_str()); }
+	static inline bool  IsDir(const wchar_t *path)                 { return (::GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY) != 0; }
+	static inline bool  IsDir(const std::wstring& path)            { return IsDir(path.c_str()); }
 	static bool         Delete(const wchar_t *path, std::wstring *pErr=nullptr);
 	static inline bool  Delete(const std::wstring& path, std::wstring *pErr=nullptr) { return Delete(path.c_str(), pErr); }
 	static bool         CreateDir(const wchar_t *path);
-	static inline bool  CreateDir(const std::wstring& path)               { return CreateDir(path.c_str()); }
-	static System::Date        DateLastModified(const wchar_t *path);
-	static inline System::Date DateLastModified(const std::wstring& path) { return DateLastModified(path.c_str()); }
-	static System::Date        DateCreated(const wchar_t *path);
-	static inline System::Date DateCreated(const std::wstring& path)      { return DateCreated(path.c_str()); }
+	static inline bool  CreateDir(const std::wstring& path)        { return CreateDir(path.c_str()); }
+	static Date         DateLastModified(const wchar_t *path);
+	static inline Date  DateLastModified(const std::wstring& path) { return DateLastModified(path.c_str()); }
+	static Date         DateCreated(const wchar_t *path);
+	static inline Date  DateCreated(const std::wstring& path)      { return DateCreated(path.c_str()); }
 	static bool         WriteUtf8(const wchar_t *path, const wchar_t *data, std::wstring *pErr=nullptr);
 	static bool         Unzip(const wchar_t *zip, const wchar_t *destFolder, std::wstring *pErr=nullptr);
 	static inline bool  Unzip(const std::wstring& zip, const std::wstring& destFolder, std::wstring *pErr=nullptr) { return Unzip(zip.c_str(), destFolder.c_str(), pErr); }
@@ -137,4 +137,4 @@ struct File final {
 	};
 };
 
-}//namespace wolf
+}//namespace owl

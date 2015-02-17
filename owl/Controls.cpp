@@ -1,31 +1,88 @@
 /*!
  * Often-used controls.
- * Part of WOLF - Win32 Object Lambda Framework.
+ * Part of OWL - Object Win32 Library.
  * @author Rodrigo Cesar de Freitas Dias
  * @see https://github.com/rodrigocfd/wolf
  */
 
 #include "Controls.h"
-#include "System.h"
-using namespace wolf;
+using namespace owl;
 using std::function;
 using std::initializer_list;
 using std::vector;
 using std::wstring;
 
+Menu& Menu::createMain(HWND owner)
+{
+	this->destroy();
+	_hMenu = CreateMenu(); // to be used as a main window menu
+	this->appendItem(L"_DUMMY_", WM_APP-2); // avoids further call to DrawMenuBar(), which would demand HWND again
+	SetMenu(owner, _hMenu);
+	return *this;
+}
+
+Menu& Menu::createPopup()
+{
+	this->destroy();
+	_hMenu = CreatePopupMenu(); // to be used as a popup menu
+	return *this;
+}
+
+Menu& Menu::appendSeparator()
+{
+	this->_checkDummyEntry();
+	InsertMenu(_hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, nullptr);
+	return *this;
+}
+
+Menu& Menu::appendItem(const wchar_t *caption, WORD cmdId)
+{
+	this->_checkDummyEntry();
+	InsertMenu(_hMenu, -1, MF_BYPOSITION | MF_STRING, cmdId, caption);
+	return *this;
+}
+
+Menu& Menu::enableItem(initializer_list<WORD> cmdIds, bool doEnable)
+{
+	for (const WORD& cmd : cmdIds) {
+		EnableMenuItem(_hMenu, cmd, MF_BYCOMMAND | ((doEnable) ? MF_ENABLED : MF_GRAYED));
+	}
+	return *this;
+}
+
+Menu Menu::appendSubmenu(const wchar_t *caption)
+{
+	this->_checkDummyEntry();
+	
+	Menu sub;
+	sub.createPopup();
+	AppendMenu(_hMenu, MF_STRING | MF_POPUP, (UINT_PTR)sub.hMenu(), caption);
+	return sub; // return new submenu, so it can be edited
+}
+
+void Menu::_checkDummyEntry()
+{
+	if (size() == 1 && GetMenuItemID(_hMenu, 0) == WM_APP-2) {
+		DeleteMenu(_hMenu, 0, MF_BYPOSITION); // delete dummy, if any
+	}
+}
+
+
 Resizer& Resizer::add(initializer_list<HWND> hChildren, Do modeHorz, Do modeVert)
 {
 	_ctrls.reserve(_ctrls.size() + hChildren.size());
-	for (const HWND& hChild : hChildren)
+	for (const HWND& hChild : hChildren) {
 		this->_addOne(hChild, modeHorz, modeVert);
+	}
 	return *this;
 }
 
 Resizer& Resizer::add(initializer_list<int> ctrlIds, HWND hParent, Do modeHorz, Do modeVert)
 {
 	_ctrls.reserve(_ctrls.size() + ctrlIds.size());
-	for (const int& ctrlId : ctrlIds)
+	for (const int& ctrlId : ctrlIds) {
 		this->_addOne(GetDlgItem(hParent, ctrlId), modeHorz, modeVert);
+	}
 	return *this;
 }
 
@@ -60,10 +117,11 @@ LRESULT CALLBACK Resizer::_Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT_
 				HDWP hdwp = BeginDeferWindowPos(static_cast<int>(pThis->_ctrls.size()));
 				for (const _Ctrl& ctrl : pThis->_ctrls) {
 					UINT uFlags = SWP_NOZORDER;
-					if (ctrl.modeHorz == Do::REPOS && ctrl.modeVert == Do::REPOS) // reposition both vert & horz
+					if (ctrl.modeHorz == Do::REPOS && ctrl.modeVert == Do::REPOS) { // reposition both vert & horz
 						uFlags |= SWP_NOSIZE;
-					else if (ctrl.modeHorz == Do::RESIZE && ctrl.modeVert == Do::RESIZE) // resize both vert & horz
+					} else if (ctrl.modeHorz == Do::RESIZE && ctrl.modeVert == Do::RESIZE) { // resize both vert & horz
 						uFlags |= SWP_NOMOVE;
+					}
 
 					DeferWindowPos(hdwp, ctrl.wnd.hWnd(), nullptr,
 						ctrl.modeHorz == Do::REPOS ?
@@ -92,156 +150,13 @@ LRESULT CALLBACK Resizer::_Proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, UINT_
 }
 
 
-void Menu::popAtPos(POINT pos, HWND hWndCoordsRelativeTo)
-{
-	if (!_hMenu) return;
-	if (!_pFrame && !_pDialog) return;
-
-	HWND hwnd = _pFrame ? _pFrame->hWnd() : _pDialog->hWnd();
-
-	// Shows a popup context menu, anchored at the given coordinates.
-	// The passed coordinates can be relative to any window.
-
-	POINT ptWnd = pos; // receives coordinates relative to parent window
-	ClientToScreen(hWndCoordsRelativeTo ? hWndCoordsRelativeTo : hwnd, &ptWnd); // to screen coordinates
-	SetForegroundWindow(hwnd);
-	TrackPopupMenu(_hMenu, TPM_RIGHTBUTTON, ptWnd.x, ptWnd.y, 0, hwnd, nullptr); // owned by hParent, so messages go to it
-	PostMessage(hwnd, WM_NULL, 0, 0); // http://msdn.microsoft.com/en-us/library/ms648002%28VS.85%29.aspx
-
-	// To show a menu loaded from resource, use GetSubMenu(hMenu, 0) in TrackPopupMenu call.
-}
-
-Menu& Menu::enableItem(initializer_list<int> indexes, bool doEnable)
-{
-	// Note: a separator also counts as an item.
-	if (_hMenu) {
-		for (const int& index : indexes)
-			EnableMenuItem(_hMenu, index, MF_BYPOSITION | ((doEnable) ? MF_ENABLED : MF_GRAYED));
-	}
-	return *this;
-}
-
-void Menu::appendSeparator()
-{
-	if (!_hMenu) return;
-	if (!_pFrame && !_pDialog) return;
-
-	if (this->size() > 0)
-		InsertMenu(_hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, nullptr);
-}
-
-void Menu::appendItem(const wchar_t *caption, function<void()> callback)
-{
-	if (!_hMenu || (!_pFrame && !_pDialog)) {
-		OutputDebugString(L"Failed to create menu item... did you forget to call defineOwner()?\n");
-		return;
-	}
-
-	WORD cmdId = _NextCmdId();
-	InsertMenu(_hMenu, -1, MF_BYPOSITION | MF_STRING, cmdId, caption);
-	
-	if (_pFrame) {
-		_pFrame->onCommand(cmdId, std::move(callback));
-	} else if (_pDialog) {
-		_pDialog->onCommand(cmdId, std::move(callback));
-	}
-}
-
-Menu Menu::appendMenu(const wchar_t *caption)
-{
-	if (!_hMenu || (!_pFrame && !_pDialog)) {
-		OutputDebugString(L"Failed to create submenu... did you forget to call defineOwner()?\n");
-		return Menu();
-	}
-
-	Menu sub = CreateMenu();
-	sub._pFrame = this->_pFrame;
-	sub._pDialog = this->_pDialog;
-	AppendMenu(_hMenu, MF_STRING | MF_POPUP, reinterpret_cast<UINT_PTR>(sub._hMenu), caption);
-	return sub;
-}
-
-void Menu::defineOwner(WindowEventFrame *owner)
-{
-	this->destroy();
-	if (owner) {
-		_pFrame = owner;
-		_hMenu = CreatePopupMenu();
-	}
-}
-
-void Menu::defineOwner(WindowEventDialog *owner)
-{
-	this->destroy();
-	if (owner) {
-		_pDialog = owner;
-		_hMenu = CreatePopupMenu();
-	}
-}
-
-WORD Menu::_NextCmdId()
-{
-	static WORD id = MAXINTATOM-1; // http://blogs.msdn.com/b/oldnewthing/archive/2003/12/02/55914.aspx
-	return id--;
-}
-
-void MenuMain::appendItem(const wchar_t *caption, function<void()> callback)
-{
-	Menu::appendItem(caption, std::move(callback));
-	this->_drawMenuBarIfNotYet();
-}
-
-Menu MenuMain::appendMenu(const wchar_t *caption)
-{
-	Menu sub = Menu::appendMenu(caption);
-	this->_drawMenuBarIfNotYet();
-	return sub;
-}
-
-void MenuMain::defineOwner(WindowEventFrame *owner)
-{
-	this->destroy();
-	if (owner) {
-		_pFrame = owner;
-		_hMenu = CreateMenu(); // to be used as a main window menu on a Frame instance
-	}
-}
-
-void MenuMain::defineOwner(WindowEventDialog *owner)
-{
-	this->destroy();
-	if (owner) {
-		_pDialog = owner;
-		_hMenu = CreateMenu(); // to be used as a main window menu on a Dialog instance
-	}
-}
-
-void MenuMain::_drawMenuBarIfNotYet()
-{
-	if (this->size() != 1) return;
-	if (!_pFrame && !_pDialog) return;
-
-	function<void()> drawMenuBar = [=]() {
-		HWND hwnd = _pFrame ? _pFrame->hWnd() : _pDialog->hWnd();
-		SetMenu(hwnd, _hMenu);
-		RECT rc = { 0 };
-		GetWindowRect(hwnd, &rc);
-		SetWindowPos(hwnd, nullptr, 0, 0,
-			rc.right - rc.left,
-			rc.bottom - rc.top + GetSystemMetrics(SM_CYMENU), // increase height to fit menu bar
-			SWP_NOZORDER | SWP_NOMOVE);
-	};
-	_pFrame ? _pFrame->onCreate(drawMenuBar) : // menu will be added to window during window creation
-		_pDialog->onInitDialog(drawMenuBar);
-}
-
-
 TextBox& TextBox::operator=(HWND hwnd)
 {
 	const int IDSUBCLASS = 1;
 
-	if (this->hWnd()) // remove any previous subclassing of us, will be reassigned
+	if (this->hWnd()) { // remove any previous subclassing of us, will be reassigned
 		RemoveWindowSubclass(this->hWnd(), _Proc, IDSUBCLASS);
+	}
 
 	static_cast<Window*>(this)->operator=(hwnd);
 	_notifyKeyUp = 0;
@@ -318,8 +233,9 @@ Combo& Combo::create(WindowPopup *parent, int id, POINT pos, int cx)
 
 Combo& Combo::itemAdd(initializer_list<const wchar_t*> arrStr)
 {
-	for (const wchar_t *s : arrStr)
+	for (const wchar_t *s : arrStr) {
 		this->sendMessage(CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
+	}
 	return *this;
 }
 
@@ -355,16 +271,18 @@ ListBox& ListBox::create(WindowPopup *parent, int id, POINT pos, SIZE size)
 
 ListBox& ListBox::itemAdd(initializer_list<const wchar_t*> arrStr)
 {
-	for (const wchar_t *s : arrStr)
+	for (const wchar_t *s : arrStr) {
 		this->sendMessage(LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
+	}
 	return *this;
 }
 
 int ListBox::itemCountSelected() const
 {
 	int cou = static_cast<int>(this->sendMessage(LB_GETSELCOUNT, 0, 0));
-	if (cou == LB_ERR) // we have a single-selection listbox, zero or one items can be selected
+	if (cou == LB_ERR) { // we have a single-selection listbox, zero or one items can be selected
 		return (this->sendMessage(LB_GETCURSEL, 0, 0) == LB_ERR) ? 0 : 1;
+	}
 	return cou;
 }
 
@@ -376,8 +294,9 @@ int ListBox::itemGetSelected(vector<int> *indexesBuf) const
 		LRESULT gsi = this->sendMessage(LB_GETSELITEMS, static_cast<WPARAM>(indexesBuf->size()),
 			reinterpret_cast<LPARAM>(&(*indexesBuf)[0]) );
 		if (gsi == LB_ERR) {
-			if (indexesBuf->size() > 0) // a single-selection listbox
+			if (indexesBuf->size() > 0) { // a single-selection listbox
 				(*indexesBuf)[0] = static_cast<int>(this->sendMessage(LB_GETCURSEL, 0, 0));
+			}
 		}
 		return indexesBuf->size() > 0 ? (*indexesBuf)[0] : -1;
 	}
@@ -481,9 +400,9 @@ StatusBar& StatusBar::addFixedPart(BYTE sizePixels)
 {
 	_parts.push_back({ sizePixels, 0 });
 
-	if (_parts.size() == _rightEdges.size()) // last part inserted
+	if (_parts.size() == _rightEdges.size()) { // last part inserted
 		this->_putParts(_sb.getParent().getClientRect().right);
-
+	}
 	return *this;
 }
 
@@ -496,9 +415,9 @@ StatusBar& StatusBar::addResizablePart(float resizeWeight)
 
 	_parts.push_back({ 0, resizeWeight });
 
-	if (_parts.size() == _rightEdges.size()) // last part inserted
+	if (_parts.size() == _rightEdges.size()) { // last part inserted
 		this->_putParts(_sb.getParent().getClientRect().right);
-
+	}
 	return *this;
 }
 
@@ -587,8 +506,9 @@ ListView::Item& ListView::Item::ensureVisible()
 		ListView_GetItemIndexRect(_list->hWnd(), &lvii, 0, LVIR_BOUNDS, &rc);
 		int xUs = rc.top; // our current X
 
-		if (xUs < xTop || xUs > xTop + cyList) // if we're not visible
+		if (xUs < xTop || xUs > xTop + cyList) { // if we're not visible
 			ListView_Scroll(_list->hWnd(), 0, xUs - xTop - cyList / 2 + cyItem * 2);
+		}
 	} else {
 		ListView_EnsureVisible(_list->hWnd(), this->i, FALSE);
 	}
@@ -683,9 +603,9 @@ vector<ListView::Item> ListView::ItemsProxy::getAll() const
     vector<Item> items; // a big array with all items in list
     items.reserve(totItems);
 
-    for (int i = 0; i < totItems; ++i)
+    for (int i = 0; i < totItems; ++i) {
         items.emplace_back(i, this->_list);
-
+	}
 	return items;
 }
 
@@ -701,16 +621,18 @@ ListView::Item ListView::ItemsProxy::find(const wchar_t *caption)
 void ListView::ItemsProxy::select(const vector<int>& idx)
 {
 	// Select the items whose indexes have been passed in the array.
-	for (const int& index : idx)
+	for (const int& index : idx) {
 		ListView_SetItemState(_list->hWnd(), index, LVIS_SELECTED, LVIS_SELECTED);
+	}
 }
 
 void ListView::ItemsProxy::removeSelected()
 {
 	_list->setRedraw(false);
 	int i = -1;
-	while ((i = ListView_GetNextItem(_list->hWnd(), -1, LVNI_SELECTED)) != -1)
+	while ((i = ListView_GetNextItem(_list->hWnd(), -1, LVNI_SELECTED)) != -1) {
 		ListView_DeleteItem(_list->hWnd(), i);
+	}
 	_list->setRedraw(true);
 }
 
@@ -733,13 +655,14 @@ ListView& ListView::operator=(HWND hwnd)
 {
 	const int IDSUBCLASS = 1;
 
-	if (this->hWnd()) // if previously assigned, remove previous subclassing
+	if (this->hWnd()) { // if previously assigned, remove previous subclassing
 		RemoveWindowSubclass(this->hWnd(), _Proc, IDSUBCLASS);
+	}
 
 	static_cast<Window*>(this)->operator=(hwnd);
 	SetWindowSubclass(this->hWnd(), _Proc, IDSUBCLASS, reinterpret_cast<DWORD_PTR>(this));
 	items = ItemsProxy(this); // initialize internal object
-	_contextMenu.release();
+	_ctxMenuId = 0; // ID of context popup menu
 	return *this;
 }
 
@@ -765,9 +688,7 @@ ListView& ListView::iconPush(int iconId)
 ListView& ListView::iconPush(const wchar_t *fileExtension)
 {
 	HIMAGELIST hImg = this->_proceedImageList();
-	if (!hImg) {
-		OutputDebugString(L"ERROR: Imagelist creation failure.\n");
-	} else {
+	if (hImg) {
 		Icon expicon; // icon will be released at the end of this scope block
 		expicon.getFromExplorer(fileExtension);
 		ImageList_AddIcon(hImg, expicon.hIcon()); // append a clone of icon handle to imagelist
@@ -816,15 +737,18 @@ HIMAGELIST ListView::_proceedImageList()
 	HIMAGELIST hImg = ListView_GetImageList(this->hWnd(), LVSIL_SMALL); // current imagelist
 	if (!hImg) {
 		hImg = ImageList_Create(16, 16, ILC_COLOR32, 1, 1); // create a 16x16 imagelist
-		if (!hImg) return 0; // imagelist creation failure!
-			ListView_SetImageList(this->hWnd(), hImg, LVSIL_SMALL); // associate imagelist to listview control
+		if (!hImg) {
+			OutputDebugString(L"ERROR: ImageList_Create failed.\n");
+			return nullptr;
+		}
+		ListView_SetImageList(this->hWnd(), hImg, LVSIL_SMALL); // associate imagelist to listview control
 	}
 	return hImg; // return handle to current imagelist
 }
 
 int ListView::_showCtxMenu(bool followCursor)
 {
-	if (!_contextMenu.hMenu()) return -1; // no context menu assigned via setContextMenu()
+	if (!_ctxMenuId) return -1; // no context menu assigned via setContextMenu()
 
 	POINT coords = { 0 };
 	int itemBelowCursor = -1;
@@ -863,7 +787,7 @@ int ListView::_showCtxMenu(bool followCursor)
 
 	// The popup menu is created with hDlg as parent, so the menu messages go to it.
 	// The lvhti coordinates are relative to listview, and will be mapped into screen-relative.
-	_contextMenu.popAtPos(coords, this->hWnd());
+	System::PopMenu(this->getParent().hWnd(), _ctxMenuId, coords.x, coords.y, this->hWnd());
 	return itemBelowCursor; // -1 if none
 }
 
