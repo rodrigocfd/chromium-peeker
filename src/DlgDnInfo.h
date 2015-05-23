@@ -10,22 +10,23 @@ public:
 	};
 
 private:
-	owl::Internet::Session&          session;
+	c4w::net::Session&               session;
 	const std::vector<std::wstring>& markers;
 	int                              totDownloaded;
 public:
 	std::vector<Data> data;
-	DlgDnInfo(owl::Internet::Session& isess, const std::vector<std::wstring>& marks)
+	DlgDnInfo(c4w::net::Session& isess, const std::vector<std::wstring>& marks)
 		: session(isess), markers(marks), totDownloaded(0) { }
 private:
 	void onInitDialog();
+
 	bool doGetOneFile(const std::wstring& marker);
 	bool doProcessFile(const std::vector<BYTE>& buf);
 
 	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
 		switch (msg) {
-		case WM_INITDIALOG: this->onInitDialog(); break;
+		case WM_INITDIALOG: onInitDialog(); break;
 		}
-		return owl::DialogModal::dlgProc(msg, wp, lp);
+		return c4w::DialogModal::dlgProc(msg, wp, lp);
 	}
 };

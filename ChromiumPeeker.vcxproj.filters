@@ -8,8 +8,8 @@
     <Filter Include="src">
       <UniqueIdentifier>{eda5be8f-4c4d-4e6b-8b02-3839d3f215f6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="owl">
-      <UniqueIdentifier>{86c381df-bc0b-4875-b9ba-1caffa7e849a}</UniqueIdentifier>
+    <Filter Include="C4W">
+      <UniqueIdentifier>{a618073f-d431-4d3f-90c6-75493dd4bfa3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,35 +39,38 @@
     <ClInclude Include="src\DlgDnDll.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="owl\StrUtil.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\System.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\Window.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\WindowDialog.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\WindowFrame.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\Controls.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\File.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\Internet.h">
-      <Filter>owl</Filter>
-    </ClInclude>
-    <ClInclude Include="owl\owl.h">
-      <Filter>owl</Filter>
-    </ClInclude>
     <ClInclude Include="src\DlgDn.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\File.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Net.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Resources.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Str.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Sys.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Window.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\WindowDialog.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\WindowFrame.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\c4w.h">
+      <Filter>C4W</Filter>
+    </ClInclude>
+    <ClInclude Include="c4w\Controls.h">
+      <Filter>C4W</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,32 +92,35 @@
     <ClCompile Include="src\DlgDnZip.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="owl\Controls.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\File.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\Internet.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\StrUtil.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\System.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\Window.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\WindowDialog.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
-    <ClCompile Include="owl\WindowFrame.cpp">
-      <Filter>owl</Filter>
-    </ClCompile>
     <ClCompile Include="src\DlgDn.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Controls.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\File.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Net.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Resources.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Str.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Sys.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\Window.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\WindowDialog.cpp">
+      <Filter>C4W</Filter>
+    </ClCompile>
+    <ClCompile Include="c4w\WindowFrame.cpp">
+      <Filter>C4W</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

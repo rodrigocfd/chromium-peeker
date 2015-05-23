@@ -1,7 +1,7 @@
 
 #pragma once
-#include "../owl/owl.h"
-using namespace owl;
+#include "../c4w/c4w.h"
+using namespace c4w;
 
 class ChromiumRel final {
 private:

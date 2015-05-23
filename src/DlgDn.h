@@ -1,8 +1,8 @@
 
 #pragma once
-#include "../owl/owl.h"
+#include "../c4w/c4w.h"
 #include "../res/resource.h"
-using namespace owl;
+using namespace c4w;
 using std::wstring;
 
 // Base class to all download classes.

@@ -59,10 +59,10 @@ void DlgMain::onBtnDlList()
 
 		this->listview.setRedraw(false);
 		const int iShown = 1200;
-		for (vector<wstring>::size_type i = markers.size() - iShown; i < markers.size(); ++i) { // display only last markers
+		for (size_t i = markers.size() - iShown; i < markers.size(); ++i) { // display only last markers
 			this->listview.items.add(markers[i]);
 		}
-		this->lblLoaded.setText( Sprintf(L"%d/%d markers (%.2f KB)",
+		this->lblLoaded.setText( str::Sprintf(L"%d/%d markers (%.2f KB)",
 			iShown, markers.size(), static_cast<float>(ddl.getTotalBytes()) / 1024) );
 		this->listview.setRedraw(true).columnFit(3);
 	}
@@ -85,12 +85,12 @@ void DlgMain::onMnuMainGetBasic()
 		this->listview.setRedraw(false);
 
 		for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
-			wstring relDate = Sprintf(L"%s %s",
+			wstring relDate = str::Sprintf(L"%s %s",
 				ddi.data[i].releaseDate.substr(0, 10).c_str(),
 				ddi.data[i].releaseDate.substr(11, 5).c_str() );
 			this->listview.items[sels[i].i].setText(relDate, 1);
 
-			wstring packSz = Sprintf(L"%.2f MB", (float)ddi.data[i].packageSize / 1024 / 1024);
+			wstring packSz = str::Sprintf(L"%.2f MB", (float)ddi.data[i].packageSize / 1024 / 1024);
 			this->listview.items[sels[i].i].setText(packSz, 2);
 		}
 		this->listview.setRedraw(true);

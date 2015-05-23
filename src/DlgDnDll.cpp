@@ -6,17 +6,18 @@ void DlgDnDll::onInitDialog()
 {
 	DlgDn::initCtrls();
 	this->setText(L"Downloading chrome-win32.zip...");
-	System::Thread([&]() {
+	sys::Thread([&]() {
 		this->doDownload(); // start right away
 	});
 }
 
 bool DlgDnDll::doDownload()
 {
-	wstring lnk = Sprintf(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
+	wstring lnk = str::Sprintf(
+		L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
 		this->marker.c_str() );
 
-	Internet::Download dlfile(this->session, lnk);
+	net::Download dlfile(this->session, lnk);
 	dlfile.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dlfile.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -25,9 +26,9 @@ bool DlgDnDll::doDownload()
 		L"Host: commondatastorage.googleapis.com"
 	});
 
-	wstring err, destPath = System::GetExePath().append(L"\\tmpchro.zip");
-	File::Raw fout;
-	if (!fout.open(destPath, File::Access::READWRITE, &err)) {
+	wstring err, destPath = sys::GetExePath().append(L"\\tmpchro.zip");
+	file::Raw fout;
+	if (!fout.open(destPath, file::Access::READWRITE, &err)) {
 		return DlgDn::doShowErrAndClose(L"File creation error", err);
 	}
 	if (!dlfile.start(&err)) {
@@ -42,7 +43,7 @@ bool DlgDnDll::doDownload()
 		}
 		this->sendFunction([&]() {
 			this->progBar.setPos(static_cast<int>(dlfile.getPercent()));
-			this->label.setText( Sprintf(L"%.0f%% downloaded (%.1f MB)...\n",
+			this->label.setText( str::Sprintf(L"%.0f%% downloaded (%.1f MB)...\n",
 				dlfile.getPercent(), static_cast<float>(dlfile.getTotalDownloaded()) / 1024 / 1024 ));
 		});
 	}
@@ -63,7 +64,7 @@ bool DlgDnDll::doReadVersion(wstring zipPath)
 		this->progBar.animateMarquee(true);
 	});
 	wstring err;
-	if (!File::Unzip(zipPath, File::Path::GetPath(zipPath), &err)) { // potentially slow
+	if (!file::Unzip(zipPath, file::path::GetPath(zipPath), &err)) { // potentially slow
 		return DlgDn::doShowErrAndClose(L"Unzipping failed", err);
 	}
 
@@ -71,14 +72,14 @@ bool DlgDnDll::doReadVersion(wstring zipPath)
 	this->sendFunction([&]() {
 		this->label.setText(L"Scanning chrome.dll, please wait...");
 	});
-	wstring dllPath = File::Path::GetPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
-	if (!File::Exists(dllPath)) {
+	wstring dllPath = file::path::GetPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
+	if (!file::Exists(dllPath)) {
 		return DlgDn::doShowErrAndClose(L"DLL not found",
-			Sprintf(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
+			str::Sprintf(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
 	}
 
-	File::Mapped file;
-	if (!file.open(dllPath, File::Access::READONLY, &err))
+	file::Mapped file;
+	if (!file.open(dllPath, file::Access::READONLY, &err))
 		return DlgDn::doShowErrAndClose(L"Could not open file", err);
 
 	// Search strings.
@@ -86,23 +87,23 @@ bool DlgDnDll::doReadVersion(wstring zipPath)
 	int startAt = 26 * 1024 * 1024; // use an offset to search less
 
 	BYTE *pData = file.pMem();
-	int match1 = File::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 1st occurrence
+	int match1 = file::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 1st occurrence
 	if (match1 == -1) {
 		return DlgDn::doShowErrAndClose(L"Parsing error",
-			Sprintf(L"1st version offset could not be found in:\n%s", dllPath.c_str()) );
+			str::Sprintf(L"1st version offset could not be found in:\n%s", dllPath.c_str()) );
 	}
 
 	startAt += match1 + lstrlen(term) * sizeof(wchar_t);
-	int match2 = File::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 2st occurrence
+	int match2 = file::IndexOfBin(pData + startAt, file.size() - startAt, term, true); // 2st occurrence
 	if (match2 == -1) {
 		return DlgDn::doShowErrAndClose(L"Parsing error",
-			Sprintf(L"2st version offset could not be found in:\n%s", dllPath.c_str()) );
+			str::Sprintf(L"2st version offset could not be found in:\n%s", dllPath.c_str()) );
 	}
 	this->version.assign((const wchar_t*)(pData + startAt + match2 + 30), 11);
 	
 	file.close();
-	File::Delete(File::Path::GetPath(zipPath).append(L"\\chrome-win32"));
-	File::Delete(zipPath);
+	file::Delete(file::path::GetPath(zipPath).append(L"\\chrome-win32"));
+	file::Delete(zipPath);
 		
 	this->sendFunction([&]() { this->endDialog(IDOK); });
 	return true;
