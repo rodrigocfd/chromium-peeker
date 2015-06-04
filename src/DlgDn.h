@@ -1,19 +1,17 @@
 
 #pragma once
-#include "../c4w/c4w.h"
+#include "../wolf/wolf.h"
 #include "../res/resource.h"
-using namespace c4w;
-using std::wstring;
 
 // Base class to all download classes.
-class DlgDn : public DialogModal {
-protected:
-	Window      label;
-	ProgressBar progBar;
+class DlgDn : public wolf::DialogModal {
 public:
 	DlgDn() : DialogModal(DLG_PROGRESS) { }
 	virtual ~DlgDn() = 0;
 protected:
-	void initCtrls();
-	bool doShowErrAndClose(const wchar_t *msg, const wstring& err);
+	void _initCtrls();
+	bool _doShowErrAndClose(const wchar_t *msg, const std::wstring& err);
+	
+	wolf::Window _label;
+	wolf::ctrl::ProgressBar _progBar;
 };

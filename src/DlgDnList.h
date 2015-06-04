@@ -1,30 +1,20 @@
 
+#pragma once
 #include "DlgDn.h"
 #include "ChromiumRel.h"
-using namespace c4w;
-using std::vector;
-using std::wstring;
 
 // Downloads the list of markers.
 class DlgDnList final : public DlgDn {
-private:
-	net::Session& session;
-	ChromiumRel&  clist;
-	int           totBytes;
 public:
-	DlgDnList(net::Session& isess, ChromiumRel& list)
-		: session(isess), clist(list), totBytes(0) { }
-	int getTotalBytes() const { return totBytes; }
+	DlgDnList(wolf::net::Session& session, ChromiumRel& clist)
+		: _session(session), _clist(clist), _totBytes(0) { }
+	int getTotalBytes() const { return _totBytes; }
 private:
-	void onInitDialog();
+	void events() override;
+	bool _doDownloadList(const std::wstring& marker);
+	bool _doReadXml(const std::vector<BYTE>& buf);
 
-	bool doDownloadList(const wstring& marker);
-	bool doReadXml(const vector<BYTE>& buf);
-
-	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
-		switch (msg) {
-		case WM_INITDIALOG: onInitDialog(); break;
-		}
-		return DialogModal::dlgProc(msg, wp, lp);
-	}
+	wolf::net::Session& _session;
+	ChromiumRel& _clist;
+	int _totBytes;
 };

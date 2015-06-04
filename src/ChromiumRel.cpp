@@ -1,6 +1,8 @@
 
 #include "ChromiumRel.h"
 #include <algorithm>
+using namespace wolf;
+using namespace wolf::res;
 using std::vector;
 using std::wstring;
 

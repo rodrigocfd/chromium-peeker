@@ -1,24 +1,30 @@
 
 #include "DlgDnList.h"
-#include "../res/resource.h"
+using namespace wolf;
+using namespace wolf::res;
+using std::vector;
+using std::wstring;
 
-void DlgDnList::onInitDialog()
+void DlgDnList::events()
 {
-	DlgDn::initCtrls();
-	this->setText(L"No markers downloaded...");
-	sys::Thread([&]() {
-		this->doDownloadList(L""); // start downloading first batch of markers
+	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR {
+		DlgDn::_initCtrls();
+		this->setText(L"No markers downloaded...");
+		sys::Thread([&]() {
+			this->_doDownloadList(L""); // start downloading first batch of markers
+		});
+		return TRUE;
 	});
 }
 
-bool DlgDnList::doDownloadList(const wstring& marker)
+bool DlgDnList::_doDownloadList(const wstring& marker)
 {
 	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
 	if (!marker.empty()) {
 		lnk.append(L"&marker=").append(marker);
 	}
 
-	net::Download dl(this->session, lnk);
+	net::Download dl(_session, lnk);
 	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -29,47 +35,49 @@ bool DlgDnList::doDownloadList(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return DlgDn::doShowErrAndClose(L"Error at download start", err);
+		return DlgDn::_doShowErrAndClose(L"Error at download start", err);
 	}
-	this->sendFunction([&]() {
-		this->progBar.setPos(0);
-		this->label.setText(L"XML download started...");
+	this->inOrigThread([&]() {
+		_progBar.setPos(0);
+		_label.setText(L"XML download started...");
 	});
 
 	vector<BYTE> xmlbuf;
 	xmlbuf.reserve(dl.getContentLength());
 	while (dl.hasData(&err)) {
 		vec::Append(xmlbuf, dl.getBuffer());
-		this->sendFunction([&]() {
-			this->progBar.setPos(static_cast<int>(dl.getPercent()));
-			this->label.setText( str::Sprintf(L"%.2f%% downloaded (%.2f KB)...\n",
+		this->inOrigThread([&]() {
+			_progBar.setPos(static_cast<int>(dl.getPercent()));
+			_label.setText( str::Sprintf(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.getPercent(), static_cast<float>(dl.getTotalDownloaded()) / 1024) );
 		});
 	}
 
 	if (!err.empty()) {
-		return DlgDn::doShowErrAndClose(L"Download error", err);
+		return DlgDn::_doShowErrAndClose(L"Download error", err);
 	}
-	return this->doReadXml(xmlbuf);
+	return this->_doReadXml(xmlbuf);
 }
 
-bool DlgDnList::doReadXml(const vector<BYTE>& buf)
+bool DlgDnList::_doReadXml(const vector<BYTE>& buf)
 {
 	Xml xml = str::ParseUtf8(buf);
-	this->clist.append(xml);
-	this->totBytes += static_cast<int>(buf.size());
-	this->sendFunction([&]() {
+	_clist.append(xml);
+	_totBytes += static_cast<int>(buf.size());
+	this->inOrigThread([&]() {
 		this->setText( str::Sprintf(L"%d markers downloaded (%.2f KB)...",
-			this->clist.markers().size(), static_cast<float>(this->totBytes) / 1024) );
+			_clist.markers().size(), static_cast<float>(_totBytes) / 1024) );
 	});
 	
-	if (!this->clist.isFinished()) {
-		this->sendFunction([&]() {
-			this->label.setText( str::Sprintf(L"Next marker: %s...\n", this->clist.nextMarker()) );
+	if (!_clist.isFinished()) {
+		this->inOrigThread([&]() {
+			_label.setText( str::Sprintf(L"Next marker: %s...\n", _clist.nextMarker()) );
 		});
-		this->doDownloadList(this->clist.nextMarker()); // proceed to next marker
+		this->_doDownloadList(_clist.nextMarker()); // proceed to next marker
 	} else {
-		this->sendFunction([&]() { this->endDialog(IDOK); }); // all markers downloaded
+		this->inOrigThread([&]() {
+			this->endDialog(IDOK); // all markers downloaded
+		});
 	}
 	return true;
 }

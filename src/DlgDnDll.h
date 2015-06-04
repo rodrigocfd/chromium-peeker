@@ -1,28 +1,19 @@
 
+#pragma once
 #include "DlgDn.h"
-using namespace c4w;
-using std::wstring;
 
 // Downloads DLL version for a marker.
 class DlgDnDll final : public DlgDn {
-private:
-	net::Session& session;
-	wstring       marker;
-	int           totDownloaded;
 public:
-	wstring version;
-	DlgDnDll(net::Session& isess, const wstring& mark)
-		: session(isess), marker(mark), totDownloaded(0) { }
+	std::wstring version;
+	DlgDnDll(wolf::net::Session& session, const std::wstring& marker)
+		: _session(session), _marker(marker), _totDownloaded(0) { }
 private:
-	void onInitDialog();
+	void events() override;
+	bool _doDownload();
+	bool _doReadVersion(std::wstring zipPath);
 
-	bool doDownload();
-	bool doReadVersion(wstring zipPath);
-
-	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
-		switch (msg) {
-		case WM_INITDIALOG: onInitDialog(); break;
-		}
-		return DialogModal::dlgProc(msg, wp, lp);
-	}
+	wolf::net::Session& _session;
+	std::wstring _marker;
+	int _totDownloaded;
 };

@@ -1,4 +1,5 @@
 
+#pragma once
 #include "DlgDn.h"
 
 // Downloads information for a marker.
@@ -6,27 +7,19 @@ class DlgDnInfo final : public DlgDn {
 public:
 	struct Data final {
 		std::wstring releaseDate;
-		int          packageSize;
+		int packageSize;
 	};
-
-private:
-	c4w::net::Session&               session;
-	const std::vector<std::wstring>& markers;
-	int                              totDownloaded;
+	
 public:
 	std::vector<Data> data;
-	DlgDnInfo(c4w::net::Session& isess, const std::vector<std::wstring>& marks)
-		: session(isess), markers(marks), totDownloaded(0) { }
+	DlgDnInfo(wolf::net::Session& session, const std::vector<std::wstring>& markers)
+		: _session(session), _markers(markers), _totDownloaded(0) { }
 private:
-	void onInitDialog();
+	void events() override;
+	bool _doGetOneFile(const std::wstring& marker);
+	bool _doProcessFile(const std::vector<BYTE>& buf);
 
-	bool doGetOneFile(const std::wstring& marker);
-	bool doProcessFile(const std::vector<BYTE>& buf);
-
-	INT_PTR dlgProc(UINT msg, WPARAM wp, LPARAM lp) override {
-		switch (msg) {
-		case WM_INITDIALOG: onInitDialog(); break;
-		}
-		return c4w::DialogModal::dlgProc(msg, wp, lp);
-	}
+	wolf::net::Session& _session;
+	const std::vector<std::wstring>& _markers;
+	int _totDownloaded;
 };

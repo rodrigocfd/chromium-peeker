@@ -79,21 +79,6 @@ BEGIN
 END
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-MEN_MAIN MENU
-BEGIN
-    POPUP ""
-    BEGIN
-        MENUITEM "Get &details",                MNU_MAIN_GETBASIC
-        MENUITEM "Get DLL &version",            MNU_MAIN_GETDLL
-        MENUITEM "Download &zip",               MNU_MAIN_DLZIP
-    END
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //

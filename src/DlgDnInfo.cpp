@@ -1,25 +1,28 @@
 
 #include "DlgDnInfo.h"
-#include "../res/resource.h"
-using namespace c4w;
+using namespace wolf;
+using namespace wolf::res;
 using std::vector;
 using std::wstring;
 
-void DlgDnInfo::onInitDialog()
+void DlgDnInfo::events()
 {
-	DlgDn::initCtrls();
-	this->setText(L"Downloading...");
-	sys::Thread([&]() {
-		this->doGetOneFile(this->markers[0]); // proceed with first file
+	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR {
+		DlgDn::_initCtrls();
+		this->setText(L"Downloading...");
+		sys::Thread([&]() {
+			this->_doGetOneFile(_markers[0]); // proceed with first file
+		});
+		return TRUE;
 	});
 }
 
-bool DlgDnInfo::doGetOneFile(const wstring& marker)
+bool DlgDnInfo::_doGetOneFile(const wstring& marker)
 {
 	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=";
 	lnk.append(marker);
 
-	net::Download dl(this->session, lnk);
+	net::Download dl(_session, lnk);
 	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
 	dl.addRequestHeaders({
 		L"Accept-Encoding: gzip,deflate,sdch",
@@ -30,7 +33,7 @@ bool DlgDnInfo::doGetOneFile(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return DlgDn::doShowErrAndClose(L"Error at download start", err);
+		return DlgDn::_doShowErrAndClose(L"Error at download start", err);
 	}
 
 	vector<BYTE> xmlbuf;
@@ -40,19 +43,19 @@ bool DlgDnInfo::doGetOneFile(const wstring& marker)
 	}
 
 	if (!err.empty()) {
-		return DlgDn::doShowErrAndClose(L"Download error", err);
+		return DlgDn::_doShowErrAndClose(L"Download error", err);
 	}
 
-	return this->doProcessFile(xmlbuf);
+	return this->_doProcessFile(xmlbuf);
 }
 
-bool DlgDnInfo::doProcessFile(const vector<BYTE>& buf)
+bool DlgDnInfo::_doProcessFile(const vector<BYTE>& buf)
 {
-	this->totDownloaded += static_cast<int>(buf.size());
-	this->sendFunction([&]() {
-		this->label.setText( str::Sprintf(L"%d/%d markers (%.2f KB)...",
-			this->data.size(), this->markers.size(), static_cast<float>(this->totDownloaded) / 1024) );
-		this->progBar.setPos( (static_cast<float>(this->data.size()) / this->markers.size()) * 100 );
+	_totDownloaded += static_cast<int>(buf.size());
+	this->inOrigThread([&]() {
+		_label.setText( str::Sprintf(L"%d/%d markers (%.2f KB)...",
+			data.size(), _markers.size(), static_cast<float>(_totDownloaded) / 1024) );
+		_progBar.setPos( (static_cast<float>(this->data.size()) / _markers.size()) * 100 );
 	});
 
 	Xml xml = str::ParseUtf8(buf);
@@ -67,12 +70,12 @@ bool DlgDnInfo::doProcessFile(const vector<BYTE>& buf)
 		}
 	}
 
-	if (this->data.size() == this->markers.size()) {
-		this->sendFunction([&]() {
+	if (data.size() == _markers.size()) {
+		this->inOrigThread([&]() {
 			this->endDialog(IDOK); // last file has been processed
 		});
 	} else {
-		this->doGetOneFile( this->markers[this->data.size()].c_str() ); // proceed to next file
+		this->_doGetOneFile( _markers[this->data.size()].c_str() ); // proceed to next file
 	}
 	return true;
 }
