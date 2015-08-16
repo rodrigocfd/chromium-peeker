@@ -1,13 +1,14 @@
 
 #include "DlgDnList.h"
 using namespace wolf;
-using namespace wolf::res;
+using namespace wolf::file;
 using std::vector;
 using std::wstring;
 
 void DlgDnList::events()
 {
-	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR {
+	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR
+	{
 		DlgDn::_initCtrls();
 		this->setText(L"No markers downloaded...");
 		sys::Thread([&]() {

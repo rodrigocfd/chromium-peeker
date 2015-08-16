@@ -6,7 +6,8 @@ using std::wstring;
 
 void DlgDnDll::events()
 {
-	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR {
+	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR
+	{
 		DlgDn::_initCtrls();
 		this->setText(L"Downloading chrome-win32.zip...");
 		sys::Thread([&]() {

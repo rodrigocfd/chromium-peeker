@@ -1,13 +1,14 @@
 
 #include "DlgDnInfo.h"
 using namespace wolf;
-using namespace wolf::res;
+using namespace wolf::file;
 using std::vector;
 using std::wstring;
 
 void DlgDnInfo::events()
 {
-	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR {
+	this->onMessage(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR
+	{
 		DlgDn::_initCtrls();
 		this->setText(L"Downloading...");
 		sys::Thread([&]() {
