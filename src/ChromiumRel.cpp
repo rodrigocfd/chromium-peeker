@@ -1,28 +1,28 @@
 
-#include "ChromiumRel.h"
 #include <algorithm>
+#include <Windows.h>
+#include "ChromiumRel.h"
+#include "../wolf/Str.h"
 using namespace wolf;
-using namespace wolf::file;
 using std::vector;
 using std::wstring;
 
 bool ChromiumRel::append(Xml& data)
 {
-	using namespace str;
 	Xml::Node& root = data.root;
 
-	if (!Equals(Sens::YES, root.name, L"ListBucketResult")) return false;
+	if (!Str::eq(root.name.c_str(), L"ListBucketResult")) return false;
 
-	if (!Equals(Sens::YES, root.children[0].name, L"Name") ||
-		!Equals(Sens::YES, root.children[0].value, L"chromium-browser-continuous")) return false;
+	if (!Str::eq(root.children[0].name.c_str(), L"Name") ||
+		!Str::eq(root.children[0].value.c_str(), L"chromium-browser-continuous")) return false;
 
 	const wstring& isTruncated = root.firstChildByName(L"IsTruncated")->value;
-	if (!Equals(Sens::YES, isTruncated, L"true") &&
-		!Equals(Sens::YES, isTruncated, L"false")) return false;
+	if (!Str::eq(isTruncated.c_str(), L"true") &&
+		!Str::eq(isTruncated.c_str(), L"false")) return false;
 
 	if (!this->_parseMorePrefixes(root)) return false;
 
-	if (Equals(Sens::YES, isTruncated, L"true")) { // more to come
+	if (Str::eq(isTruncated.c_str(), L"true")) { // more to come
 		_nextMarker = root.firstChildByName(L"NextMarker")->value; // eg.: "Win/93883/"
 	} else { // finished loading last piece of list
 		_nextMarker = L"";
@@ -35,6 +35,13 @@ bool ChromiumRel::append(Xml& data)
 	}
 
 	return true;
+}
+
+void ChromiumRel::reset()
+{
+	_markers.resize(0);
+	_nextMarker = L"";
+	_isFinished = false;
 }
 
 bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)

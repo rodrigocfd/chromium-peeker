@@ -54,6 +54,7 @@ END
 // remains consistent on all systems.
 ICO_CHROMIUM            ICON                    "old-chromium.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -65,7 +66,7 @@ CAPTION "Chromium Peeker"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     PUSHBUTTON      "&Download list",BTN_DLLIST,7,6,59,14
-    CONTROL         "",LST_BUILDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,2,25,234,369
+    CONTROL         "",LST_BUILDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_TABSTOP,2,25,234,369,WS_EX_CLIENTEDGE
     LTEXT           "no markers",LBL_LOADED,81,8,145,8
 END
 
@@ -74,10 +75,9 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Progress"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",PRO_PRO,"msctls_progress32",WS_BORDER,5,19,193,14
-    LTEXT           "Waiting...",LBL_LBL,7,5,187,8
+    CONTROL         "",PRO_PRO,"msctls_progress32",PBS_SMOOTH,5,19,193,14
+    LTEXT           "Waiting...",LBL_LBL,7,5,187,9
 END
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -105,8 +105,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,1,0
- PRODUCTVERSION 1,0,1,0
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -123,18 +123,34 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rodrigo Cesar de Freitas Dias"
             VALUE "FileDescription", "Chromium Peeker"
-            VALUE "FileVersion", "1.0.1.0"
+            VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "ChromiumPeeker"
             VALUE "LegalCopyright", "Rodrigo Cesar de Freitas Dias (C) 2015"
             VALUE "OriginalFilename", "ChromiumPeeker.exe"
             VALUE "ProductName", "Chromium Peeker"
-            VALUE "ProductVersion", "1.0.1.0"
+            VALUE "ProductVersion", "1.0.2.0"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
         VALUE "Translation", 0x409, 1200
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+DLG_MAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_PROGRESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 #endif    // English (United States) resources
