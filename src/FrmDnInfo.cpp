@@ -5,8 +5,10 @@ using namespace wolf;
 using std::vector;
 using std::wstring;
 
-FrmDnInfo::FrmDnInfo(WindowMain *wmain, InternetSession& session, const vector<wstring>& markers)
-	: FrmDn(wmain), _session(session), _markers(markers), _totDownloaded(0)
+FrmDnInfo::FrmDnInfo(TaskBarProgress& taskBar,
+	InternetSession& session,
+	const vector<wstring>& markers)
+	: FrmDn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
 	this->onMessage(WM_CREATE, [this](WPARAM wp, LPARAM lp)->LRESULT
 	{
@@ -25,7 +27,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 
 	InternetDownload dl(_session, lnk);
 	dl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
-	dl.addRequestHeaders({
+	dl.addRequestHeader({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
 		L"DNT: 1",

@@ -12,7 +12,7 @@ using std::wstring;
 RUN(FrmMain);
 
 FrmMain::FrmMain()
-	: _resz(this)
+	: _taskBar(this), _resz(this)
 {
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
@@ -26,20 +26,21 @@ FrmMain::FrmMain()
 			.columnAdd(L"Zip size", 65)
 			.columnAdd(L"DLL version", 90)
 			.columnFit(3);
-
-		Menu m;
-		m.createPopup()
-			.addItem(L"Get &details", MNU_MAIN_GETBASIC)
-			.addItem(L"Get DLL &version", MNU_MAIN_GETDLL)
-			.addItem(L"Download &zip", MNU_MAIN_DLZIP);
-		_listview.hMenuContext = m.hMenu();
+		_listview.menu.addItem(MNU_MAIN_GETBASIC, L"Get &details")
+			.addItem(MNU_MAIN_GETDLL, L"Get DLL &version")
+			.addItem(MNU_MAIN_DLZIP, L"Download &zip");
+		_listview.menu.onInitMenuPopup(this, [this]()->void {
+			int numSelec = _listview.items.countSelected();
+			_listview.menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
+				.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
+		});
 
 		_lblLoaded = this->getChild(LBL_LOADED);
 
-		_resz.addById({ BTN_DLLIST }, Resizer::Do::NOTHING, Resizer::Do::NOTHING)
-			.addById({ LBL_LOADED }, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
-			.addByHwnd({ _listview.hWnd() }, Resizer::Do::RESIZE, Resizer::Do::RESIZE)
-			.afterResize([&]() {
+		_resz.add(BTN_DLLIST, Resizer::Do::NOTHING, Resizer::Do::NOTHING)
+			.add(LBL_LOADED, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
+			.add(&_listview, Resizer::Do::RESIZE, Resizer::Do::RESIZE)
+			.afterResize([this]()->void {
 				_listview.columnFit(3);
 			});
 
@@ -51,22 +52,11 @@ FrmMain::FrmMain()
 		return 0;
 	});
 
-	this->onMessage(WM_INITMENUPOPUP, [this](WPARAM wp, LPARAM lp)->LRESULT
-	{
-		if (_listview.hMenuContext == reinterpret_cast<HMENU>(wp)) {
-			int numSelec = _listview.items.countSelected();
-			Menu m = _listview.hMenuContext;
-			m.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
-				.enableItem({ MNU_MAIN_DLZIP }, numSelec == 1);
-		}
-		return 0;
-	});
-
 	this->onCommand(BTN_DLLIST, [this]()->LRESULT
 	{
 		Window btnDlList = this->getChild(BTN_DLLIST);
 	
-		EnableWindow(btnDlList.hWnd(), TRUE);
+		btnDlList.enable(false);
 		_chromiumRel.reset();
 		_listview.items.removeAll();
 		_listview.columnFit(3);
@@ -74,7 +64,7 @@ FrmMain::FrmMain()
 	
 		const vector<wstring>& markers = _chromiumRel.markers();
 	
-		FrmDnList ddl(this, _session, _chromiumRel);
+		FrmDnList ddl(_taskBar, _session, _chromiumRel);
 		ddl.show(this);
 	
 		_listview.setRedraw(false);
@@ -86,7 +76,7 @@ FrmMain::FrmMain()
 			iShown, markers.size(), static_cast<float>(ddl.getTotalBytes()) / 1024).c_str() );
 		_listview.setRedraw(true).columnFit(3);
 	
-		EnableWindow(btnDlList.hWnd(), TRUE);
+		btnDlList.enable(true);
 		SetFocus(_listview.hWnd());
 		return 0;
 	});
@@ -98,7 +88,7 @@ FrmMain::FrmMain()
 
 		vector<wstring> markers = ListView::getAllText(sels, 0);
 
-		FrmDnInfo ddi(this, _session, markers);
+		FrmDnInfo ddi(_taskBar, _session, markers);
 		ddi.show(this);
 	
 		_listview.setRedraw(false);
@@ -132,7 +122,7 @@ FrmMain::FrmMain()
 
 			vector<wstring> markers = ListView::getAllText(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
-				FrmDnDll ddd(this, _session, markers[i]);
+				FrmDnDll ddd(_taskBar, _session, markers[i]);
 				ddd.show(this);
 				_listview.items[sels[i].index].setText(ddd.version, 3);
 			}
@@ -143,7 +133,7 @@ FrmMain::FrmMain()
 	this->onCommand(MNU_MAIN_DLZIP, [this]()->LRESULT
 	{
 		if (_listview.items.countSelected() == 1) {
-			FrmDnZip ddz(this, _session, _listview.items.getSelected()[0].getText());
+			FrmDnZip ddz(_taskBar, _session, _listview.items.getSelected()[0].getText());
 			ddz.show(this);
 		}
 		return 0;

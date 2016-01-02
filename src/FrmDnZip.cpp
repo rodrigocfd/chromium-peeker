@@ -3,8 +3,10 @@
 using namespace wolf;
 using std::wstring;
 
-FrmDnZip::FrmDnZip(WindowMain *wmain, InternetSession& session, const wstring& marker)
-	: FrmDn(wmain), _session(session), _marker(marker)
+FrmDnZip::FrmDnZip(TaskBarProgress& taskBar,
+	InternetSession& session,
+	const wstring& marker)
+	: FrmDn(taskBar), _session(session), _marker(marker)
 {
 	this->onMessage(WM_CREATE, [&](WPARAM wp, LPARAM lp)->LRESULT
 	{
@@ -30,7 +32,7 @@ bool FrmDnZip::_doDownload()
 
 	InternetDownload zipdl(_session, lnk);
 	zipdl.setReferrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
-	zipdl.addRequestHeaders({
+	zipdl.addRequestHeader({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
 		L"DNT: 1",

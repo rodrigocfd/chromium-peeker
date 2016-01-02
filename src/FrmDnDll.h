@@ -10,7 +10,7 @@ private:
 	int                    _totDownloaded;
 public:
 	std::wstring version;
-	FrmDnDll(wolf::WindowMain *wmain,
+	FrmDnDll(wolf::TaskBarProgress& taskBar,
 		wolf::InternetSession& session,
 		const std::wstring& marker);
 private:

@@ -7,10 +7,10 @@
 class FrmDnList final : public FrmDn {
 private:
 	wolf::InternetSession& _session;
-	ChromiumRel& _clist;
-	int _totBytes;
+	ChromiumRel&           _clist;
+	int                    _totBytes;
 public:
-	FrmDnList(wolf::WindowMain *wmain,
+	FrmDnList(wolf::TaskBarProgress& taskBar,
 		wolf::InternetSession& session,
 		ChromiumRel& clist);
 	int getTotalBytes() const;

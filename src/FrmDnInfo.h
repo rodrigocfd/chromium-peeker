@@ -16,7 +16,7 @@ private:
 	int _totDownloaded;
 public:
 	std::vector<Data> data;
-	FrmDnInfo(wolf::WindowMain *wmain,
+	FrmDnInfo(wolf::TaskBarProgress& taskBar,
 		wolf::InternetSession& session,
 		const std::vector<std::wstring>& markers);
 private:

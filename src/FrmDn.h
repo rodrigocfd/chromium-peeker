@@ -5,12 +5,12 @@
 // Base class to all download classes.
 class FrmDn : public wolf::WindowModal {
 protected:
-	wolf::Window          _label;
-	wolf::ProgressBar     _progBar;
-	wolf::TaskBarProgress _taskBar;
+	wolf::Window           _label;
+	wolf::ProgressBar      _progBar;
+	wolf::TaskBarProgress& _taskBar;
 public:
 	virtual ~FrmDn() = 0;
-	FrmDn(wolf::WindowMain *wmain);
+	FrmDn(wolf::TaskBarProgress& taskBar);
 protected:
 	bool _doShowErrAndClose(const wchar_t *msg, const std::wstring& err);
 };

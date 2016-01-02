@@ -8,7 +8,7 @@ private:
 	wolf::InternetSession& _session;
 	std::wstring _marker, _dest;
 public:
-	FrmDnZip(wolf::WindowMain *wmain,
+	FrmDnZip(wolf::TaskBarProgress& taskBar,
 		wolf::InternetSession& session,
 		const std::wstring& marker);
 private:

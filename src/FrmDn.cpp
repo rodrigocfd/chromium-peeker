@@ -8,8 +8,8 @@ FrmDn::~FrmDn()
 {
 }
 
-FrmDn::FrmDn(WindowMain *wmain)
-	: _taskBar(wmain)
+FrmDn::FrmDn(TaskBarProgress& taskBar)
+	: _taskBar(taskBar)
 {
 	setup.dialogId = DLG_PROGRESS;
 
