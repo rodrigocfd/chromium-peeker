@@ -12,7 +12,7 @@ using std::wstring;
 RUN(FrmMain);
 
 FrmMain::FrmMain()
-	: _taskBar(this), _resz(this)
+	: _taskBar(this), _listview(this), _resz(this)
 {
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
@@ -29,7 +29,7 @@ FrmMain::FrmMain()
 		_listview.menu.addItem(MNU_MAIN_GETBASIC, L"Get &details")
 			.addItem(MNU_MAIN_GETDLL, L"Get DLL &version")
 			.addItem(MNU_MAIN_DLZIP, L"Download &zip");
-		_listview.menu.onInitMenuPopup(this, [this]()->void {
+		_listview.menu.onInitMenuPopup([this]()->void {
 			int numSelec = _listview.items.countSelected();
 			_listview.menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
 				.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
