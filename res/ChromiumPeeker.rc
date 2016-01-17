@@ -70,8 +70,8 @@ BEGIN
     LTEXT           "no markers",LBL_LOADED,81,8,145,8
 END
 
-DLG_PROGRESS DIALOGEX 0, 0, 203, 39
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_PROGRESS DIALOGEX 0, 0, 203, 38
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Progress"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -125,7 +125,7 @@ BEGIN
             VALUE "FileDescription", "Chromium Peeker"
             VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "ChromiumPeeker"
-            VALUE "LegalCopyright", "Rodrigo Cesar de Freitas Dias (C) 2015"
+            VALUE "LegalCopyright", "Rodrigo Cesar de Freitas Dias (C) 2016"
             VALUE "OriginalFilename", "ChromiumPeeker.exe"
             VALUE "ProductName", "Chromium Peeker"
             VALUE "ProductVersion", "1.0.2.0"
@@ -156,6 +156,16 @@ END
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
+
+MEN_MAIN MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Get &details",                MNU_MAIN_GETBASIC
+        MENUITEM "Get DLL &version",            MNU_MAIN_GETDLL
+        MENUITEM "Download &zip",               MNU_MAIN_DLZIP
+    END
+END
 
 
 #ifndef APSTUDIO_INVOKED

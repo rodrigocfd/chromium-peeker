@@ -5,6 +5,7 @@
 #define ICO_CHROMIUM                    101
 #define DLG_MAIN                        102
 #define DLG_PROGRESS                    103
+#define MEN_MAIN                        104
 #define BTN_DLLIST                      1001
 #define LST_BUILDS                      1002
 #define PRO_PRO                         1003

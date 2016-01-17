@@ -4,57 +4,64 @@
 #include "FrmDnInfo.h"
 #include "FrmDnList.h"
 #include "FrmDnZip.h"
+#include "../winutil/Str.h"
+#include "../winutil/Sys.h"
 #include "../res/resource.h"
-using namespace wolf;
 using std::vector;
 using std::wstring;
 
 RUN(FrmMain);
 
 FrmMain::FrmMain()
-	: _taskBar(this), _listview(this), _resz(this)
 {
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
 
-	this->onMessage(WM_CREATE, [this](WPARAM wp, LPARAM lp)->LRESULT
+	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
-		( _listview = this->getChild(LST_BUILDS) )
+		_taskBar << hwnd();
+
+		(_listview = GetDlgItem(hwnd(), LST_BUILDS))
 			.setFullRowSelect()
+			.setContextMenu(MEN_MAIN)
 			.columnAdd(L"Build marker", 80)
 			.columnAdd(L"Release date", 105)
 			.columnAdd(L"Zip size", 65)
 			.columnAdd(L"DLL version", 90)
 			.columnFit(3);
-		_listview.menu.addItem(MNU_MAIN_GETBASIC, L"Get &details")
-			.addItem(MNU_MAIN_GETDLL, L"Get DLL &version")
-			.addItem(MNU_MAIN_DLZIP, L"Download &zip");
-		_listview.menu.onInitMenuPopup([this]()->void {
-			int numSelec = _listview.items.countSelected();
-			_listview.menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
-				.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
-		});
 
-		_lblLoaded = this->getChild(LBL_LOADED);
+		_lblLoaded = GetDlgItem(hwnd(), LBL_LOADED);
 
-		_resz.add(BTN_DLLIST, Resizer::Do::NOTHING, Resizer::Do::NOTHING)
-			.add(LBL_LOADED, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
-			.add(&_listview, Resizer::Do::RESIZE, Resizer::Do::RESIZE)
-			.afterResize([this]()->void {
-				_listview.columnFit(3);
-			});
+		_resizer.add(hwnd(), LBL_LOADED, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
+			.add(hwnd(), LST_BUILDS, Resizer::Do::RESIZE, Resizer::Do::RESIZE);
 
 		wstring err;
 		if (!_session.init(&err)) { // initialize internet session, for the whole program running time
-			Sys::msgBox(this, L"Fail", err, MB_ICONERROR);
-			this->sendMessage(WM_CLOSE, 0, 0);
+			Sys::msgBox(hwnd(), L"Fail", err, MB_ICONERROR);
+			SendMessage(hwnd(), WM_CLOSE, 0, 0);
 		}
-		return 0;
+		return TRUE;
 	});
 
-	this->onCommand(BTN_DLLIST, [this]()->LRESULT
+	on_message(WM_INITMENUPOPUP, [this](WPARAM wp, LPARAM lp)->INT_PTR {
+		Menu menu(reinterpret_cast<HMENU>(wp));
+		if (menu.getCommandId(0) == MNU_MAIN_GETBASIC) {
+			int numSelec = _listview.items.countSelected();
+			menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
+				.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
+		}
+		return TRUE;
+	});
+
+	on_message(WM_SIZE, [this](WPARAM wp, LPARAM lp)->INT_PTR {
+		_resizer.arrange(wp, lp);
+		_listview.columnFit(3);
+		return TRUE;
+	});
+
+	on_command(BTN_DLLIST, [this]()->INT_PTR
 	{
-		Window btnDlList = this->getChild(BTN_DLLIST);
+		Label btnDlList = GetDlgItem(hwnd(), BTN_DLLIST);
 	
 		btnDlList.enable(false);
 		_chromiumRel.reset();
@@ -65,23 +72,24 @@ FrmMain::FrmMain()
 		const vector<wstring>& markers = _chromiumRel.markers();
 	
 		FrmDnList ddl(_taskBar, _session, _chromiumRel);
-		ddl.show(this);
+		if (ddl.show(hwnd()) == IDOK) {
+			_listview.setRedraw(false);
+			const int iShown = 1200;
+			for (size_t i = markers.size() - iShown; i < markers.size(); ++i) { // display only last markers
+				_listview.items.add(markers[i]);
+			}
+			_lblLoaded.setText(Str::format(L"%d/%d markers (%.2f KB)",
+				iShown, markers.size(), static_cast<float>(ddl.getTotalBytes()) / 1024).c_str() );
+			_listview.setRedraw(true).columnFit(3);
 	
-		_listview.setRedraw(false);
-		const int iShown = 1200;
-		for (size_t i = markers.size() - iShown; i < markers.size(); ++i) { // display only last markers
-			_listview.items.add(markers[i]);
+			btnDlList.enable(true);
 		}
-		_lblLoaded.setText(Str::format(L"%d/%d markers (%.2f KB)",
-			iShown, markers.size(), static_cast<float>(ddl.getTotalBytes()) / 1024).c_str() );
-		_listview.setRedraw(true).columnFit(3);
-	
-		btnDlList.enable(true);
+
 		SetFocus(_listview.hWnd());
-		return 0;
+		return TRUE;
 	});
 
-	this->onCommand(MNU_MAIN_GETBASIC, [this]()->LRESULT
+	on_command(MNU_MAIN_GETBASIC, [this]()->INT_PTR
 	{
 		vector<ListView::Item> sels = _listview.items.getSelected();
 		if (sels.empty()) return 0;
@@ -89,30 +97,29 @@ FrmMain::FrmMain()
 		vector<wstring> markers = ListView::getAllText(sels, 0);
 
 		FrmDnInfo ddi(_taskBar, _session, markers);
-		ddi.show(this);
-	
-		_listview.setRedraw(false);
-		for (size_t i = 0; i < markers.size(); ++i) {
-			wstring relDate = Str::format(L"%s %s",
-				ddi.data[i].releaseDate.substr(0, 10).c_str(),
-				ddi.data[i].releaseDate.substr(11, 5).c_str() );
-			_listview.items[sels[i].index].setText(relDate, 1);
+		if (ddi.show(hwnd()) == IDOK) {
+			_listview.setRedraw(false);
+			for (size_t i = 0; i < markers.size(); ++i) {
+				wstring relDate = Str::format(L"%s %s",
+					ddi.data[i].releaseDate.substr(0, 10).c_str(),
+					ddi.data[i].releaseDate.substr(11, 5).c_str() );
+				_listview.items[sels[i].index].setText(relDate, 1);
 
-			wstring packSz = Str::format(L"%.2f MB",
-				static_cast<float>(ddi.data[i].packageSize) / 1024 / 1024);
-			_listview.items[sels[i].index].setText(packSz, 2);
+				wstring packSz = Str::format(L"%.2f MB",
+					static_cast<float>(ddi.data[i].packageSize) / 1024 / 1024);
+				_listview.items[sels[i].index].setText(packSz, 2);
+			}
+			_listview.setRedraw(true);
 		}
-		_listview.setRedraw(true);
-	
-		return 0;
+		return TRUE;
 	});
 
-	this->onCommand(MNU_MAIN_GETDLL, [this]()->LRESULT
+	on_command(MNU_MAIN_GETDLL, [this]()->INT_PTR
 	{
 		vector<ListView::Item> sels = _listview.items.getSelected();
 		if (!sels.empty()) {
 			if (sels.size() > 1) {
-				int q = Sys::msgBox(this, L"Too much download",
+				int q = Sys::msgBox(hwnd(), L"Too much download",
 					L"You are about to download more than one package.\nThat's a lot of data, proceed?",
 					MB_ICONEXCLAMATION | MB_YESNO | MB_DEFBUTTON2);
 				if (q == IDNO) {
@@ -123,19 +130,20 @@ FrmMain::FrmMain()
 			vector<wstring> markers = ListView::getAllText(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
 				FrmDnDll ddd(_taskBar, _session, markers[i]);
-				ddd.show(this);
-				_listview.items[sels[i].index].setText(ddd.version, 3);
+				if (ddd.show(hwnd()) == IDOK) {
+					_listview.items[sels[i].index].setText(ddd.version, 3);
+				}
 			}
 		}
-		return 0;
+		return TRUE;
 	});
 
-	this->onCommand(MNU_MAIN_DLZIP, [this]()->LRESULT
+	on_command(MNU_MAIN_DLZIP, [this]()->INT_PTR
 	{
 		if (_listview.items.countSelected() == 1) {
 			FrmDnZip ddz(_taskBar, _session, _listview.items.getSelected()[0].getText());
-			ddz.show(this);
+			ddz.show(hwnd());
 		}
-		return 0;
+		return TRUE;
 	});
 }

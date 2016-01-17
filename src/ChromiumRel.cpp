@@ -2,8 +2,7 @@
 #include <algorithm>
 #include <Windows.h>
 #include "ChromiumRel.h"
-#include "../wolf/Str.h"
-using namespace wolf;
+#include "../winutil/Str.h"
 using std::vector;
 using std::wstring;
 

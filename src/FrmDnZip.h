@@ -1,17 +1,19 @@
 
 #pragma once
 #include "FrmDn.h"
+#include "../winutil/File.h"
+#include "../winutil/Internet.h"
 
 // Download the marker zip file to disk, destination chosen by user.
 class FrmDnZip final : public FrmDn {
 private:
-	wolf::InternetSession& _session;
-	std::wstring _marker, _dest;
+	InternetSession& _session;
+	std::wstring     _marker, _dest;
 public:
-	FrmDnZip(wolf::TaskBarProgress& taskBar,
-		wolf::InternetSession& session,
+	FrmDnZip(TaskBarProgress& taskBar,
+		InternetSession& session,
 		const std::wstring& marker);
 private:
 	bool _doDownload();
-	bool _doReceiveData(wolf::InternetDownload& zipdl, wolf::File& fout);
+	bool _doReceiveData(InternetDownload& zipdl, File& fout);
 };

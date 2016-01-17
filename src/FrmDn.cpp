@@ -1,7 +1,7 @@
 
 #include "FrmDn.h"
+#include "../winutil/Sys.h"
 #include "../res/resource.h"
-using namespace wolf;
 using std::wstring;
 
 FrmDn::~FrmDn()
@@ -13,27 +13,33 @@ FrmDn::FrmDn(TaskBarProgress& taskBar)
 {
 	setup.dialogId = DLG_PROGRESS;
 
-	this->onMessage(WM_CREATE, [this](WPARAM wp, LPARAM lp)->LRESULT
+	window_dialog_modal::on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
-		EnableMenuItem(GetSystemMenu(this->hWnd(), FALSE),
-			SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED); // disable X button
+		Sys::enableXButton(hwnd(), false);
 
-		_label = this->getChild(LBL_LBL);
-		(_progBar = this->getChild(PRO_PRO))
+		_label = GetDlgItem(hwnd(), LBL_LBL);
+		(_progBar = GetDlgItem(hwnd(), PRO_PRO))
 			.setRange(0, 100)
 			.setPos(0);
-		return 0;
+		
+		return _userInitDialog ? _userInitDialog(wp, lp) : TRUE;
 	});
 }
 
-bool FrmDn::_doShowErrAndClose(const wchar_t *msg, const wstring& err)
+void FrmDn::on_message(UINT msg, msg_func_type callback)
+{
+	if (msg == WM_INITDIALOG) _userInitDialog = std::move(callback);
+	else window_dialog_modal::on_message(msg, std::move(callback));
+}
+
+bool FrmDn::doShowErrAndClose(const wchar_t *msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
-	this->guiThread([&]()->void {
+	gui_thread([&]()->void {
 		_taskBar.setError(true);
-		Sys::msgBox(this, msg, err, MB_ICONERROR);
+		Sys::msgBox(hwnd(), msg, err, MB_ICONERROR);
 		_taskBar.dismiss();
-		this->sendMessage(WM_CLOSE, 0, 0);
+		EndDialog(hwnd(), IDCANCEL);
 	});
 	return false;
 }

@@ -1,7 +1,8 @@
 
 #include "FrmDnInfo.h"
-#include "../wolf/Xml.h"
-using namespace wolf;
+#include "../winutil/Str.h"
+#include "../winutil/Sys.h"
+#include "../winutil/Xml.h"
 using std::vector;
 using std::wstring;
 
@@ -10,13 +11,13 @@ FrmDnInfo::FrmDnInfo(TaskBarProgress& taskBar,
 	const vector<wstring>& markers)
 	: FrmDn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
-	this->onMessage(WM_CREATE, [this](WPARAM wp, LPARAM lp)->LRESULT
+	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
-		this->setText(L"Downloading...");
+		SetWindowText(hwnd(), L"Downloading...");
 		Sys::thread([this]() {
 			_doGetOneFile(_markers[0]); // proceed with first file
 		});
-		return 0;
+		return TRUE;
 	});
 }
 
@@ -36,7 +37,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return _doShowErrAndClose(L"Error at download start", err);
+		return doShowErrAndClose(L"Error at download start", err);
 	}
 
 	vector<BYTE> xmlbuf;
@@ -46,7 +47,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 	}
 
 	if (!err.empty()) {
-		return _doShowErrAndClose(L"Download error", err);
+		return doShowErrAndClose(L"Download error", err);
 	}
 
 	return _doProcessFile(xmlbuf);
@@ -55,7 +56,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
 {
 	_totDownloaded += static_cast<int>(buf.size());
-	this->guiThread([this]()->void {
+	gui_thread([this]()->void {
 		_label.setText( Str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), _markers.size(), static_cast<float>(_totDownloaded) / 1024) );
 		double pct = (static_cast<float>(this->data.size()) / _markers.size()) * 100;
@@ -76,9 +77,9 @@ bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
 	}
 
 	if (data.size() == _markers.size()) {
-		this->guiThread([this]()->void {
+		gui_thread([this]()->void {
 			_taskBar.dismiss();
-			this->sendMessage(WM_CLOSE, 0, 0); // last file has been processed
+			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
 	} else {
 		_doGetOneFile( _markers[this->data.size()].c_str() ); // proceed to next file

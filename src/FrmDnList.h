@@ -2,16 +2,17 @@
 #pragma once
 #include "FrmDn.h"
 #include "ChromiumRel.h"
+#include "../winutil/Internet.h"
 
 // Downloads the list of markers.
 class FrmDnList final : public FrmDn {
 private:
-	wolf::InternetSession& _session;
-	ChromiumRel&           _clist;
-	int                    _totBytes;
+	InternetSession& _session;
+	ChromiumRel&     _clist;
+	int              _totBytes;
 public:
-	FrmDnList(wolf::TaskBarProgress& taskBar,
-		wolf::InternetSession& session,
+	FrmDnList(TaskBarProgress& taskBar,
+		InternetSession& session,
 		ChromiumRel& clist);
 	int getTotalBytes() const;
 private:

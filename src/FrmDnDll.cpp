@@ -1,7 +1,10 @@
 
 #include "FrmDnDll.h"
+#include "../winutil/File.h"
+#include "../winutil/FileMap.h"
+#include "../winutil/Str.h"
+#include "../winutil/Sys.h"
 #include "../res/resource.h"
-using namespace wolf;
 using std::wstring;
 
 FrmDnDll::FrmDnDll(TaskBarProgress& taskBar,
@@ -9,13 +12,13 @@ FrmDnDll::FrmDnDll(TaskBarProgress& taskBar,
 	const wstring& marker)
 	: FrmDn(taskBar), _session(session), _marker(marker), _totDownloaded(0)
 {
-	this->onMessage(WM_CREATE, [this](WPARAM wp, LPARAM lp)->LRESULT
+	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
-		this->setText(L"Downloading chrome-win32.zip...");
+		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 		Sys::thread([this]() {
-			this->_doDownload(); // start right away
+			_doDownload(); // start right away
 		});
-		return 0;
+		return TRUE;
 	});
 }
 
@@ -37,19 +40,19 @@ bool FrmDnDll::_doDownload()
 	wstring err, destPath = Sys::pathOfExe().append(L"\\tmpchro.zip");
 	File fout;
 	if (!fout.open(destPath, File::Access::READWRITE, &err)) {
-		return _doShowErrAndClose(L"File creation error", err);
+		return doShowErrAndClose(L"File creation error", err);
 	}
 	if (!dlfile.start(&err)) {
-		return _doShowErrAndClose(L"Error at download start", err);
+		return doShowErrAndClose(L"Error at download start", err);
 	}
 	if (!fout.setNewSize(dlfile.getContentLength(), &err)) {
-		return _doShowErrAndClose(L"Error when resizing file", err);
+		return doShowErrAndClose(L"Error when resizing file", err);
 	}
 	while (dlfile.hasData(&err)) {
 		if (!fout.write(dlfile.getBuffer(), &err)) {
-			return _doShowErrAndClose(L"File writing error", err);
+			return doShowErrAndClose(L"File writing error", err);
 		}
-		this->guiThread([&]()->void {
+		gui_thread([&]()->void {
 			_progBar.setPos(dlfile.getPercent());
 			_taskBar.setPos(dlfile.getPercent());
 			_label.setText( Str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -59,7 +62,7 @@ bool FrmDnDll::_doDownload()
 
 	fout.close();
 	if (!err.empty()) {
-		return _doShowErrAndClose(L"Download error", err);
+		return doShowErrAndClose(L"Download error", err);
 	}
 	return _doReadVersion(destPath);
 }
@@ -67,30 +70,30 @@ bool FrmDnDll::_doDownload()
 bool FrmDnDll::_doReadVersion(wstring zipPath)
 {
 	// Unzip the package.
-	this->guiThread([this]()->void {
-		this->setText(L"Processing package...");
+	gui_thread([this]()->void {
+		SetWindowText(hwnd(), L"Processing package...");
 		_label.setText(L"Unzipping chrome.dll, please wait...");
 		_progBar.setWaiting(true);
 		_taskBar.setWaiting(true);
 	});
 	wstring err;
 	if (!File::unzip(zipPath, Str::folderFromPath(zipPath), &err)) { // potentially slow
-		return _doShowErrAndClose(L"Unzipping failed", err);
+		return doShowErrAndClose(L"Unzipping failed", err);
 	}
 
 	// Open chrome.dll as memory-mapped.
-	this->guiThread([this]()->void {
+	gui_thread([this]()->void {
 		_label.setText(L"Scanning chrome.dll, please wait...");
 	});
 	wstring dllPath = Str::folderFromPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
 	if (!File::exists(dllPath)) {
-		return _doShowErrAndClose(L"DLL not found",
+		return doShowErrAndClose(L"DLL not found",
 			Str::format(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
 	}
 
 	FileMap file;
 	if (!file.open(dllPath, File::Access::READONLY, &err)) {
-		return _doShowErrAndClose(L"Could not open file", err);
+		return doShowErrAndClose(L"Could not open file", err);
 	}
 
 	// Search strings.
@@ -100,14 +103,14 @@ bool FrmDnDll::_doReadVersion(wstring zipPath)
 	BYTE *pData = file.pMem();
 	int match1 = _findInBinary(pData + startAt, file.size() - startAt, term, true); // 1st occurrence
 	if (match1 == -1) {
-		return _doShowErrAndClose(L"Parsing error",
+		return doShowErrAndClose(L"Parsing error",
 			Str::format(L"1st version offset could not be found in:\n%s", dllPath.c_str()) );
 	}
 
 	startAt += match1 + lstrlen(term) * sizeof(wchar_t);
 	int match2 = _findInBinary(pData + startAt, file.size() - startAt, term, true); // 2st occurrence
 	if (match2 == -1) {
-		return _doShowErrAndClose(L"Parsing error",
+		return doShowErrAndClose(L"Parsing error",
 			Str::format(L"2st version offset could not be found in:\n%s", dllPath.c_str()) );
 	}
 	this->version.assign((const wchar_t*)(pData + startAt + match2 + 30), 11);
@@ -116,9 +119,9 @@ bool FrmDnDll::_doReadVersion(wstring zipPath)
 	File::del(Str::folderFromPath(zipPath).append(L"\\chrome-win32"));
 	File::del(zipPath);
 		
-	this->guiThread([this]()->void {
+	gui_thread([this]()->void {
 		_taskBar.dismiss();
-		this->sendMessage(WM_CLOSE, 0, 0);
+		EndDialog(hwnd(), IDOK);
 	});
 	return true;
 }

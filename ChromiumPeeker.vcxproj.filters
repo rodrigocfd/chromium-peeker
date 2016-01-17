@@ -5,111 +5,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="wolf">
-      <UniqueIdentifier>{a2c52bcc-eff6-4a3d-aff7-78cfb760bcf6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="winlamb">
+      <UniqueIdentifier>{a2c52bcc-eff6-4a3d-aff7-78cfb760bcf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="winutil">
+      <UniqueIdentifier>{408418d7-5727-42ef-9cc7-a3d674b88096}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="wolf\InternetDownload.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\InternetSession.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\InternetUrl.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\ListView.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Menu.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\ProgressBar.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\RadioButton.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Resizer.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\StatusBar.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Str.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Sys.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Window.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowControl.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowDialogTemplate.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowGuiThread.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowMain.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowModal.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowMsgHandler.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowParent.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowProc.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowSubclass.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\WindowTopLevel.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\wolf.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Xml.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\CheckBox.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\ComboBox.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\DateTime.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\File.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\FileIni.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\FileMap.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Font.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
-    <ClInclude Include="wolf\Icon.h">
-      <Filter>wolf</Filter>
-    </ClInclude>
     <ClInclude Include="src\ChromiumRel.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -134,101 +41,89 @@
     <ClInclude Include="src\FrmMain.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="wolf\TaskBarProgress.h">
-      <Filter>wolf</Filter>
+    <ClInclude Include="winlamb\window_basic.h">
+      <Filter>winlamb</Filter>
     </ClInclude>
-    <ClInclude Include="wolf\AccTable.h">
-      <Filter>wolf</Filter>
+    <ClInclude Include="winlamb\window_basic_main.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_dialog.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_dialog_main.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_dialog_modal.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_proc.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_thread.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_traits.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\DateTime.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\File.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\FileIni.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\FileMap.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Icon.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Internet.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Label.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\ListView.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Menu.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\ProgressBar.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Resizer.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Str.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Sys.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\TaskBarProgress.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\Xml.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\CheckBox.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\ComboBox.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\TextBox.h">
+      <Filter>winutil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="wolf\CheckBox.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\ComboBox.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\DateTime.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\File.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\FileIni.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\FileMap.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Font.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Icon.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\InternetDownload.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\InternetSession.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\InternetUrl.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\ListView.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Menu.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\ProgressBar.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\RadioButton.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Resizer.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\StatusBar.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Str.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Sys.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Window.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowControl.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowDialogTemplate.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowMain.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowModal.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowParent.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowProc.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowSubclass.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\WindowTopLevel.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
-    <ClCompile Include="wolf\Xml.cpp">
-      <Filter>wolf</Filter>
-    </ClCompile>
     <ClCompile Include="src\ChromiumRel.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -250,11 +145,59 @@
     <ClCompile Include="src\FrmMain.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="wolf\TaskBarProgress.cpp">
-      <Filter>wolf</Filter>
+    <ClCompile Include="winutil\File.cpp">
+      <Filter>winutil</Filter>
     </ClCompile>
-    <ClCompile Include="wolf\AccTable.cpp">
-      <Filter>wolf</Filter>
+    <ClCompile Include="winutil\FileIni.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\FileMap.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Icon.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Internet.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Label.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\ListView.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Menu.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\ProgressBar.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Resizer.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Str.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Sys.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\TaskBarProgress.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\Xml.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\CheckBox.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\ComboBox.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\DateTime.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\TextBox.cpp">
+      <Filter>winutil</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
