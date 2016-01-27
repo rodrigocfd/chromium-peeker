@@ -68,9 +68,6 @@
     <ClInclude Include="winlamb\window.h">
       <Filter>winlamb</Filter>
     </ClInclude>
-    <ClInclude Include="winutil\DateTime.h">
-      <Filter>winutil</Filter>
-    </ClInclude>
     <ClInclude Include="winutil\File.h">
       <Filter>winutil</Filter>
     </ClInclude>
@@ -78,6 +75,9 @@
       <Filter>winutil</Filter>
     </ClInclude>
     <ClInclude Include="winutil\FileMap.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\FileText.h">
       <Filter>winutil</Filter>
     </ClInclude>
     <ClInclude Include="winutil\Icon.h">
@@ -101,6 +101,9 @@
     <ClInclude Include="winutil\Resizer.h">
       <Filter>winutil</Filter>
     </ClInclude>
+    <ClInclude Include="winutil\StatusBar.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
     <ClInclude Include="winutil\Str.h">
       <Filter>winutil</Filter>
     </ClInclude>
@@ -108,6 +111,9 @@
       <Filter>winutil</Filter>
     </ClInclude>
     <ClInclude Include="winutil\TaskBarProgress.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\TextBox.h">
       <Filter>winutil</Filter>
     </ClInclude>
     <ClInclude Include="winutil\Xml.h">
@@ -119,7 +125,7 @@
     <ClInclude Include="winutil\ComboBox.h">
       <Filter>winutil</Filter>
     </ClInclude>
-    <ClInclude Include="winutil\TextBox.h">
+    <ClInclude Include="winutil\DateTime.h">
       <Filter>winutil</Filter>
     </ClInclude>
   </ItemGroup>
@@ -145,13 +151,13 @@
     <ClCompile Include="src\FrmMain.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="winutil\File.cpp">
-      <Filter>winutil</Filter>
-    </ClCompile>
     <ClCompile Include="winutil\FileIni.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\FileMap.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\FileText.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\Icon.cpp">
@@ -175,6 +181,9 @@
     <ClCompile Include="winutil\Resizer.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
+    <ClCompile Include="winutil\StatusBar.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
     <ClCompile Include="winutil\Str.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
@@ -182,6 +191,9 @@
       <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\TaskBarProgress.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\TextBox.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\Xml.cpp">
@@ -196,7 +208,7 @@
     <ClCompile Include="winutil\DateTime.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
-    <ClCompile Include="winutil\TextBox.cpp">
+    <ClCompile Include="winutil\File.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
   </ItemGroup>
