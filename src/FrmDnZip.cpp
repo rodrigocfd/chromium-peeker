@@ -9,7 +9,7 @@ FrmDnZip::FrmDnZip(TaskBarProgress& taskBar,
 	const wstring& marker)
 	: FrmDn(taskBar), _session(session), _marker(marker)
 {
-	on_message(WM_INITDIALOG, [&](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 

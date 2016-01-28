@@ -43,7 +43,8 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_message(WM_INITMENUPOPUP, [this](WPARAM wp, LPARAM lp)->INT_PTR {
+	on_message(WM_INITMENUPOPUP, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	{
 		Menu menu(reinterpret_cast<HMENU>(wp));
 		if (menu.getCommandId(0) == MNU_MAIN_GETBASIC) {
 			int numSelec = _listview.items.countSelected();
@@ -53,7 +54,8 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_message(WM_SIZE, [this](WPARAM wp, LPARAM lp)->INT_PTR {
+	on_message(WM_SIZE, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	{
 		_resizer.arrange(wp, lp);
 		_listview.columnFit(3);
 		return TRUE;
