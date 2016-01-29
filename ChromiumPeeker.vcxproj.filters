@@ -68,13 +68,7 @@
     <ClInclude Include="winlamb\window.h">
       <Filter>winlamb</Filter>
     </ClInclude>
-    <ClInclude Include="winutil\CheckBox.h">
-      <Filter>winutil</Filter>
-    </ClInclude>
-    <ClInclude Include="winutil\ComboBox.h">
-      <Filter>winutil</Filter>
-    </ClInclude>
-    <ClInclude Include="winutil\DateTime.h">
+    <ClInclude Include="winutil\DC.h">
       <Filter>winutil</Filter>
     </ClInclude>
     <ClInclude Include="winutil\File.h">
@@ -131,6 +125,15 @@
     <ClInclude Include="winutil\Xml.h">
       <Filter>winutil</Filter>
     </ClInclude>
+    <ClInclude Include="winutil\CheckBox.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\ComboBox.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\DateTime.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ChromiumRel.cpp">
@@ -153,12 +156,6 @@
     </ClCompile>
     <ClCompile Include="src\FrmMain.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="winutil\ComboBox.cpp">
-      <Filter>winutil</Filter>
-    </ClCompile>
-    <ClCompile Include="winutil\DateTime.cpp">
-      <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\File.cpp">
       <Filter>winutil</Filter>
@@ -215,6 +212,15 @@
       <Filter>winutil</Filter>
     </ClCompile>
     <ClCompile Include="winutil\CheckBox.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\ComboBox.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\DateTime.cpp">
+      <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="winutil\DC.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
   </ItemGroup>
