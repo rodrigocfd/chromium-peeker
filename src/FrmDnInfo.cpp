@@ -56,7 +56,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
 {
 	_totDownloaded += static_cast<int>(buf.size());
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		_label.setText( Str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), _markers.size(), static_cast<float>(_totDownloaded) / 1024) );
 		double pct = (static_cast<float>(this->data.size()) / _markers.size()) * 100;
@@ -77,8 +77,8 @@ bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
 	}
 
 	if (data.size() == _markers.size()) {
-		gui_thread([this]()->void {
-			_taskBar.dismiss();
+		ui_thread([this]()->void {
+			_taskBar.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
 	} else {

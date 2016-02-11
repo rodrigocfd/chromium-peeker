@@ -13,12 +13,13 @@ FrmDn::FrmDn(TaskBarProgress& taskBar)
 {
 	setup.dialogId = DLG_PROGRESS;
 
-	window_dialog_modal::on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	dialog_modal::on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
 		Sys::enableXButton(hwnd(), false);
 
-		_label = GetDlgItem(hwnd(), LBL_LBL);
-		(_progBar = GetDlgItem(hwnd(), PRO_PRO))
+		_label = { hwnd(), LBL_LBL };
+
+		(_progBar = { hwnd(), PRO_PRO })
 			.setRange(0, 100)
 			.setPos(0);
 		
@@ -29,16 +30,16 @@ FrmDn::FrmDn(TaskBarProgress& taskBar)
 void FrmDn::on_message(UINT msg, msg_func_type callback)
 {
 	if (msg == WM_INITDIALOG) _userInitDialog = std::move(callback);
-	else window_dialog_modal::on_message(msg, std::move(callback));
+	else dialog_modal::on_message(msg, std::move(callback));
 }
 
 bool FrmDn::doShowErrAndClose(const wchar_t *msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
-	gui_thread([&]()->void {
+	ui_thread([&]()->void {
 		_taskBar.setError(true);
 		Sys::msgBox(hwnd(), msg, err, MB_ICONERROR);
-		_taskBar.dismiss();
+		_taskBar.clear();
 		EndDialog(hwnd(), IDCANCEL);
 	});
 	return false;

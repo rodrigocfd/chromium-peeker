@@ -1,5 +1,6 @@
 
 #include "FrmDnZip.h"
+#include "../winutil/Path.h"
 #include "../winutil/Str.h"
 #include "../winutil/Sys.h"
 using std::wstring;
@@ -49,9 +50,9 @@ bool FrmDnZip::_doDownload()
 	if (!zipdl.start(&err)) {
 		return doShowErrAndClose(L"Error at download start", err);
 	}
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		SetWindowText(hwnd(), Str::format(L"Downloading %s...",
-			Str::fileFromPath(_dest).c_str()).c_str() );
+			Path::fileFrom(_dest).c_str()).c_str() );
 	});
 
 	if (!fout.setNewSize(zipdl.getContentLength(), &err)) {
@@ -73,7 +74,7 @@ bool FrmDnZip::_doReceiveData(InternetDownload& zipdl, File& fout)
 		if (!fout.write(zipdl.getBuffer(), &err)) {
 			return doShowErrAndClose(L"File writing error", err);
 		}
-		gui_thread([&]()->void {
+		ui_thread([&]()->void {
 			_label.setText( Str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.getPercent(), static_cast<float>(zipdl.getTotalDownloaded()) / 1024 / 1024 ) );
 			_progBar.setPos(static_cast<int>(zipdl.getPercent()));
@@ -83,7 +84,7 @@ bool FrmDnZip::_doReceiveData(InternetDownload& zipdl, File& fout)
 	if (!err.empty()) {
 		return doShowErrAndClose(L"Download error", err);
 	}
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		EndDialog(hwnd(), IDOK); // download finished
 	});
 	return true;

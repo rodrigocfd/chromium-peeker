@@ -19,9 +19,9 @@ FrmMain::FrmMain()
 
 	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
-		_taskBar << hwnd();
+		_taskBar.create(hwnd());
 
-		(_listview = GetDlgItem(hwnd(), LST_BUILDS))
+		(_listview = { hwnd(), LST_BUILDS })
 			.setFullRowSelect()
 			.setContextMenu(MEN_MAIN)
 			.columnAdd(L"Build marker", 80)
@@ -30,7 +30,7 @@ FrmMain::FrmMain()
 			.columnAdd(L"DLL version", 90)
 			.columnFit(3);
 
-		_lblLoaded = GetDlgItem(hwnd(), LBL_LOADED);
+		_lblLoaded = { hwnd(), LBL_LOADED };
 
 		_resizer.add(hwnd(), LBL_LOADED, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
 			.add(hwnd(), LST_BUILDS, Resizer::Do::RESIZE, Resizer::Do::RESIZE);
@@ -64,7 +64,6 @@ FrmMain::FrmMain()
 	on_command(BTN_DLLIST, [this]()->INT_PTR
 	{
 		Label btnDlList = GetDlgItem(hwnd(), BTN_DLLIST);
-	
 		btnDlList.enable(false);
 		_chromiumRel.reset();
 		_listview.items.removeAll();

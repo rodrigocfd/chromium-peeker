@@ -46,7 +46,7 @@ bool FrmDnList::_doDownloadList(const wstring& marker)
 	if (!dl.start(&err)) {
 		return doShowErrAndClose(L"Error at download start", err);
 	}
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		_progBar.setPos(0);
 		_taskBar.setWaiting(true);
 		_label.setText(L"XML download started...");
@@ -56,7 +56,7 @@ bool FrmDnList::_doDownloadList(const wstring& marker)
 	xmlbuf.reserve(dl.getContentLength());
 	while (dl.hasData(&err)) {
 		xmlbuf.insert(xmlbuf.end(), dl.getBuffer().begin(), dl.getBuffer().end()); // append
-		gui_thread([&]()->void {
+		ui_thread([&]()->void {
 			_progBar.setPos(dl.getPercent());
 			_label.setText( Str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.getPercent(), static_cast<float>(dl.getTotalDownloaded()) / 1024) );
@@ -74,19 +74,19 @@ bool FrmDnList::_doReadXml(const vector<BYTE>& buf)
 	Xml xml = Str::parseUtf8(buf);
 	_clist.append(xml);
 	_totBytes += static_cast<int>(buf.size());
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		SetWindowText(hwnd(), Str::format(L"%d markers downloaded (%.2f KB)...",
 			_clist.markers().size(), static_cast<float>(_totBytes) / 1024).c_str() );
 	});
 	
 	if (!_clist.isFinished()) {
-		gui_thread([this]()->void {
+		ui_thread([this]()->void {
 			_label.setText( Str::format(L"Next marker: %s...\n", _clist.nextMarker()) );
 		});
 		_doDownloadList(_clist.nextMarker()); // proceed to next marker
 	} else {
-		gui_thread([this]()->void {
-			_taskBar.dismiss();
+		ui_thread([this]()->void {
+			_taskBar.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});
 	}

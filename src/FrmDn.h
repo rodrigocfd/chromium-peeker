@@ -1,12 +1,12 @@
 
 #pragma once
-#include "../winlamb/window_dialog_modal.h"
+#include "../winlamb/dialog_modal.h"
 #include "../winutil/Label.h"
 #include "../winutil/ProgressBar.h"
 #include "../winutil/TaskBarProgress.h"
 
 // Base class to all download classes.
-class FrmDn : public winlamb::window_dialog_modal {
+class FrmDn : public winlamb::dialog_modal {
 private:
 	msg_func_type _userInitDialog;
 protected:

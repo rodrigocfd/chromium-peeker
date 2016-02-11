@@ -2,6 +2,7 @@
 #include "FrmDnDll.h"
 #include "../winutil/File.h"
 #include "../winutil/FileMap.h"
+#include "../winutil/Path.h"
 #include "../winutil/Str.h"
 #include "../winutil/Sys.h"
 #include "../res/resource.h"
@@ -52,7 +53,7 @@ bool FrmDnDll::_doDownload()
 		if (!fout.write(dlfile.getBuffer(), &err)) {
 			return doShowErrAndClose(L"File writing error", err);
 		}
-		gui_thread([&]()->void {
+		ui_thread([&]()->void {
 			_progBar.setPos(dlfile.getPercent());
 			_taskBar.setPos(dlfile.getPercent());
 			_label.setText( Str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -70,22 +71,22 @@ bool FrmDnDll::_doDownload()
 bool FrmDnDll::_doReadVersion(wstring zipPath)
 {
 	// Unzip the package.
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		SetWindowText(hwnd(), L"Processing package...");
 		_label.setText(L"Unzipping chrome.dll, please wait...");
 		_progBar.setWaiting(true);
 		_taskBar.setWaiting(true);
 	});
 	wstring err;
-	if (!File::unzip(zipPath, Str::folderFromPath(zipPath), &err)) { // potentially slow
+	if (!File::unzip(zipPath, Path::folderFrom(zipPath), &err)) { // potentially slow
 		return doShowErrAndClose(L"Unzipping failed", err);
 	}
 
 	// Open chrome.dll as memory-mapped.
-	gui_thread([this]()->void {
+	ui_thread([this]()->void {
 		_label.setText(L"Scanning chrome.dll, please wait...");
 	});
-	wstring dllPath = Str::folderFromPath(zipPath).append(L"\\chrome-win32\\chrome.dll");
+	wstring dllPath = Path::folderFrom(zipPath).append(L"\\chrome-win32\\chrome.dll");
 	if (!File::exists(dllPath)) {
 		return doShowErrAndClose(L"DLL not found",
 			Str::format(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
@@ -116,11 +117,11 @@ bool FrmDnDll::_doReadVersion(wstring zipPath)
 	this->version.assign((const wchar_t*)(pData + startAt + match2 + 30), 11);
 	
 	file.close();
-	File::del(Str::folderFromPath(zipPath).append(L"\\chrome-win32"));
+	File::del(Path::folderFrom(zipPath).append(L"\\chrome-win32"));
 	File::del(zipPath);
 		
-	gui_thread([this]()->void {
-		_taskBar.dismiss();
+	ui_thread([this]()->void {
+		_taskBar.clear();
 		EndDialog(hwnd(), IDOK);
 	});
 	return true;

@@ -1,6 +1,6 @@
 
 #pragma once
-#include "../winlamb/window_dialog_main.h"
+#include "../winlamb/dialog_main.h"
 #include "../winutil/Internet.h"
 #include "../winutil/Label.h"
 #include "../winutil/ListView.h"
@@ -8,7 +8,7 @@
 #include "../winutil/TaskBarProgress.h"
 #include "ChromiumRel.h"
 
-class FrmMain final : public winlamb::window_dialog_main {
+class FrmMain final : public winlamb::dialog_main {
 private:
 	ChromiumRel     _chromiumRel;
 	TaskBarProgress _taskBar;
