@@ -15,6 +15,7 @@ FrmDnDll::FrmDnDll(TaskBarProgress& taskBar,
 {
 	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
+		initControls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 		Sys::thread([this]() {
 			_doDownload(); // start right away

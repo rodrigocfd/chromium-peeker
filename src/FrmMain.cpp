@@ -43,21 +43,19 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_message(WM_INITMENUPOPUP, [this](WPARAM wp, LPARAM lp)->INT_PTR
-	{
-		Menu menu(reinterpret_cast<HMENU>(wp));
-		if (menu.getCommandId(0) == MNU_MAIN_GETBASIC) {
-			int numSelec = _listview.items.countSelected();
-			menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
-				.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
-		}
-		return TRUE;
-	});
-
 	on_message(WM_SIZE, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
 		_resizer.arrange(wp, lp);
 		_listview.columnFit(3);
+		return TRUE;
+	});
+
+	on_initmenupopup(MNU_MAIN_GETBASIC, [this](HMENU hMenu)->INT_PTR
+	{
+		Menu menu = hMenu;
+		int numSelec = _listview.items.countSelected();
+		menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
+			.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
 		return TRUE;
 	});
 

@@ -13,6 +13,7 @@ FrmDnInfo::FrmDnInfo(TaskBarProgress& taskBar,
 {
 	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
+		initControls();
 		SetWindowText(hwnd(), L"Downloading...");
 		Sys::thread([this]() {
 			_doGetOneFile(_markers[0]); // proceed with first file

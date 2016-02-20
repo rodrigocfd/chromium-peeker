@@ -13,6 +13,7 @@ FrmDnList::FrmDnList(TaskBarProgress& taskBar,
 {
 	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
+		initControls();
 		SetWindowText(hwnd(), L"No markers downloaded...");
 		Sys::thread([this]() {
 			_doDownloadList(L""); // start downloading first batch of markers

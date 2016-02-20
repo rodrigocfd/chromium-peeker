@@ -12,6 +12,7 @@ FrmDnZip::FrmDnZip(TaskBarProgress& taskBar,
 {
 	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
 	{
+		initControls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 
 		wstring defSave = Sys::pathOfDesktop().append(L"\\chrome-win32.zip");

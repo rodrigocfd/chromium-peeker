@@ -12,25 +12,17 @@ FrmDn::FrmDn(TaskBarProgress& taskBar)
 	: _taskBar(taskBar)
 {
 	setup.dialogId = DLG_PROGRESS;
-
-	dialog_modal::on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
-	{
-		Sys::enableXButton(hwnd(), false);
-
-		_label = { hwnd(), LBL_LBL };
-
-		(_progBar = { hwnd(), PRO_PRO })
-			.setRange(0, 100)
-			.setPos(0);
-		
-		return _userInitDialog ? _userInitDialog(wp, lp) : TRUE;
-	});
 }
 
-void FrmDn::on_message(UINT msg, msg_func_type callback)
+void FrmDn::initControls()
 {
-	if (msg == WM_INITDIALOG) _userInitDialog = std::move(callback);
-	else dialog_modal::on_message(msg, std::move(callback));
+	Sys::enableXButton(hwnd(), false);
+
+	_label = { hwnd(), LBL_LBL };
+
+	(_progBar = { hwnd(), PRO_PRO })
+		.setRange(0, 100)
+		.setPos(0);
 }
 
 bool FrmDn::doShowErrAndClose(const wchar_t *msg, const wstring& err)
