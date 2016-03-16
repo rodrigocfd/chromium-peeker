@@ -16,6 +16,7 @@ FrmDn::FrmDn(TaskBarProgress& taskBar)
 
 void FrmDn::initControls()
 {
+	center_on_parent();
 	Sys::enableXButton(hwnd(), false);
 
 	_label = { hwnd(), LBL_LBL };

@@ -158,11 +158,14 @@
     <ClInclude Include="src\FrmDnList.h" />
     <ClInclude Include="src\FrmDnZip.h" />
     <ClInclude Include="src\FrmMain.h" />
+    <ClInclude Include="winlamb\callback_depot.h" />
     <ClInclude Include="winlamb\dialog.h" />
     <ClInclude Include="winlamb\dialog_main.h" />
     <ClInclude Include="winlamb\dialog_modal.h" />
     <ClInclude Include="winlamb\font.h" />
     <ClInclude Include="winlamb\msg_command.h" />
+    <ClInclude Include="winlamb\msg_dropfiles.h" />
+    <ClInclude Include="winlamb\msg_getdlgcode.h" />
     <ClInclude Include="winlamb\msg_initmenupopup.h" />
     <ClInclude Include="winlamb\msg_keydown.h" />
     <ClInclude Include="winlamb\msg_notify.h" />

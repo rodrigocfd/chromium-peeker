@@ -17,7 +17,7 @@ FrmMain::FrmMain()
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
 
-	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
 		_taskBar.create(hwnd());
 
@@ -43,23 +43,23 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_message(WM_SIZE, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_SIZE, [this](params p)->INT_PTR
 	{
-		_resizer.arrange(wp, lp);
+		_resizer.arrange(p.wParam, p.lParam);
 		_listview.columnFit(3);
 		return TRUE;
 	});
 
-	on_initmenupopup(MNU_MAIN_GETBASIC, [this](HMENU hMenu)->INT_PTR
+	on_initmenupopup(MNU_MAIN_GETBASIC, [this](params_initmenupopup p)->INT_PTR
 	{
-		Menu menu = hMenu;
+		Menu menu = p.hmenu();
 		int numSelec = _listview.items.countSelected();
 		menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
 			.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
 		return TRUE;
 	});
 
-	on_command(BTN_DLLIST, [this]()->INT_PTR
+	on_command(BTN_DLLIST, [this](params_command p)->INT_PTR
 	{
 		Label btnDlList = GetDlgItem(hwnd(), BTN_DLLIST);
 		btnDlList.enable(false);
@@ -88,7 +88,7 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETBASIC, [this]()->INT_PTR
+	on_command(MNU_MAIN_GETBASIC, [this](params_command p)->INT_PTR
 	{
 		vector<ListView::Item> sels = _listview.items.getSelected();
 		if (sels.empty()) return 0;
@@ -113,7 +113,7 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETDLL, [this]()->INT_PTR
+	on_command(MNU_MAIN_GETDLL, [this](params_command p)->INT_PTR
 	{
 		vector<ListView::Item> sels = _listview.items.getSelected();
 		if (!sels.empty()) {
@@ -137,7 +137,7 @@ FrmMain::FrmMain()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_DLZIP, [this]()->INT_PTR
+	on_command(MNU_MAIN_DLZIP, [this](params_command p)->INT_PTR
 	{
 		if (_listview.items.countSelected() == 1) {
 			FrmDnZip ddz(_taskBar, _session, _listview.items.getSelected()[0].getText());

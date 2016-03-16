@@ -158,6 +158,15 @@
     <ClInclude Include="winlamb\msg_keydown.h">
       <Filter>winlamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\msg_getdlgcode.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\msg_dropfiles.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\callback_depot.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ChromiumRel.cpp">

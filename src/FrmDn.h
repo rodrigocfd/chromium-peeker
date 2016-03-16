@@ -8,10 +8,10 @@
 
 // Base class to all download classes.
 class FrmDn : public winlamb::dialog_modal,
-	public winlamb::msg_thread_dialog
+	public winlamb::dialog_msg_thread
 {
 private:
-	msg_func_type _userInitDialog;
+	func_msg_type _userInitDialog;
 protected:
 	Label            _label;
 	ProgressBar      _progBar;

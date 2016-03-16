@@ -11,8 +11,8 @@
 #include "ChromiumRel.h"
 
 class FrmMain final : public winlamb::dialog_main,
-	public winlamb::msg_command_dialog,
-	public winlamb::msg_initmenupopup_dialog
+	public winlamb::dialog_msg_command,
+	public winlamb::dialog_msg_initmenupopup
 {
 private:
 	ChromiumRel     _chromiumRel;

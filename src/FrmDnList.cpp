@@ -11,7 +11,7 @@ FrmDnList::FrmDnList(TaskBarProgress& taskBar,
 	ChromiumRel& clist)
 	: FrmDn(taskBar), _session(session), _clist(clist), _totBytes(0)
 {
-	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
 		initControls();
 		SetWindowText(hwnd(), L"No markers downloaded...");

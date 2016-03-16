@@ -11,7 +11,7 @@ FrmDnInfo::FrmDnInfo(TaskBarProgress& taskBar,
 	const vector<wstring>& markers)
 	: FrmDn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
-	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
 		initControls();
 		SetWindowText(hwnd(), L"Downloading...");

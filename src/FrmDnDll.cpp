@@ -13,7 +13,7 @@ FrmDnDll::FrmDnDll(TaskBarProgress& taskBar,
 	const wstring& marker)
 	: FrmDn(taskBar), _session(session), _marker(marker), _totDownloaded(0)
 {
-	on_message(WM_INITDIALOG, [this](WPARAM wp, LPARAM lp)->INT_PTR
+	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
 		initControls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
