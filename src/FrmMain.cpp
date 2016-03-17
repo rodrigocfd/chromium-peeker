@@ -40,6 +40,8 @@ FrmMain::FrmMain()
 			Sys::msgBox(hwnd(), L"Fail", err, MB_ICONERROR);
 			SendMessage(hwnd(), WM_CLOSE, 0, 0);
 		}
+
+		Sys::setWheelHoverBehavior(hwnd());
 		return TRUE;
 	});
 
