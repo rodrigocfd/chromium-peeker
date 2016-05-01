@@ -19,9 +19,9 @@ void FrmDn::initControls()
 	center_on_parent();
 	Sys::enableXButton(hwnd(), false);
 
-	_label = { hwnd(), LBL_LBL };
+	_label = GetDlgItem(hwnd(), LBL_LBL);
 
-	(_progBar = { hwnd(), PRO_PRO })
+	(_progBar = GetDlgItem(hwnd(), PRO_PRO))
 		.setRange(0, 100)
 		.setPos(0);
 }

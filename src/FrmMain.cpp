@@ -19,9 +19,9 @@ FrmMain::FrmMain()
 
 	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
-		_taskBar.create(hwnd());
+		_taskBar.init(hwnd());
 
-		(_listview = { hwnd(), LST_BUILDS })
+		(_listview = GetDlgItem(hwnd(), LST_BUILDS))
 			.setFullRowSelect()
 			.setContextMenu(MEN_MAIN)
 			.columnAdd(L"Build marker", 80)
@@ -30,7 +30,7 @@ FrmMain::FrmMain()
 			.columnAdd(L"DLL version", 90)
 			.columnFit(3);
 
-		_lblLoaded = { hwnd(), LBL_LOADED };
+		_lblLoaded = GetDlgItem(hwnd(), LBL_LOADED);
 
 		_resizer.add(hwnd(), LBL_LOADED, Resizer::Do::RESIZE, Resizer::Do::NOTHING)
 			.add(hwnd(), LST_BUILDS, Resizer::Do::RESIZE, Resizer::Do::RESIZE);
@@ -55,7 +55,7 @@ FrmMain::FrmMain()
 	on_initmenupopup(MNU_MAIN_GETBASIC, [this](params_initmenupopup p)->INT_PTR
 	{
 		Menu menu = p.hmenu();
-		int numSelec = _listview.items.countSelected();
+		size_t numSelec = _listview.items.countSelected();
 		menu.enableItem({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
 			.enableItem(MNU_MAIN_DLZIP, numSelec == 1);
 		return TRUE;
@@ -93,7 +93,7 @@ FrmMain::FrmMain()
 	on_command(MNU_MAIN_GETBASIC, [this](params_command p)->INT_PTR
 	{
 		vector<ListView::Item> sels = _listview.items.getSelected();
-		if (sels.empty()) return 0;
+		if (sels.empty()) return TRUE;
 
 		vector<wstring> markers = ListView::getAllText(sels, 0);
 
@@ -124,7 +124,7 @@ FrmMain::FrmMain()
 					L"You are about to download more than one package.\nThat's a lot of data, proceed?",
 					MB_ICONEXCLAMATION | MB_YESNO | MB_DEFBUTTON2);
 				if (q == IDNO) {
-					return 0; // user aborted download operation
+					return TRUE; // user aborted download operation
 				}
 			}
 
