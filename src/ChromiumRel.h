@@ -1,6 +1,6 @@
 
 #pragma once
-#include "../winutil/Xml.h"
+#include "../winutil/xml.h"
 
 class ChromiumRel final {
 private:
@@ -10,11 +10,11 @@ private:
 public:
 	ChromiumRel() : _isFinished(false) { }
 	
-	bool           append(Xml& data);
+	bool           append(winutil::xml& data);
 	bool           isFinished() const                { return _isFinished; }
 	const wchar_t* nextMarker() const                { return _nextMarker.c_str(); }
 	const std::vector<std::wstring>& markers() const { return _markers; }
 	void           reset();
 private:
-	bool _parseMorePrefixes(Xml::Node& root);
+	bool _parseMorePrefixes(winutil::xml::node& root);
 };

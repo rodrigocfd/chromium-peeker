@@ -1,18 +1,18 @@
 
 #pragma once
 #include "FrmDn.h"
-#include "../winutil/Internet.h"
+#include "../winutil/internet.h"
 
 // Downloads DLL version for a marker.
 class FrmDnDll final : public FrmDn {
 private:
-	InternetSession& _session;
-	std::wstring     _marker;
-	int              _totDownloaded;
+	winutil::internet_session& _session;
+	std::wstring               _marker;
+	int                        _totDownloaded;
 public:
 	std::wstring version;
-	FrmDnDll(TaskBarProgress& taskBar,
-		InternetSession& session,
+	FrmDnDll(winutil::taskbar_progress& taskBar,
+		winutil::internet_session& session,
 		const std::wstring& marker);
 private:
 	bool _doDownload();

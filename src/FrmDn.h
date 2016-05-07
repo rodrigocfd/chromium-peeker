@@ -2,9 +2,9 @@
 #pragma once
 #include "../winlamb/dialog_modal.h"
 #include "../winlamb/msg_thread.h"
-#include "../winutil/Label.h"
-#include "../winutil/ProgressBar.h"
-#include "../winutil/TaskBarProgress.h"
+#include "../winutil/label.h"
+#include "../winutil/progressbar.h"
+#include "../winutil/taskbar_progress.h"
 
 // Base class to all download classes.
 class FrmDn : public winlamb::dialog_modal,
@@ -13,12 +13,12 @@ class FrmDn : public winlamb::dialog_modal,
 private:
 	func_msg_type _userInitDialog;
 protected:
-	Label            _label;
-	ProgressBar      _progBar;
-	TaskBarProgress& _taskBar;
+	winutil::label             _label;
+	winutil::progressbar       _progBar;
+	winutil::taskbar_progress& _taskBar;
 public:
 	virtual ~FrmDn() = 0;
-	FrmDn(TaskBarProgress& taskBar);
+	FrmDn(winutil::taskbar_progress& taskBar);
 protected:
 	void initControls();
 	bool doShowErrAndClose(const wchar_t *msg, const std::wstring& err);

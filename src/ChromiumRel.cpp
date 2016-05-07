@@ -3,26 +3,27 @@
 #include <Windows.h>
 #include "ChromiumRel.h"
 #include "../winutil/Str.h"
+using namespace winutil;
 using std::vector;
 using std::wstring;
 
-bool ChromiumRel::append(Xml& data)
+bool ChromiumRel::append(xml& data)
 {
-	Xml::Node& root = data.root;
+	xml::node& root = data.root;
 
 	if (root.name != L"ListBucketResult") return false;
 
 	if (root.children[0].name != L"Name" ||
 		root.children[0].value != L"chromium-browser-continuous") return false;
 
-	const wstring& isTruncated = root.firstChildByName(L"IsTruncated")->value;
+	const wstring& isTruncated = root.first_child_by_name(L"IsTruncated")->value;
 	if (isTruncated != L"true" &&
 		isTruncated != L"false") return false;
 
 	if (!this->_parseMorePrefixes(root)) return false;
 
 	if (isTruncated == L"true") { // more to come
-		_nextMarker = root.firstChildByName(L"NextMarker")->value; // eg.: "Win/93883/"
+		_nextMarker = root.first_child_by_name(L"NextMarker")->value; // eg.: "Win/93883/"
 	} else { // finished loading last piece of list
 		_nextMarker = L"";
 		_isFinished = true;
@@ -43,15 +44,15 @@ void ChromiumRel::reset()
 	_isFinished = false;
 }
 
-bool ChromiumRel::_parseMorePrefixes(Xml::Node& root)
+bool ChromiumRel::_parseMorePrefixes(xml::node& root)
 {
-	vector<Xml::Node*> commonPrefixes = root.getChildrenByName(L"CommonPrefixes");
+	vector<xml::node*> commonPrefixes = root.children_by_name(L"CommonPrefixes");
 	
 	size_t prevsz = _markers.size();
 	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
-	for (Xml::Node *cp : commonPrefixes) {
-		Xml::Node *prefix = &cp->children[0];
+	for (xml::node *cp : commonPrefixes) {
+		xml::node *prefix = &cp->children[0];
 		_markers.emplace_back(prefix->value); // eg.: "Win/93883/"
 	}
 	return true;

@@ -1,7 +1,7 @@
 
 #pragma once
 #include "FrmDn.h"
-#include "../winutil/Internet.h"
+#include "../winutil/internet.h"
 
 // Downloads information for a marker.
 class FrmDnInfo final : public FrmDn {
@@ -12,13 +12,13 @@ public:
 	};
 	
 private:
-	InternetSession&                 _session;
+	winutil::internet_session&       _session;
 	const std::vector<std::wstring>& _markers;
 	int                              _totDownloaded;
 public:
 	std::vector<Data> data;
-	FrmDnInfo(TaskBarProgress& taskBar,
-		InternetSession& session,
+	FrmDnInfo(winutil::taskbar_progress& taskBar,
+		winutil::internet_session& session,
 		const std::vector<std::wstring>& markers);
 private:
 	bool _doGetOneFile(const std::wstring& marker);

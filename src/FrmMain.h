@@ -3,11 +3,11 @@
 #include "../winlamb/dialog_main.h"
 #include "../winlamb/msg_command.h"
 #include "../winlamb/msg_initmenupopup.h"
-#include "../winutil/Internet.h"
-#include "../winutil/Label.h"
-#include "../winutil/ListView.h"
-#include "../winutil/Resizer.h"
-#include "../winutil/TaskBarProgress.h"
+#include "../winutil/internet.h"
+#include "../winutil/label.h"
+#include "../winutil/listview.h"
+#include "../winutil/resizer.h"
+#include "../winutil/taskbar_progress.h"
 #include "ChromiumRel.h"
 
 class FrmMain final : public winlamb::dialog_main,
@@ -15,12 +15,12 @@ class FrmMain final : public winlamb::dialog_main,
 	public winlamb::dialog_msg_initmenupopup
 {
 private:
-	ChromiumRel     _chromiumRel;
-	TaskBarProgress _taskBar;
-	ListView        _listview;
-	Label           _lblLoaded;
-	Resizer         _resizer;
-	InternetSession _session;
+	ChromiumRel               _chromiumRel;
+	winutil::taskbar_progress _taskBar;
+	winutil::listview         _listview;
+	winutil::label            _lblLoaded;
+	winutil::resizer          _resizer;
+	winutil::internet_session _session;
 public:
 	FrmMain();
 };
