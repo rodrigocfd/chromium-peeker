@@ -1,14 +1,14 @@
 
 #pragma once
-#include "FrmDn.h"
+#include "dlg_dn.h"
 #include "../winutil/internet.h"
 
 // Downloads information for a marker.
-class FrmDnInfo final : public FrmDn {
+class dlg_dn_info final : public dlg_dn {
 public:
 	struct Data final {
 		std::wstring releaseDate;
-		int packageSize;
+		int          packageSize;
 	};
 	
 private:
@@ -17,10 +17,10 @@ private:
 	int                              _totDownloaded;
 public:
 	std::vector<Data> data;
-	FrmDnInfo(winutil::taskbar_progress& taskBar,
+	dlg_dn_info(winutil::taskbar_progress& taskBar,
 		winutil::internet_session& session,
 		const std::vector<std::wstring>& markers);
 private:
-	bool _doGetOneFile(const std::wstring& marker);
-	bool _doProcessFile(const std::vector<BYTE>& buf);
+	bool _get_one_file(const std::wstring& marker);
+	bool _process_file(const std::vector<BYTE>& buf);
 };

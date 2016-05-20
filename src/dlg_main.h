@@ -8,19 +8,19 @@
 #include "../winutil/listview.h"
 #include "../winutil/resizer.h"
 #include "../winutil/taskbar_progress.h"
-#include "ChromiumRel.h"
+#include "chromium_rel.h"
 
-class FrmMain final : public winlamb::dialog_main,
+class dlg_main final : public winlamb::dialog_main,
 	public winlamb::dialog_msg_command,
 	public winlamb::dialog_msg_initmenupopup
 {
 private:
-	ChromiumRel               _chromiumRel;
+	chromium_rel              _chromium_rel;
 	winutil::taskbar_progress _taskBar;
 	winutil::listview         _listview;
 	winutil::label            _lblLoaded;
 	winutil::resizer          _resizer;
 	winutil::internet_session _session;
 public:
-	FrmMain();
+	dlg_main();
 };

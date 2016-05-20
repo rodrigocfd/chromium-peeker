@@ -17,29 +17,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ChromiumRel.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="res\resource.h">
       <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmDn.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmDnDll.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmDnInfo.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmDnList.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmDnZip.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FrmMain.h">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\callback_depot.h">
       <Filter>winlamb</Filter>
@@ -167,29 +146,32 @@
     <ClInclude Include="winutil\xml.h">
       <Filter>winutil</Filter>
     </ClInclude>
+    <ClInclude Include="src\chromium_rel.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="winutil\com_ptr.h">
+      <Filter>winutil</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_main.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_dn_zip.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_dn_list.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_dn_info.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_dn_dll.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dlg_dn.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ChromiumRel.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmDn.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmDnDll.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmDnInfo.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmDnList.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmDnZip.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrmMain.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="winutil\internet.cpp">
       <Filter>winutil</Filter>
     </ClCompile>
@@ -255,6 +237,27 @@
     </ClCompile>
     <ClCompile Include="winutil\icon.cpp">
       <Filter>winutil</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chromium_rel.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_dn_zip.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_dn_list.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_dn_info.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_dn_dll.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dlg_dn.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

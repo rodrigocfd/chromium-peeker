@@ -1,13 +1,13 @@
 
 #include <algorithm>
 #include <Windows.h>
-#include "ChromiumRel.h"
+#include "chromium_rel.h"
 #include "../winutil/Str.h"
 using namespace winutil;
 using std::vector;
 using std::wstring;
 
-bool ChromiumRel::append(xml& data)
+bool chromium_rel::append(xml& data)
 {
 	xml::node& root = data.root;
 
@@ -20,7 +20,7 @@ bool ChromiumRel::append(xml& data)
 	if (isTruncated != L"true" &&
 		isTruncated != L"false") return false;
 
-	if (!this->_parseMorePrefixes(root)) return false;
+	if (!this->_parse_more_prefixes(root)) return false;
 
 	if (isTruncated == L"true") { // more to come
 		_nextMarker = root.first_child_by_name(L"NextMarker")->value; // eg.: "Win/93883/"
@@ -37,14 +37,14 @@ bool ChromiumRel::append(xml& data)
 	return true;
 }
 
-void ChromiumRel::reset()
+void chromium_rel::reset()
 {
 	_markers.resize(0);
 	_nextMarker = L"";
 	_isFinished = false;
 }
 
-bool ChromiumRel::_parseMorePrefixes(xml::node& root)
+bool chromium_rel::_parse_more_prefixes(xml::node& root)
 {
 	vector<xml::node*> commonPrefixes = root.children_by_name(L"CommonPrefixes");
 	

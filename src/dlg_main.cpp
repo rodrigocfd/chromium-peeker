@@ -1,9 +1,9 @@
 
-#include "FrmMain.h"
-#include "FrmDnDll.h"
-#include "FrmDnInfo.h"
-#include "FrmDnList.h"
-#include "FrmDnZip.h"
+#include "dlg_main.h"
+#include "dlg_dn_dll.h"
+#include "dlg_dn_info.h"
+#include "dlg_dn_list.h"
+#include "dlg_dn_zip.h"
 #include "../winutil/str.h"
 #include "../winutil/sys.h"
 #include "../res/resource.h"
@@ -11,9 +11,9 @@ using namespace winutil;
 using std::vector;
 using std::wstring;
 
-RUN(FrmMain);
+RUN(dlg_main);
 
-FrmMain::FrmMain()
+dlg_main::dlg_main()
 {
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
@@ -66,14 +66,14 @@ FrmMain::FrmMain()
 	{
 		label btnDlList = GetDlgItem(hwnd(), BTN_DLLIST);
 		btnDlList.enable(false);
-		_chromiumRel.reset();
+		_chromium_rel.reset();
 		_listview.items.remove_all();
 		_listview.column_fit(3);
 		_lblLoaded.set_text(L"downloading...");
 	
-		const vector<wstring>& markers = _chromiumRel.markers();
+		const vector<wstring>& markers = _chromium_rel.markers();
 	
-		FrmDnList ddl(_taskBar, _session, _chromiumRel);
+		dlg_dn_list ddl(_taskBar, _session, _chromium_rel);
 		if (ddl.show(hwnd()) == IDOK) {
 			_listview.set_redraw(false);
 			const int iShown = 1200;
@@ -81,7 +81,7 @@ FrmMain::FrmMain()
 				_listview.items.add(markers[i]);
 			}
 			_lblLoaded.set_text(str::format(L"%d/%d markers (%.2f KB)",
-				iShown, markers.size(), static_cast<float>(ddl.getTotalBytes()) / 1024).c_str() );
+				iShown, markers.size(), static_cast<float>(ddl.get_total_bytes()) / 1024).c_str() );
 			_listview.set_redraw(true).column_fit(3);
 	
 			btnDlList.enable(true);
@@ -98,7 +98,7 @@ FrmMain::FrmMain()
 
 		vector<wstring> markers = listview::get_all_text(sels, 0);
 
-		FrmDnInfo ddi(_taskBar, _session, markers);
+		dlg_dn_info ddi(_taskBar, _session, markers);
 		if (ddi.show(hwnd()) == IDOK) {
 			_listview.set_redraw(false);
 			for (size_t i = 0; i < markers.size(); ++i) {
@@ -131,7 +131,7 @@ FrmMain::FrmMain()
 
 			vector<wstring> markers = listview::get_all_text(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
-				FrmDnDll ddd(_taskBar, _session, markers[i]);
+				dlg_dn_dll ddd(_taskBar, _session, markers[i]);
 				if (ddd.show(hwnd()) == IDOK) {
 					_listview.items[sels[i].index].set_text(ddd.version, 3);
 				}
@@ -143,7 +143,7 @@ FrmMain::FrmMain()
 	on_command(MNU_MAIN_DLZIP, [this](params_command p)->INT_PTR
 	{
 		if (_listview.items.count_selected() == 1) {
-			FrmDnZip ddz(_taskBar, _session, _listview.items.get_selected()[0].get_text());
+			dlg_dn_zip ddz(_taskBar, _session, _listview.items.get_selected()[0].get_text());
 			ddz.show(hwnd());
 		}
 		return TRUE;

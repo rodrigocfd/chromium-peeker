@@ -7,7 +7,7 @@
 #include "../winutil/taskbar_progress.h"
 
 // Base class to all download classes.
-class FrmDn : public winlamb::dialog_modal,
+class dlg_dn : public winlamb::dialog_modal,
 	public winlamb::dialog_msg_thread
 {
 private:
@@ -17,9 +17,9 @@ protected:
 	winutil::progressbar       _progBar;
 	winutil::taskbar_progress& _taskBar;
 public:
-	virtual ~FrmDn() = 0;
-	FrmDn(winutil::taskbar_progress& taskBar);
+	virtual ~dlg_dn() = 0;
+	dlg_dn(winutil::taskbar_progress& taskBar);
 protected:
-	void initControls();
-	bool doShowErrAndClose(const wchar_t *msg, const std::wstring& err);
+	void init_controls();
+	bool show_err_and_close(const wchar_t* msg, const std::wstring& err);
 };

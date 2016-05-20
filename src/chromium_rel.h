@@ -2,19 +2,19 @@
 #pragma once
 #include "../winutil/xml.h"
 
-class ChromiumRel final {
+class chromium_rel final {
 private:
 	std::vector<std::wstring> _markers;
 	std::wstring              _nextMarker;
 	bool                      _isFinished;
 public:
-	ChromiumRel() : _isFinished(false) { }
+	chromium_rel() : _isFinished(false) { }
 	
 	bool           append(winutil::xml& data);
-	bool           isFinished() const                { return _isFinished; }
-	const wchar_t* nextMarker() const                { return _nextMarker.c_str(); }
+	bool           is_finished() const               { return _isFinished; }
+	const wchar_t* next_marker() const               { return _nextMarker.c_str(); }
 	const std::vector<std::wstring>& markers() const { return _markers; }
 	void           reset();
 private:
-	bool _parseMorePrefixes(winutil::xml::node& root);
+	bool _parse_more_prefixes(winutil::xml::node& root);
 };

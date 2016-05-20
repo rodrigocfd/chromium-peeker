@@ -1,5 +1,5 @@
 
-#include "FrmDnList.h"
+#include "dlg_dn_list.h"
 #include "../winutil/str.h"
 #include "../winutil/sys.h"
 #include "../winutil/xml.h"
@@ -7,28 +7,28 @@ using namespace winutil;
 using std::vector;
 using std::wstring;
 
-FrmDnList::FrmDnList(taskbar_progress& taskBar,
+dlg_dn_list::dlg_dn_list(taskbar_progress& taskBar,
 	internet_session& session,
-	ChromiumRel& clist)
-	: FrmDn(taskBar), _session(session), _clist(clist), _totBytes(0)
+	chromium_rel& clist)
+	: dlg_dn(taskBar), _session(session), _clist(clist), _totBytes(0)
 {
 	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
-		initControls();
+		init_controls();
 		SetWindowText(hwnd(), L"No markers downloaded...");
 		sys::thread([this]() {
-			_doDownloadList(L""); // start downloading first batch of markers
+			_download_list(L""); // start downloading first batch of markers
 		});
 		return TRUE;
 	});
 }
 
-int FrmDnList::getTotalBytes() const
+int dlg_dn_list::get_total_bytes() const
 {
 	return _totBytes;
 }
 
-bool FrmDnList::_doDownloadList(const wstring& marker)
+bool dlg_dn_list::_download_list(const wstring& marker)
 {
 	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
 	if (!marker.empty()) {
@@ -46,7 +46,7 @@ bool FrmDnList::_doDownloadList(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return doShowErrAndClose(L"Error at download start", err);
+		return show_err_and_close(L"Error at download start", err);
 	}
 	ui_thread([this]()->void {
 		_progBar.set_pos(0);
@@ -66,12 +66,12 @@ bool FrmDnList::_doDownloadList(const wstring& marker)
 	}
 
 	if (!err.empty()) {
-		return doShowErrAndClose(L"Download error", err);
+		return show_err_and_close(L"Download error", err);
 	}
-	return _doReadXml(xmlbuf);
+	return _read_xml(xmlbuf);
 }
 
-bool FrmDnList::_doReadXml(const vector<BYTE>& buf)
+bool dlg_dn_list::_read_xml(const vector<BYTE>& buf)
 {
 	xml xmlc = str::parse_utf8(buf);
 	_clist.append(xmlc);
@@ -81,11 +81,11 @@ bool FrmDnList::_doReadXml(const vector<BYTE>& buf)
 			_clist.markers().size(), static_cast<float>(_totBytes) / 1024).c_str() );
 	});
 	
-	if (!_clist.isFinished()) {
+	if (!_clist.is_finished()) {
 		ui_thread([this]()->void {
-			_label.set_text( str::format(L"Next marker: %s...\n", _clist.nextMarker()) );
+			_label.set_text( str::format(L"Next marker: %s...\n", _clist.next_marker()) );
 		});
-		_doDownloadList(_clist.nextMarker()); // proceed to next marker
+		_download_list(_clist.next_marker()); // proceed to next marker
 	} else {
 		ui_thread([this]()->void {
 			_taskBar.clear();

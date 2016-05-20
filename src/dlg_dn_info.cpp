@@ -1,5 +1,5 @@
 
-#include "FrmDnInfo.h"
+#include "dlg_dn_info.h"
 #include "../winutil/str.h"
 #include "../winutil/sys.h"
 #include "../winutil/xml.h"
@@ -7,23 +7,23 @@ using namespace winutil;
 using std::vector;
 using std::wstring;
 
-FrmDnInfo::FrmDnInfo(taskbar_progress& taskBar,
+dlg_dn_info::dlg_dn_info(taskbar_progress& taskBar,
 	internet_session& session,
 	const vector<wstring>& markers)
-	: FrmDn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
+	: dlg_dn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
 	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
-		initControls();
+		init_controls();
 		SetWindowText(hwnd(), L"Downloading...");
 		sys::thread([this]() {
-			_doGetOneFile(_markers[0]); // proceed with first file
+			_get_one_file(_markers[0]); // proceed with first file
 		});
 		return TRUE;
 	});
 }
 
-bool FrmDnInfo::_doGetOneFile(const wstring& marker)
+bool dlg_dn_info::_get_one_file(const wstring& marker)
 {
 	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=";
 	lnk.append(marker);
@@ -39,7 +39,7 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return doShowErrAndClose(L"Error at download start", err);
+		return show_err_and_close(L"Error at download start", err);
 	}
 
 	vector<BYTE> xmlbuf;
@@ -49,13 +49,13 @@ bool FrmDnInfo::_doGetOneFile(const wstring& marker)
 	}
 
 	if (!err.empty()) {
-		return doShowErrAndClose(L"Download error", err);
+		return show_err_and_close(L"Download error", err);
 	}
 
-	return _doProcessFile(xmlbuf);
+	return _process_file(xmlbuf);
 }
 
-bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
+bool dlg_dn_info::_process_file(const vector<BYTE>& buf)
 {
 	_totDownloaded += static_cast<int>(buf.size());
 	ui_thread([this]()->void {
@@ -84,7 +84,7 @@ bool FrmDnInfo::_doProcessFile(const vector<BYTE>& buf)
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
 	} else {
-		_doGetOneFile( _markers[this->data.size()].c_str() ); // proceed to next file
+		_get_one_file( _markers[this->data.size()].c_str() ); // proceed to next file
 	}
 	return true;
 }

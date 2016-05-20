@@ -1,25 +1,25 @@
 
-#include "FrmDnZip.h"
+#include "dlg_dn_zip.h"
 #include "../winutil/path.h"
 #include "../winutil/str.h"
 #include "../winutil/sys.h"
 using namespace winutil;
 using std::wstring;
 
-FrmDnZip::FrmDnZip(taskbar_progress& taskBar,
+dlg_dn_zip::dlg_dn_zip(taskbar_progress& taskBar,
 	internet_session& session,
 	const wstring& marker)
-	: FrmDn(taskBar), _session(session), _marker(marker)
+	: dlg_dn(taskBar), _session(session), _marker(marker)
 {
 	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
 	{
-		initControls();
+		init_controls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 
 		wstring defSave = sys::path_of_desktop().append(L"\\chrome-win32.zip");
 		if (sys::show_save_file(hwnd(), L"Zip file (*.zip)|*.zip", _dest, defSave.c_str())) {
 			sys::thread([this]() {
-				_doDownload(); // start right away
+				_download(); // start right away
 			});
 		} else {
 			EndDialog(hwnd(), IDCANCEL);
@@ -28,7 +28,7 @@ FrmDnZip::FrmDnZip(taskbar_progress& taskBar,
 	});
 }
 
-bool FrmDnZip::_doDownload()
+bool dlg_dn_zip::_download()
 {
 	wstring lnk = str::format(
 		L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
@@ -46,11 +46,11 @@ bool FrmDnZip::_doDownload()
 	wstring err;
 	file fout;
 	if (!fout.open(_dest, file::access::READWRITE, &err)) {
-		return doShowErrAndClose(L"File creation error", err);
+		return show_err_and_close(L"File creation error", err);
 	}
 
 	if (!zipdl.start(&err)) {
-		return doShowErrAndClose(L"Error at download start", err);
+		return show_err_and_close(L"Error at download start", err);
 	}
 	ui_thread([this]()->void {
 		SetWindowText(hwnd(), str::format(L"Downloading %s...",
@@ -58,13 +58,13 @@ bool FrmDnZip::_doDownload()
 	});
 
 	if (!fout.set_new_size(zipdl.get_content_length(), &err)) {
-		return doShowErrAndClose(L"Error when resizing file", err);
+		return show_err_and_close(L"Error when resizing file", err);
 	}
 
-	return _doReceiveData(zipdl, fout);
+	return _receive_data(zipdl, fout);
 }
 
-bool FrmDnZip::_doReceiveData(internet_download& zipdl, file& fout)
+bool dlg_dn_zip::_receive_data(internet_download& zipdl, file& fout)
 {
 	/*dbg(L"Response headers:\n");
 	zipdl.getResponseHeaders().each([](const Hash<String>::Elem& rh) { // informational debug
@@ -74,7 +74,7 @@ bool FrmDnZip::_doReceiveData(internet_download& zipdl, file& fout)
 	wstring err;
 	while (zipdl.has_data(&err)) {
 		if (!fout.write(zipdl.get_buffer(), &err)) {
-			return doShowErrAndClose(L"File writing error", err);
+			return show_err_and_close(L"File writing error", err);
 		}
 		ui_thread([&]()->void {
 			_label.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -84,7 +84,7 @@ bool FrmDnZip::_doReceiveData(internet_download& zipdl, file& fout)
 	}
 
 	if (!err.empty()) {
-		return doShowErrAndClose(L"Download error", err);
+		return show_err_and_close(L"Download error", err);
 	}
 	ui_thread([this]()->void {
 		EndDialog(hwnd(), IDOK); // download finished

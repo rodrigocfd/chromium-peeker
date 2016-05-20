@@ -1,21 +1,21 @@
 
-#include "FrmDn.h"
+#include "dlg_dn.h"
 #include "../winutil/sys.h"
 #include "../res/resource.h"
 using namespace winutil;
 using std::wstring;
 
-FrmDn::~FrmDn()
+dlg_dn::~dlg_dn()
 {
 }
 
-FrmDn::FrmDn(taskbar_progress& taskBar)
+dlg_dn::dlg_dn(taskbar_progress& taskBar)
 	: _taskBar(taskBar)
 {
 	setup.dialogId = DLG_PROGRESS;
 }
 
-void FrmDn::initControls()
+void dlg_dn::init_controls()
 {
 	center_on_parent();
 	sys::enable_x_button(hwnd(), false);
@@ -27,7 +27,7 @@ void FrmDn::initControls()
 		.set_pos(0);
 }
 
-bool FrmDn::doShowErrAndClose(const wchar_t *msg, const wstring& err)
+bool dlg_dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
 	ui_thread([&]()->void {
