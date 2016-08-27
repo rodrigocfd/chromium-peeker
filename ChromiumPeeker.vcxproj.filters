@@ -110,9 +110,6 @@
     <ClInclude Include="src\dlg_dn.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\run.h">
-      <Filter>winlamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\traits_dialog.h">
       <Filter>winlamb</Filter>
     </ClInclude>
@@ -131,6 +128,9 @@
     <ClInclude Include="winlamb\wnd.h">
       <Filter>winlamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\wnd_loop.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\wnd_proc.h">
       <Filter>winlamb</Filter>
     </ClInclude>
@@ -144,6 +144,9 @@
       <Filter>winlamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\dialog_modal.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\dialog_modeless.h">
       <Filter>winlamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\font.h">
@@ -174,6 +177,9 @@
       <Filter>winlamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\msg_thread.h">
+      <Filter>winlamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\run.h">
       <Filter>winlamb</Filter>
     </ClInclude>
   </ItemGroup>
