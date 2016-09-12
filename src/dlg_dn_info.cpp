@@ -12,11 +12,11 @@ dlg_dn_info::dlg_dn_info(taskbar_progress& taskBar,
 	const vector<wstring>& markers)
 	: dlg_dn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
-	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
+	on.INITDIALOG([this](par::initdialog p)->INT_PTR
 	{
 		init_controls();
 		SetWindowText(hwnd(), L"Downloading...");
-		sys::thread([this]() {
+		sys::thread([this]()->void {
 			_get_one_file(_markers[0]); // proceed with first file
 		});
 		return TRUE;
@@ -58,7 +58,7 @@ bool dlg_dn_info::_get_one_file(const wstring& marker)
 bool dlg_dn_info::_process_file(const vector<BYTE>& buf)
 {
 	_totDownloaded += static_cast<int>(buf.size());
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		_label.set_text( str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), _markers.size(), static_cast<float>(_totDownloaded) / 1024) );
 		double pct = (static_cast<float>(this->data.size()) / _markers.size()) * 100;
@@ -79,7 +79,7 @@ bool dlg_dn_info::_process_file(const vector<BYTE>& buf)
 	}
 
 	if (data.size() == _markers.size()) {
-		ui_thread([this]()->void {
+		on_ui_thread([this]()->void {
 			_taskBar.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});

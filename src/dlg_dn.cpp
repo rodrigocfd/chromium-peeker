@@ -30,7 +30,7 @@ void dlg_dn::init_controls()
 bool dlg_dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
-	ui_thread([&]()->void {
+	on_ui_thread([&]()->void {
 		_taskBar.set_error(true);
 		sys::msg_box(hwnd(), msg, err, MB_ICONERROR);
 		_taskBar.clear();

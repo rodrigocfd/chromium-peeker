@@ -12,11 +12,11 @@ dlg_dn_list::dlg_dn_list(taskbar_progress& taskBar,
 	chromium_rel& clist)
 	: dlg_dn(taskBar), _session(session), _clist(clist), _totBytes(0)
 {
-	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
+	on.INITDIALOG([this](par::initdialog p)->INT_PTR
 	{
 		init_controls();
 		SetWindowText(hwnd(), L"No markers downloaded...");
-		sys::thread([this]() {
+		sys::thread([this]()->void {
 			_download_list(L""); // start downloading first batch of markers
 		});
 		return TRUE;
@@ -48,7 +48,7 @@ bool dlg_dn_list::_download_list(const wstring& marker)
 	if (!dl.start(&err)) {
 		return show_err_and_close(L"Error at download start", err);
 	}
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		_progBar.set_pos(0);
 		_taskBar.set_waiting(true);
 		_label.set_text(L"XML download started...");
@@ -58,7 +58,7 @@ bool dlg_dn_list::_download_list(const wstring& marker)
 	xmlbuf.reserve(dl.get_content_length());
 	while (dl.has_data(&err)) {
 		xmlbuf.insert(xmlbuf.end(), dl.get_buffer().begin(), dl.get_buffer().end()); // append
-		ui_thread([&]()->void {
+		on_ui_thread([&]()->void {
 			_progBar.set_pos(dl.get_percent());
 			_label.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.get_percent(), static_cast<float>(dl.get_total_downloaded()) / 1024) );
@@ -76,18 +76,18 @@ bool dlg_dn_list::_read_xml(const vector<BYTE>& buf)
 	xml xmlc = str::parse_utf8(buf);
 	_clist.append(xmlc);
 	_totBytes += static_cast<int>(buf.size());
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		SetWindowText(hwnd(), str::format(L"%d markers downloaded (%.2f KB)...",
 			_clist.markers().size(), static_cast<float>(_totBytes) / 1024).c_str() );
 	});
 	
 	if (!_clist.is_finished()) {
-		ui_thread([this]()->void {
+		on_ui_thread([this]()->void {
 			_label.set_text( str::format(L"Next marker: %s...\n", _clist.next_marker()) );
 		});
 		_download_list(_clist.next_marker()); // proceed to next marker
 	} else {
-		ui_thread([this]()->void {
+		on_ui_thread([this]()->void {
 			_taskBar.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});

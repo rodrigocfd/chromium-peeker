@@ -14,11 +14,11 @@ dlg_dn_dll::dlg_dn_dll(taskbar_progress& taskBar,
 	const wstring& marker)
 	: dlg_dn(taskBar), _session(session), _marker(marker), _totDownloaded(0)
 {
-	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
+	on.INITDIALOG([this](par::initdialog p)->INT_PTR
 	{
 		init_controls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
-		sys::thread([this]() {
+		sys::thread([this]()->void {
 			_download(); // start right away
 		});
 		return TRUE;
@@ -55,7 +55,7 @@ bool dlg_dn_dll::_download()
 		if (!fout.write(dlfile.get_buffer(), &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		ui_thread([&]()->void {
+		on_ui_thread([&]()->void {
 			_progBar.set_pos(dlfile.get_percent());
 			_taskBar.set_pos(dlfile.get_percent());
 			_label.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -73,7 +73,7 @@ bool dlg_dn_dll::_download()
 bool dlg_dn_dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		SetWindowText(hwnd(), L"Processing package...");
 		_label.set_text(L"Unzipping chrome.dll, please wait...");
 		_progBar.set_waiting(true);
@@ -85,7 +85,7 @@ bool dlg_dn_dll::_read_version(wstring zipPath)
 	}
 
 	// Open chrome.dll as memory-mapped.
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		_label.set_text(L"Scanning chrome.dll, please wait...");
 	});
 	wstring dllPath = path::folder_from(zipPath).append(L"\\chrome-win32\\chrome.dll");
@@ -122,7 +122,7 @@ bool dlg_dn_dll::_read_version(wstring zipPath)
 	file::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
 	file::del(zipPath);
 		
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		_taskBar.clear();
 		EndDialog(hwnd(), IDOK);
 	});

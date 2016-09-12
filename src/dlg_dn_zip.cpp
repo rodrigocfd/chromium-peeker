@@ -11,14 +11,14 @@ dlg_dn_zip::dlg_dn_zip(taskbar_progress& taskBar,
 	const wstring& marker)
 	: dlg_dn(taskBar), _session(session), _marker(marker)
 {
-	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
+	on.INITDIALOG([this](par::initdialog p)->INT_PTR
 	{
 		init_controls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 
 		wstring defSave = sys::path_of_desktop().append(L"\\chrome-win32.zip");
 		if (sys::show_save_file(hwnd(), L"Zip file (*.zip)|*.zip", _dest, defSave.c_str())) {
-			sys::thread([this]() {
+			sys::thread([this]()->void {
 				_download(); // start right away
 			});
 		} else {
@@ -52,7 +52,7 @@ bool dlg_dn_zip::_download()
 	if (!zipdl.start(&err)) {
 		return show_err_and_close(L"Error at download start", err);
 	}
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		SetWindowText(hwnd(), str::format(L"Downloading %s...",
 			path::file_from(_dest).c_str()).c_str() );
 	});
@@ -76,7 +76,7 @@ bool dlg_dn_zip::_receive_data(internet_download& zipdl, file& fout)
 		if (!fout.write(zipdl.get_buffer(), &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		ui_thread([&]()->void {
+		on_ui_thread([&]()->void {
 			_label.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(), static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
 			_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
@@ -86,7 +86,7 @@ bool dlg_dn_zip::_receive_data(internet_download& zipdl, file& fout)
 	if (!err.empty()) {
 		return show_err_and_close(L"Download error", err);
 	}
-	ui_thread([this]()->void {
+	on_ui_thread([this]()->void {
 		EndDialog(hwnd(), IDOK); // download finished
 	});
 	return true;

@@ -18,7 +18,7 @@ dlg_main::dlg_main()
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
 
-	on_message(WM_INITDIALOG, [this](params p)->INT_PTR
+	on.INITDIALOG([this](par::initdialog p)->INT_PTR
 	{
 		_taskBar.init(hwnd());
 
@@ -46,23 +46,26 @@ dlg_main::dlg_main()
 		return TRUE;
 	});
 
-	on_message(WM_SIZE, [this](params p)->INT_PTR
+	on.SIZE([this](par::size p)->INT_PTR
 	{
 		_resizer.arrange(p.wParam, p.lParam);
 		_listview.column_fit(3);
 		return TRUE;
 	});
 
-	on_initmenupopup(MNU_MAIN_GETBASIC, [this](params_initmenupopup p)->INT_PTR
+	on.INITMENUPOPUP([this](par::initmenupopup p)->INT_PTR
 	{
 		menu menu = p.hmenu();
-		size_t numSelec = _listview.items.count_selected();
-		menu.enable_item({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
-			.enable_item(MNU_MAIN_DLZIP, numSelec == 1);
-		return TRUE;
+		if (menu.get_command_id(0) == MNU_MAIN_GETBASIC) {
+			size_t numSelec = _listview.items.count_selected();
+			menu.enable_item({ MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL }, numSelec >= 1)
+				.enable_item(MNU_MAIN_DLZIP, numSelec == 1);
+			return TRUE;
+		}
+		return FALSE;
 	});
 
-	on_command(BTN_DLLIST, [this](params_command p)->INT_PTR
+	on.COMMAND(BTN_DLLIST, [this](par::command p)->INT_PTR
 	{
 		label btnDlList = GetDlgItem(hwnd(), BTN_DLLIST);
 		btnDlList.enable(false);
@@ -91,7 +94,7 @@ dlg_main::dlg_main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETBASIC, [this](params_command p)->INT_PTR
+	on.COMMAND(MNU_MAIN_GETBASIC, [this](par::command p)->INT_PTR
 	{
 		vector<listview::item> sels = _listview.items.get_selected();
 		if (sels.empty()) return TRUE;
@@ -116,7 +119,7 @@ dlg_main::dlg_main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETDLL, [this](params_command p)->INT_PTR
+	on.COMMAND(MNU_MAIN_GETDLL, [this](par::command p)->INT_PTR
 	{
 		vector<listview::item> sels = _listview.items.get_selected();
 		if (!sels.empty()) {
@@ -140,7 +143,7 @@ dlg_main::dlg_main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_DLZIP, [this](params_command p)->INT_PTR
+	on.COMMAND(MNU_MAIN_DLZIP, [this](par::command p)->INT_PTR
 	{
 		if (_listview.items.count_selected() == 1) {
 			dlg_dn_zip ddz(_taskBar, _session, _listview.items.get_selected()[0].get_text());
