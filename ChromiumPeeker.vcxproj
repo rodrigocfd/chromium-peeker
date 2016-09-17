@@ -160,7 +160,7 @@
     <ClInclude Include="src\dlg_dn_list.h" />
     <ClInclude Include="src\dlg_dn_zip.h" />
     <ClInclude Include="src\dlg_main.h" />
-    <ClInclude Include="winlamb\callback_depot.h" />
+    <ClInclude Include="winlamb\callbacks.h" />
     <ClInclude Include="winlamb\dialog.h" />
     <ClInclude Include="winlamb\dialog_control.h" />
     <ClInclude Include="winlamb\dialog_main.h" />

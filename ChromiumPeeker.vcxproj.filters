@@ -149,7 +149,7 @@
     <ClInclude Include="winlamb\wnd_thread.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\callback_depot.h">
+    <ClInclude Include="winlamb\callbacks.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\dialog.h">
