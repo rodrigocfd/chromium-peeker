@@ -1,32 +1,27 @@
 
 #include "Dlg_Dn_Dll.h"
-#include "../wet/file.h"
-#include "../wet/file_mapped.h"
-#include "../wet/path.h"
-#include "../wet/str.h"
-#include "../wet/sys.h"
-#include "../wet/zip.h"
+#include "../winlamb/file.h"
+#include "../winlamb/file_mapped.h"
+#include "../winlamb/path.h"
+#include "../winlamb/str.h"
+#include "../winlamb/sys.h"
+#include "../winlamb/zip.h"
 #include "../res/resource.h"
-using namespace wet;
+using namespace wl;
 using std::wstring;
 
 Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& taskBar, download::session& session, const wstring& marker)
 	: Dlg_Dn(taskBar), _session(session), _marker(marker), _totDownloaded(0)
 {
-}
-
-INT_PTR Dlg_Dn_Dll::proc(params p)
-{
-	if (p.message == WM_INITDIALOG) {
+	on.INITDIALOG([&](params::initdialog p)
+	{
 		init_controls();
-		set_caption(L"Downloading chrome-win32.zip...");
+		set_text(L"Downloading chrome-win32.zip...");
 		sys::thread([&]() {
 			_download(); // start right away
 		});
 		return TRUE;
-	}
-
-	return def_proc(p);
+	});
 }
 
 bool Dlg_Dn_Dll::_download()
@@ -79,7 +74,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
 	ui_thread([&]() {
-		set_caption(L"Processing package...");
+		set_text(L"Processing package...");
 		_label.set_text(L"Unzipping chrome.dll, please wait...");
 		_progBar.set_waiting(true);
 		_taskBar.set_waiting(true);

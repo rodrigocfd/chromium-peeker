@@ -1,9 +1,9 @@
 
 #include "Dlg_Dn_Info.h"
-#include "../wet/str.h"
-#include "../wet/sys.h"
-#include "../wet/xml.h"
-using namespace wet;
+#include "../winlamb/str.h"
+#include "../winlamb/sys.h"
+#include "../winlamb/xml.h"
+using namespace wl;
 using std::vector;
 using std::wstring;
 
@@ -11,20 +11,15 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& taskBar,
 	download::session& session, const vector<wstring>& markers)
 	: Dlg_Dn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
 {
-}
-
-INT_PTR Dlg_Dn_Info::proc(params p)
-{
-	if (p.message == WM_INITDIALOG) {
+	on.INITDIALOG([&](params::initdialog p)
+	{
 		init_controls();
-		set_caption(L"Downloading...");
+		set_text(L"Downloading...");
 		sys::thread([&]() {
 			_get_one_file(_markers[0]); // proceed with first file
 		});
 		return TRUE;
-	}
-
-	return def_proc(p);
+	});
 }
 
 bool Dlg_Dn_Info::_get_one_file(const wstring& marker)

@@ -1,25 +1,22 @@
 
 #include "Dlg_Dn_Zip.h"
-#include "../wet/path.h"
-#include "../wet/str.h"
-#include "../wet/sys.h"
-#include "../wet/sysdlg.h"
-using namespace wet;
+#include "../winlamb/path.h"
+#include "../winlamb/str.h"
+#include "../winlamb/sys.h"
+#include "../winlamb/sysdlg.h"
+using namespace wl;
 using std::wstring;
 
 Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& taskBar, download::session& session, const wstring& marker)
 	: Dlg_Dn(taskBar), _session(session), _marker(marker)
 {
-}
-
-INT_PTR Dlg_Dn_Zip::proc(params p)
-{
-	if (p.message == WM_INITDIALOG) {
+	on.INITDIALOG([&](params::initdialog p)
+	{
 		init_controls();
-		set_caption(L"Downloading chrome-win32.zip...");
+		set_text(L"Downloading chrome-win32.zip...");
 
 		wstring defSave = path::desktop_path().append(L"\\chrome-win32.zip");
-		if (sysdlg::save_file(this, L"Zip file (*.zip)|*.zip", _dest, defSave.c_str())) {
+		if (sysdlg::save_file(hwnd(), L"Zip file (*.zip)|*.zip", _dest, defSave.c_str())) {
 			sys::thread([&]() {
 				_download(); // start right away
 			});
@@ -27,9 +24,7 @@ INT_PTR Dlg_Dn_Zip::proc(params p)
 			EndDialog(hwnd(), IDCANCEL);
 		}
 		return TRUE;
-	}
-
-	return def_proc(p);
+	});
 }
 
 bool Dlg_Dn_Zip::_download()
@@ -57,7 +52,7 @@ bool Dlg_Dn_Zip::_download()
 		return show_err_and_close(L"Error at download start", err);
 	}
 	ui_thread([&]() {
-		set_caption(str::format(L"Downloading %s...",
+		set_text(str::format(L"Downloading %s...",
 			path::file_from(_dest).c_str()).c_str() );
 	});
 

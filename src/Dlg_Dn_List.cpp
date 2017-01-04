@@ -1,29 +1,24 @@
 
 #include "Dlg_Dn_List.h"
-#include "../wet/str.h"
-#include "../wet/sys.h"
-#include "../wet/xml.h"
-using namespace wet;
+#include "../winlamb/str.h"
+#include "../winlamb/sys.h"
+#include "../winlamb/xml.h"
+using namespace wl;
 using std::vector;
 using std::wstring;
 
 Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& taskBar, download::session& session, Chromium_Rel& clist)
 	: Dlg_Dn(taskBar), _session(session), _clist(clist), _totBytes(0)
 {
-}
-
-INT_PTR Dlg_Dn_List::proc(params p)
-{
-	if (p.message == WM_INITDIALOG) {
+	on.INITDIALOG([&](params::initdialog p)
+	{
 		init_controls();
-		set_caption(L"No markers downloaded...");
+		set_text(L"No markers downloaded...");
 		sys::thread([&]() {
 			_download_list(L""); // start downloading first batch of markers
 		});
 		return TRUE;
-	}
-
-	return def_proc(p);
+	});
 }
 
 int Dlg_Dn_List::get_total_bytes() const
@@ -86,7 +81,7 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& buf)
 	_clist.append(xmlc);
 	_totBytes += static_cast<int>(buf.size());
 	ui_thread([&]() {
-		set_caption(str::format(L"%d markers downloaded (%.2f KB)...",
+		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
 			_clist.markers().size(),
 			static_cast<float>(_totBytes) / 1024).c_str() );
 	});

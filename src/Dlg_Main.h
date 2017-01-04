@@ -1,23 +1,21 @@
 
 #pragma once
-#include "../wet/dialog_main.h"
-#include "../wet/download.h"
-#include "../wet/label.h"
-#include "../wet/listview.h"
-#include "../wet/resizer.h"
-#include "../wet/progress_taskbar.h"
+#include "../winlamb/dialog_main.h"
+#include "../winlamb/download.h"
+#include "../winlamb/label.h"
+#include "../winlamb/listview.h"
+#include "../winlamb/resizer.h"
+#include "../winlamb/progress_taskbar.h"
 #include "Chromium_Rel.h"
 
-class Dlg_Main final : public wet::dialog_main {
+class Dlg_Main final : public wl::dialog_main {
 private:
-	Chromium_Rel           _chromiumRel;
-	wet::progress_taskbar  _taskBar;
-	wet::listview          _listview;
-	wet::label             _lblLoaded;
-	wet::resizer           _resizer;
-	wet::download::session _session;
-
-	INT_PTR proc(wet::params p) override;
+	Chromium_Rel          _chromiumRel;
+	wl::progress_taskbar  _taskBar;
+	wl::listview          _listview;
+	wl::label             _lblLoaded;
+	wl::resizer           _resizer;
+	wl::download::session _session;
 
 public:
 	Dlg_Main();

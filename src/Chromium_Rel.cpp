@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <Windows.h>
 #include "Chromium_Rel.h"
-#include "../wet/str.h"
-using namespace wet;
+#include "../winlamb/str.h"
+using namespace wl;
 using std::vector;
 using std::wstring;
 
