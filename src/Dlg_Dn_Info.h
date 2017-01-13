@@ -12,16 +12,15 @@ public:
 	};
 	
 private:
-	wl::download::session&           _session;
-	const std::vector<std::wstring>& _markers;
-	int                              _totDownloaded;
+	wl::download::session&           m_session;
+	const std::vector<std::wstring>& m_markers;
+	int                              m_totDownloaded;
 
 public:
 	std::vector<Data> data;
 
-	Dlg_Dn_Info(wl::progress_taskbar& taskBar,
-		wl::download::session& session,
-		const std::vector<std::wstring>& markers);
+	Dlg_Dn_Info(wl::progress_taskbar& tb, wl::download::session& sess,
+		const std::vector<std::wstring>& mk);
 
 private:
 	bool _get_one_file(const std::wstring& marker);

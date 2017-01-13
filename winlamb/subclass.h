@@ -5,13 +5,13 @@
  */
 
 #pragma once
-#include "base_on.h"
 #include "base_wnd.h"
+#include "plus_on.h"
 #include <CommCtrl.h>
 
 namespace wl {
 
-class base_subclass final {
+class subclass final : public plus_on {
 public:
 	using funcT = std::function<LRESULT(params)>;
 
@@ -19,12 +19,11 @@ private:
 	base_wnd _wnd;
 	base_inventory _inventory;
 	UINT _subclassId;
+
 public:
-	base_on on;
+	~subclass() { this->remove_subclass(); }
 
-	~base_subclass() { this->remove_subclass(); }
-
-	base_subclass() : on(_inventory) { }
+	subclass() : plus_on(_inventory) { }
 
 	void remove_subclass() {
 		if (this->_wnd.hwnd()) {
@@ -45,11 +44,12 @@ private:
 	static LRESULT CALLBACK _proc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp,
 		UINT_PTR idSubclass, DWORD_PTR refData)
 	{
-		base_subclass* pSelf = reinterpret_cast<base_subclass*>(refData);
+		subclass* pSelf = reinterpret_cast<subclass*>(refData);
 		if (pSelf && pSelf->_wnd.hwnd()) {
-			base_inventory::funcT* func = pSelf->_inventory.find_func({msg, wp, lp});
+			params p = {msg, wp, lp};
+			base_inventory::funcT* func = pSelf->_inventory.find_func(p);
 			if (func) {
-				LRESULT ret = (*func)({ msg, wp, lp });
+				LRESULT ret = (*func)(p);
 				if (msg == WM_NCDESTROY) {
 					pSelf->remove_subclass();
 				}

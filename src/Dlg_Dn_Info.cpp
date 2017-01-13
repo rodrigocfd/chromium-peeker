@@ -7,16 +7,16 @@ using namespace wl;
 using std::vector;
 using std::wstring;
 
-Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& taskBar,
-	download::session& session, const vector<wstring>& markers)
-	: Dlg_Dn(taskBar), _session(session), _markers(markers), _totDownloaded(0)
+Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
+	const vector<wstring>& mk)
+	: Dlg_Dn(tb), m_session(sess), m_markers(mk), m_totDownloaded(0)
 {
-	on.INITDIALOG([&](params::initdialog p)
+	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
 		set_text(L"Downloading...");
 		sys::thread([&]() {
-			_get_one_file(_markers[0]); // proceed with first file
+			_get_one_file(m_markers[0]); // proceed with first file
 		});
 		return TRUE;
 	});
@@ -24,11 +24,11 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& taskBar,
 
 bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 {
-	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=";
-	lnk.append(marker);
+	wstring lnk = str::format(L"%s/?delimiter=/&prefix=%s",
+		BASE_URL, marker.c_str() );
 
-	download dl(_session, lnk);
-	dl.set_referrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
+	download dl(m_session, lnk);
+	dl.set_referrer(REFERRER);
 	dl.add_request_header({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
@@ -57,14 +57,14 @@ bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 
 bool Dlg_Dn_Info::_process_file(const vector<BYTE>& buf)
 {
-	_totDownloaded += static_cast<int>(buf.size());
+	m_totDownloaded += static_cast<int>(buf.size());
 	ui_thread([&]() {
-		_label.set_text( str::format(L"%d/%d markers (%.2f KB)...",
-			data.size(), _markers.size(),
-			static_cast<float>(_totDownloaded) / 1024) );
-		double pct = (static_cast<float>(data.size()) / _markers.size()) * 100;
-		_progBar.set_pos(pct);
-		_taskBar.set_pos(pct);
+		m_lblTitle.set_text( str::format(L"%d/%d markers (%.2f KB)...",
+			data.size(), m_markers.size(),
+			static_cast<float>(m_totDownloaded) / 1024) );
+		double pct = (static_cast<float>(data.size()) / m_markers.size()) * 100;
+		m_progBar.set_pos(pct);
+		m_taskbarProg.set_pos(pct);
 	});
 
 	wstring xmlStr, err;
@@ -83,13 +83,13 @@ bool Dlg_Dn_Info::_process_file(const vector<BYTE>& buf)
 		}
 	}
 
-	if (data.size() == _markers.size()) {
+	if (data.size() == m_markers.size()) {
 		ui_thread([&]() {
-			_taskBar.clear();
+			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
 	} else {
-		_get_one_file( _markers[data.size()].c_str() ); // proceed to next file
+		_get_one_file( m_markers[data.size()].c_str() ); // proceed to next file
 	}
 	return true;
 }

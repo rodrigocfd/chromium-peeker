@@ -7,9 +7,9 @@
 #pragma once
 #include "window.h"
 #include "base_loop.h"
-#include "base_on.h"
 #include "base_run.h"
 #include "base_wheel.h"
+#include "plus_on.h"
 #include "plus_text.h"
 
 namespace wl {
@@ -20,17 +20,17 @@ struct setup_window_main final : public setup_window {
 };
 
 
-class window_main : protected plus_text<window_main> {
+class window_main : protected plus_on, protected plus_text<window_main> {
 protected:
 	setup_window_main setup;
 private:
 	window _window;
-protected:
-	base_on on;
 
 public:
-	window_main() : plus_text(*this), _window(setup), on(_window.inventory) {
-		this->on.NCDESTROY([](params::ncdestroy p)->LRESULT {
+	window_main() :
+		plus_on(_window.inventory), plus_text(this), _window(setup)
+	{
+		this->on_message(WM_NCDESTROY, [](const params& p)->LRESULT {
 			PostQuitMessage(0);
 			return 0;
 		});

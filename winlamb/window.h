@@ -109,9 +109,10 @@ private:
 		};
 
 		if (pSelf) {
-			base_inventory::funcT* pFunc = pSelf->inventory.find_func({msg, wp, lp});
+			params p = {msg, wp, lp};
+			base_inventory::funcT* pFunc = pSelf->inventory.find_func(p);
 			if (pFunc) {
-				LRESULT ret = (*pFunc)({msg, wp, lp});
+				LRESULT ret = (*pFunc)(p);
 				cleanupIfDestroyed();
 				return ret;
 			}

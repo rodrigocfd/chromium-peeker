@@ -54,11 +54,11 @@ public:
 		return *this;
 	}
 
-	void arrange(WPARAM wParam, LPARAM lParam) const {
+	void arrange(const params& p) const {
 		// Intended to be called with parent's WM_SIZE processing.
-		int state = static_cast<int>(wParam);
-		int cx    = LOWORD(lParam);
-		int cy    = HIWORD(lParam);
+		int state = static_cast<int>(p.wParam);
+		int cx    = LOWORD(p.lParam);
+		int cy    = HIWORD(p.lParam);
 
 		if (this->_ctrls.size() && state != SIZE_MINIMIZED) { // only if created() was called; if minimized, no need to resize
 			HDWP hdwp = BeginDeferWindowPos(static_cast<int>(this->_ctrls.size()));
@@ -88,9 +88,6 @@ public:
 			EndDeferWindowPos(hdwp);
 		}
 	}
-
-	void arrange(params p) const       { return this->arrange(p.wParam, p.lParam); }
-	void arrange(params::size p) const { return this->arrange(p.wParam, p.lParam); }
 
 private:
 	resizer& _add_one(HWND hChild, go modeHorz, go modeVert) {

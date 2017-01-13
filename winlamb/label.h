@@ -16,7 +16,7 @@ private:
 	base_native_control _control;
 
 public:
-	label() : plus_control(*this), plus_text(*this) { }
+	label() : plus_control(this), plus_text(this) { }
 
 	HWND   hwnd() const                    { return this->_control.hwnd(); }
 	label& be(HWND hWnd)                   { this->_control.be(hWnd); return *this; }

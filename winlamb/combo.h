@@ -16,7 +16,7 @@ private:
 	base_native_control _control;
 
 public:
-	combo() : plus_control(*this) { }
+	combo() : plus_control(this) { }
 
 	HWND   hwnd() const                    { return this->_control.hwnd(); }
 	combo& be(HWND hWnd)                   { this->_control.be(hWnd); return *this; }

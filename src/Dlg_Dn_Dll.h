@@ -6,16 +6,15 @@
 // Downloads DLL version for a marker.
 class Dlg_Dn_Dll final : public Dlg_Dn {
 private:
-	wl::download::session& _session;
-	std::wstring           _marker;
-	int                    _totDownloaded;
+	wl::download::session& m_session;
+	std::wstring           m_marker;
+	int                    m_totDownloaded;
 
 public:
 	std::wstring version;
 
-	Dlg_Dn_Dll(wl::progress_taskbar& taskBar,
-		wl::download::session& session,
-		const std::wstring& marker);
+	Dlg_Dn_Dll(wl::progress_taskbar& tb, wl::download::session& sess,
+		const std::wstring& mk);
 
 private:
 	bool _download();

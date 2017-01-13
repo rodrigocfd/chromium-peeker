@@ -7,25 +7,24 @@
 #pragma once
 #include "dialog.h"
 #include "base_user_control.h"
-#include "base_on.h"
+#include "plus_on.h"
 
 namespace wl {
 
 struct setup_dialog_control final : public setup_dialog { };
 
 
-class dialog_control {
+class dialog_control : public plus_on {
 protected:
 	setup_dialog_control setup;
 private:
 	dialog _dialog;
 	base_user_control _control;
-protected:
-	base_on on;
 
 public:
 	dialog_control() :
-		_dialog(setup), _control(_dialog.wnd(), _dialog.inventory, TRUE), on(_dialog.inventory) { }
+		plus_on(_dialog.inventory), _dialog(setup),
+		_control(_dialog.wnd(), _dialog.inventory, TRUE) { }
 
 	HWND hwnd() const { return this->_dialog.wnd().hwnd(); }
 
@@ -58,7 +57,7 @@ public:
 	}
 
 protected:
-	void ui_thread(base_threaded<traits_dialog>::funcT func) const {
+	void ui_thread(base_threaded::funcT func) const {
 		this->_dialog.threaded.ui_thread(std::move(func));
 	}
 

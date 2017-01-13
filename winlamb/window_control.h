@@ -7,26 +7,25 @@
 #pragma once
 #include "window.h"
 #include "base_user_control.h"
-#include "base_on.h"
 #include "plus_control.h"
+#include "plus_on.h"
 
 namespace wl {
 
 struct setup_window_control final : public setup_window { };
 
 
-class window_control : public plus_control<window_control> {
+class window_control : public plus_on, public plus_control<window_control> {
 protected:
 	setup_window_control setup;
 private:
 	window _window;
 	base_user_control _control;
-protected:
-	base_on on;
 
 public:
 	window_control() :
-		plus_control(*this), _window(setup), _control(_window.wnd(), _window.inventory, 0), on(_window.inventory)
+		plus_on(_window.inventory), plus_control(this),
+		_window(setup), _control(_window.wnd(), _window.inventory, 0)
 	{
 		this->setup.wndClassEx.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 		this->setup.wndClassEx.style = CS_DBLCLKS;

@@ -15,7 +15,7 @@ class plus_text {
 private:
 	objT& _obj;
 public:
-	plus_text(objT& obj) : _obj(obj) { }
+	plus_text(objT* obj) : _obj(*obj) { }
 
 	objT& set_text(const wchar_t* text) const {
 		SetWindowTextW(this->_obj.hwnd(), text);

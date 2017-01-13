@@ -7,8 +7,8 @@
 #pragma once
 #include "dialog.h"
 #include "base_loop.h"
-#include "base_on.h"
 #include "base_run.h"
+#include "plus_on.h"
 #include "plus_text.h"
 
 namespace wl {
@@ -20,21 +20,21 @@ struct setup_dialog_main final : public setup_dialog {
 };
 
 
-class dialog_main : protected plus_text<dialog_main> {
+class dialog_main : protected plus_on, protected plus_text<dialog_main> {
 protected:
 	setup_dialog_main setup;
 private:
 	dialog _dialog;
-protected:
-	base_on on;
 
 public:
-	dialog_main() : plus_text(*this), _dialog(setup), on(_dialog.inventory) {
-		this->on.CLOSE([&](params::close p)->INT_PTR {
+	dialog_main() :
+		plus_on(_dialog.inventory), plus_text(this), _dialog(setup)
+	{
+		this->on_message(WM_CLOSE, [&](const params& p)->INT_PTR {
 			DestroyWindow(this->hwnd());
 			return TRUE;
 		});
-		this->on.NCDESTROY([](params::ncdestroy p)->INT_PTR {
+		this->on_message(WM_NCDESTROY, [](const params& p)->INT_PTR {
 			PostQuitMessage(0);
 			return TRUE;
 		});

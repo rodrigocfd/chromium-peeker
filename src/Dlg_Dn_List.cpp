@@ -7,10 +7,11 @@ using namespace wl;
 using std::vector;
 using std::wstring;
 
-Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& taskBar, download::session& session, Chromium_Rel& clist)
-	: Dlg_Dn(taskBar), _session(session), _clist(clist), _totBytes(0)
+Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
+	Chromium_Rel& clst)
+	: Dlg_Dn(tb), m_session(sess), m_clist(clst), m_totBytes(0)
 {
-	on.INITDIALOG([&](params::initdialog p)
+	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
 		set_text(L"No markers downloaded...");
@@ -23,18 +24,18 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& taskBar, download::session& session, 
 
 int Dlg_Dn_List::get_total_bytes() const
 {
-	return _totBytes;
+	return m_totBytes;
 }
 
 bool Dlg_Dn_List::_download_list(const wstring& marker)
 {
-	wstring lnk = L"http://commondatastorage.googleapis.com/chromium-browser-continuous/?delimiter=/&prefix=Win/";
+	wstring lnk = str::format(L"%s/?delimiter=/&prefix=Win/", BASE_URL);
 	if (!marker.empty()) {
 		lnk.append(L"&marker=").append(marker);
 	}
 
-	download dl(_session, lnk);
-	dl.set_referrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
+	download dl(m_session, lnk);
+	dl.set_referrer(REFERRER);
 	dl.add_request_header({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
@@ -47,9 +48,9 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 		return show_err_and_close(L"Error at download start", err);
 	}
 	ui_thread([&]() {
-		_progBar.set_pos(0);
-		_taskBar.set_waiting(true);
-		_label.set_text(L"XML download started...");
+		m_progBar.set_pos(0);
+		m_taskbarProg.set_waiting(true);
+		m_lblTitle.set_text(L"XML download started...");
 	});
 
 	vector<BYTE> xmlbuf;
@@ -58,8 +59,8 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 		xmlbuf.insert(xmlbuf.end(),
 			dl.get_buffer().begin(), dl.get_buffer().end()); // append
 		ui_thread([&]() {
-			_progBar.set_pos(dl.get_percent());
-			_label.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
+			m_progBar.set_pos(dl.get_percent());
+			m_lblTitle.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.get_percent(),
 				static_cast<float>(dl.get_total_downloaded()) / 1024) );
 		});
@@ -78,22 +79,22 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& buf)
 		return show_err_and_close(L"XML parsing error", err);
 	}
 	xml xmlc = xmlStr;
-	_clist.append(xmlc);
-	_totBytes += static_cast<int>(buf.size());
+	m_clist.append(xmlc);
+	m_totBytes += static_cast<int>(buf.size());
 	ui_thread([&]() {
 		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
-			_clist.markers().size(),
-			static_cast<float>(_totBytes) / 1024).c_str() );
+			m_clist.markers().size(),
+			static_cast<float>(m_totBytes) / 1024).c_str() );
 	});
 	
-	if (!_clist.is_finished()) {
+	if (!m_clist.is_finished()) {
 		ui_thread([&]() {
-			_label.set_text( str::format(L"Next marker: %s...\n", _clist.next_marker()) );
+			m_lblTitle.set_text( str::format(L"Next marker: %s...\n", m_clist.next_marker()) );
 		});
-		_download_list(_clist.next_marker()); // proceed to next marker
+		_download_list(m_clist.next_marker()); // proceed to next marker
 	} else {
 		ui_thread([&]() {
-			_taskBar.clear();
+			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});
 	}

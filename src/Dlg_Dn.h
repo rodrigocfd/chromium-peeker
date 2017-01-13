@@ -5,16 +5,18 @@
 #include "../winlamb/progressbar.h"
 #include "../winlamb/progress_taskbar.h"
 
+#define BASE_URL L"http://commondatastorage.googleapis.com/chromium-browser-continuous"
+#define REFERRER BASE_URL L"/index.html?path=Win/"
+
 // Base class to all download classes.
 class Dlg_Dn : public wl::dialog_modal {
 protected:
-	wl::label             _label;
-	wl::progressbar       _progBar;
-	wl::progress_taskbar& _taskBar;
-
+	wl::label             m_lblTitle;
+	wl::progressbar       m_progBar;
+	wl::progress_taskbar& m_taskbarProg;
 public:
 	virtual ~Dlg_Dn() = 0;
-	Dlg_Dn(wl::progress_taskbar& taskBar);
+	Dlg_Dn(wl::progress_taskbar& tb);
 
 protected:
 	void init_controls();

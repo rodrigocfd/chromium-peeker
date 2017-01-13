@@ -59,8 +59,9 @@ public:
 		}
 
 		if (pSelf) {
-			base_inventory::funcT* pFunc = pSelf->inventory.find_func({msg, wp, lp});
-			if (pFunc) ret = (*pFunc)({msg, wp, lp});
+			params p = {msg, wp, lp};
+			base_inventory::funcT* pFunc = pSelf->inventory.find_func(p);
+			if (pFunc) ret = (*pFunc)(p);
 		}
 
 		if (msg == WM_INITDIALOG) {

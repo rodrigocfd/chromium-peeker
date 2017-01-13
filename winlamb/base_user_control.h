@@ -16,21 +16,20 @@ namespace wl {
 class base_user_control final {
 private:
 	const base_wnd& _wnd;
-	base_inventory& _inventory;
 	LONG_PTR _processedVal;
 
 public:
 	base_user_control(const base_wnd& w, base_inventory& inventory, LONG_PTR processedVal) :
-		_wnd(w), _inventory(inventory), _processedVal(processedVal)
+		_wnd(w), _processedVal(processedVal)
 	{
-		this->_inventory.add_message(WM_NCPAINT, [&](params p)->LONG_PTR {
+		inventory.add_message(WM_NCPAINT, [&](const params& p)->LONG_PTR {
 			this->_paint_themed_borders(p);
 			return this->_processedVal;
 		});
 	}
 
 private:
-	LONG_PTR _paint_themed_borders(params p) const {
+	LONG_PTR _paint_themed_borders(const params& p) const {
 		LONG_PTR defRet = DefWindowProcW(this->_wnd.hwnd(), WM_NCPAINT, p.wParam, p.lParam); // will make system draw the scrollbar for us
 
 		if ((GetWindowLongPtrW(this->_wnd.hwnd(), GWL_EXSTYLE) & WS_EX_CLIENTEDGE) && IsThemeActive() && IsAppThemed()) {

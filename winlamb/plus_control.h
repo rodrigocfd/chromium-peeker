@@ -14,7 +14,7 @@ class plus_control {
 private:
 	objT& _obj;
 public:
-	plus_control(objT& obj) : _obj(obj) { }
+	plus_control(objT* obj) : _obj(*obj) { }
 
 	int control_id() const {
 		return GetDlgCtrlID(this->_obj.hwnd());

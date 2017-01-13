@@ -10,12 +10,12 @@
 
 class Dlg_Main final : public wl::dialog_main {
 private:
-	Chromium_Rel          _chromiumRel;
-	wl::progress_taskbar  _taskBar;
-	wl::listview          _listview;
-	wl::label             _lblLoaded;
-	wl::resizer           _resizer;
-	wl::download::session _session;
+	Chromium_Rel          m_chromiumRel;
+	wl::progress_taskbar  m_taskbarProgr;
+	wl::listview          m_lstEntries;
+	wl::label             m_lblLoaded;
+	wl::resizer           m_resz;
+	wl::download::session m_session;
 
 public:
 	Dlg_Main();

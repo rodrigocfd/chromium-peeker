@@ -10,10 +10,10 @@
 using namespace wl;
 using std::wstring;
 
-Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& taskBar, download::session& session, const wstring& marker)
-	: Dlg_Dn(taskBar), _session(session), _marker(marker), _totDownloaded(0)
+Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstring& mk)
+	: Dlg_Dn(tb), m_session(sess), m_marker(mk), m_totDownloaded(0)
 {
-	on.INITDIALOG([&](params::initdialog p)
+	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
@@ -26,12 +26,11 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& taskBar, download::session& session, co
 
 bool Dlg_Dn_Dll::_download()
 {
-	wstring lnk = str::format(
-		L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
-		_marker.c_str() );
+	wstring lnk = str::format(L"%s/%schrome-win32.zip",
+		BASE_URL, m_marker.c_str() );
 
-	download dlfile(_session, lnk);
-	dlfile.set_referrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
+	download dlfile(m_session, lnk);
+	dlfile.set_referrer(REFERRER);
 	dlfile.add_request_header({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
@@ -55,9 +54,9 @@ bool Dlg_Dn_Dll::_download()
 			return show_err_and_close(L"File writing error", err);
 		}
 		ui_thread([&]() {
-			_progBar.set_pos(dlfile.get_percent());
-			_taskBar.set_pos(dlfile.get_percent());
-			_label.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
+			m_progBar.set_pos(dlfile.get_percent());
+			m_taskbarProg.set_pos(dlfile.get_percent());
+			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				dlfile.get_percent(),
 				static_cast<float>(dlfile.get_total_downloaded()) / 1024 / 1024) );
 		});
@@ -75,9 +74,9 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	// Unzip the package.
 	ui_thread([&]() {
 		set_text(L"Processing package...");
-		_label.set_text(L"Unzipping chrome.dll, please wait...");
-		_progBar.set_waiting(true);
-		_taskBar.set_waiting(true);
+		m_lblTitle.set_text(L"Unzipping chrome.dll, please wait...");
+		m_progBar.set_waiting(true);
+		m_taskbarProg.set_waiting(true);
 	});
 	wstring err;
 	if (!zip::extract_all(zipPath, path::folder_from(zipPath), &err)) { // potentially slow
@@ -86,7 +85,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 
 	// Open chrome.dll as memory-mapped.
 	ui_thread([&]() {
-		_label.set_text(L"Scanning chrome.dll, please wait...");
+		m_lblTitle.set_text(L"Scanning chrome.dll, please wait...");
 	});
 	wstring dllPath = path::folder_from(zipPath).append(L"\\chrome-win32\\chrome.dll");
 	if (!file::exists(dllPath)) {
@@ -123,7 +122,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	file::del(zipPath);
 		
 	ui_thread([&]() {
-		_taskBar.clear();
+		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDOK);
 	});
 	return true;

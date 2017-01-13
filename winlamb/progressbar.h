@@ -15,7 +15,7 @@ private:
 	base_native_control _control;
 
 public:
-	progressbar() : plus_control(*this) { }
+	progressbar() : plus_control(this) { }
 
 	HWND         hwnd() const                    { return this->_control.hwnd(); }
 	progressbar& be(HWND hWnd)                   { this->_control.be(hWnd); return *this; }

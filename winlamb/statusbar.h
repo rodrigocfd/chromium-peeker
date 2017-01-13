@@ -13,6 +13,17 @@
 namespace wl {
 
 class statusbar final {
+public:
+	struct notif final {
+		NFYDEC(simplemodechange, NMHDR)
+		NFYDEC(click, NMMOUSE)
+		NFYDEC(dblclk, NMMOUSE)
+		NFYDEC(rclick, NMMOUSE)
+		NFYDEC(rdblclk, NMMOUSE)
+	protected:
+		notif() = default;
+	};
+
 private:
 	struct _part final {
 		UINT sizePixels;
@@ -40,7 +51,7 @@ public:
 		return *this;
 	}
 
-	void adjust(params p) {
+	void adjust(const params& p) {
 		// Intended to be called with parent's WM_SIZE processing.
 		if (p.wParam != SIZE_MINIMIZED && this->hwnd()) {
 			int cx = LOWORD(p.lParam); // available width
@@ -75,7 +86,7 @@ public:
 		if (this->hwnd()) {
 			this->_parts.push_back({sizePixels, 0});
 			this->_rightEdges.emplace_back(0);
-			this->adjust(SIZE_RESTORED, MAKELPARAM(this->_get_parent_cx(), 0));
+			this->adjust(params{WM_SIZE, SIZE_RESTORED, MAKELPARAM(this->_get_parent_cx(), 0)});
 		}
 		return *this;
 	}
@@ -88,7 +99,7 @@ public:
 		if (this->hwnd()) {
 			this->_parts.push_back({0, resizeWeight});
 			this->_rightEdges.emplace_back(0);
-			this->adjust(SIZE_RESTORED, MAKELPARAM(this->_get_parent_cx(), 0));
+			this->adjust(params{WM_SIZE, SIZE_RESTORED, MAKELPARAM(this->_get_parent_cx(), 0)});
 		}
 		return *this;
 	}
@@ -121,7 +132,7 @@ private:
 		static int cx = 0; // cache, since parts are intended to be added during window creation only
 		if (!cx && this->hwnd()) {
 			RECT rc = { 0 };
-			GetClientRect(this->base_wnd::parent().hwnd(), &rc);
+			GetClientRect(GetParent(this->hwnd()), &rc);
 			cx = rc.right;
 		}
 		return cx;

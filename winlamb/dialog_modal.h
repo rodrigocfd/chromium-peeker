@@ -6,25 +6,25 @@
 
 #pragma once
 #include "dialog.h"
-#include "base_on.h"
 #include "plus_text.h"
+#include "plus_on.h"
 
 namespace wl {
 
 struct setup_dialog_modal final : public setup_dialog { };
 
 
-class dialog_modal : protected plus_text<dialog_modal> {
+class dialog_modal : protected plus_on, protected plus_text<dialog_modal> {
 protected:
 	setup_dialog_modal setup;
 private:
 	dialog _dialog;
-protected:
-	base_on on;
 
 public:
-	dialog_modal() : plus_text(*this), _dialog(setup), on(_dialog.inventory) {
-		this->on.CLOSE([&](params::close p)->INT_PTR {
+	dialog_modal() :
+		plus_on(_dialog.inventory), plus_text(this), _dialog(setup)
+	{
+		this->on_message(WM_CLOSE, [&](const params& p)->INT_PTR {
 			EndDialog(this->hwnd(), IDOK);
 			return TRUE;
 		});

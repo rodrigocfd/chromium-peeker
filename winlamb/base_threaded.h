@@ -20,14 +20,13 @@ private:
 	};
 
 	const base_wnd& _wnd;
-	base_inventory& _inventory;
 	LONG_PTR _processedVal;
 
 public:
 	base_threaded(const base_wnd& w, base_inventory& inventory, LONG_PTR processedVal) :
-		_wnd(w), _inventory(inventory), _processedVal(processedVal)
+		_wnd(w), _processedVal(processedVal)
 	{
-		this->_inventory.add_message(WM_THREAD_MESSAGE, [&](params p)->LONG_PTR {
+		inventory.add_message(WM_THREAD_MESSAGE, [&](const params& p)->LONG_PTR {
 			this->_process_threaded(p);
 			return this->_processedVal;
 		});
@@ -42,7 +41,7 @@ public:
 	}
 
 private:
-	void _process_threaded(params p) const {
+	void _process_threaded(const params& p) const {
 		_callback_pack* pack = reinterpret_cast<_callback_pack*>(p.lParam);
 		pack->func();
 		delete pack;

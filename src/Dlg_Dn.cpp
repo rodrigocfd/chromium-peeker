@@ -9,8 +9,8 @@ Dlg_Dn::~Dlg_Dn()
 {
 }
 
-Dlg_Dn::Dlg_Dn(progress_taskbar& taskBar)
-	: _taskBar(taskBar)
+Dlg_Dn::Dlg_Dn(progress_taskbar& tb)
+	: m_taskbarProg(tb)
 {
 	setup.dialogId = DLG_PROGRESS;
 }
@@ -20,8 +20,8 @@ void Dlg_Dn::init_controls()
 	center_on_parent();
 	_enable_x_button(false);
 
-	_label.be(hwnd(), LBL_LBL);
-	_progBar.be(hwnd(), PRO_PRO)
+	m_lblTitle.be(hwnd(), LBL_LBL);
+	m_progBar.be(hwnd(), PRO_PRO)
 		.set_range(0, 100)
 		.set_pos(0);
 }
@@ -30,9 +30,9 @@ bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
 	ui_thread([&]() {
-		_taskBar.set_error(true);
+		m_taskbarProg.set_error(true);
 		sysdlg::msgbox(hwnd(), msg, err, MB_ICONERROR);
-		_taskBar.clear();
+		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDCANCEL);
 	});
 	return false;

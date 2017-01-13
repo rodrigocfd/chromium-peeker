@@ -6,8 +6,8 @@
 
 #pragma once
 #include "base_native_control.h"
-#include "base_subclass.h"
 #include "plus_control.h"
+#include "subclass.h"
 #include "icon.h"
 #include "menu.h"
 
@@ -15,6 +15,48 @@ namespace wl {
 
 class listview final : public plus_control<listview> {
 public:
+	struct notif final {
+		NFYDEC(begindrag, NMLISTVIEW)
+		NFYDEC(beginlabeledit, NMLVDISPINFO)
+		NFYDEC(beginrdrag, NMLISTVIEW)
+		NFYDEC(beginscroll, NMLVSCROLL)
+		NFYDEC(columnclick, NMLISTVIEW)
+		NFYDEC(columndropdown, NMLISTVIEW)
+		NFYDEC(columnoverflowclick, NMLISTVIEW)
+		NFYDEC(deleteallitems, NMLISTVIEW)
+		NFYDEC(deleteitem, NMLISTVIEW)
+		NFYDEC(endlabeledit, NMLVDISPINFO)
+		NFYDEC(endscroll, NMLVSCROLL)
+		NFYDEC(getdispinfo, NMLVDISPINFO)
+		NFYDEC(getemptymarkup, NMLVEMPTYMARKUP)
+		NFYDEC(getinfotip, NMLVGETINFOTIP)
+		NFYDEC(hottrack, NMLISTVIEW)
+		NFYDEC(incrementalsearch, NMLVFINDITEM)
+		NFYDEC(insertitem, NMLISTVIEW)
+		NFYDEC(itemactivate, NMITEMACTIVATE)
+		NFYDEC(itemchanged, NMLISTVIEW)
+		NFYDEC(itemchanging, NMLISTVIEW)
+		NFYDEC(keydown, NMLVKEYDOWN)
+		NFYDEC(linkclick, NMLVLINK)
+		NFYDEC(marqueebegin, NMHDR)
+		NFYDEC(odcachehint, NMLVCACHEHINT)
+		NFYDEC(odfinditem, NMLVFINDITEM)
+		NFYDEC(odstatechanged, NMLVODSTATECHANGE)
+		NFYDEC(setdispinfo, NMLVDISPINFO)
+		NFYDEC(click, NMITEMACTIVATE)
+		NFYDEC(customdraw, NMLVCUSTOMDRAW)
+		NFYDEC(dblclk, NMITEMACTIVATE)
+		NFYDEC(hover, NMHDR)
+		NFYDEC(killfocus, NMHDR)
+		NFYDEC(rclick, NMITEMACTIVATE)
+		NFYDEC(rdblclk, NMITEMACTIVATE)
+		NFYDEC(releasedcapture, NMHDR)
+		NFYDEC(return_, NMHDR)
+		NFYDEC(setfocus, NMHDR)
+	protected:
+		notif() = default;
+	};
+
 	class item final {
 	private:
 		listview* _list;
@@ -315,39 +357,42 @@ public:
 
 private:
 	base_native_control _control;
-	base_subclass _subclass;
+	subclass _subclass;
 	menu _contextMenu;
 public:
 	collection items;
 
 	~listview() { this->_contextMenu.destroy(); }
-	listview() : plus_control(*this), items(this) {
-		this->_subclass.on.GETDLGCODE([&](params::getdlgcode p)->LRESULT {
+
+	listview() : plus_control(this), items(this) {
+		this->_subclass.on_message(WM_GETDLGCODE, [&](params& p)->LRESULT {
 			bool hasCtrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
-			if (p.lParam && p.vkey_code() == 'A' && hasCtrl) { // Ctrl+A to select all items
+			BYTE vkey = static_cast<BYTE>(p.wParam);
+			if (p.lParam && vkey == 'A' && hasCtrl) { // Ctrl+A to select all items
 				p.wParam = 0; // prevent propagation, therefore beep
 				ListView_SetItemState(this->hwnd(), -1, LVIS_SELECTED, LVIS_SELECTED);
 				return DLGC_WANTCHARS;
-			} else if (p.lParam && p.vkey_code() == VK_RETURN) { // send Enter key to parent
-				NMLVKEYDOWN nmlvkd = { { this->hwnd(),
-					static_cast<WORD>(this->control_id()),
-					LVN_KEYDOWN }, VK_RETURN, 0 };
+			} else if (p.lParam && vkey == VK_RETURN) { // send Enter key to parent
+				NMLVKEYDOWN nmlvkd = {
+					{this->hwnd(), static_cast<WORD>(this->control_id()), LVN_KEYDOWN},
+					VK_RETURN, 0
+				};
 				SendMessageW(GetAncestor(this->hwnd(), GA_PARENT),
 					WM_NOTIFY, reinterpret_cast<WPARAM>(this->hwnd()),
 					reinterpret_cast<LPARAM>(&nmlvkd) );
 				p.wParam = 0; // prevent propagation, therefore beep
 				return DLGC_WANTALLKEYS;
-			} else if (p.lParam && p.vkey_code() == VK_APPS) { // context menu keyboard key
+			} else if (p.lParam && vkey == VK_APPS) { // context menu keyboard key
 				this->_show_context_menu(false);
 			}
 			return DefSubclassProc(this->hwnd(), p.message, p.wParam, p.lParam);
 		});
-		this->_subclass.on.RBUTTONDOWN([&](params::rbuttondown p)->LRESULT {
+		this->_subclass.on_message(WM_RBUTTONDOWN, [&](const params& p)->LRESULT {
 			this->_show_context_menu(true);
 			return 0;
 		});
 	}
-	
+
 	HWND      hwnd() const                    { return this->_control.hwnd(); }
 	listview& be(HWND hWnd)                   { this->_control.be(hWnd); return this->_subc(); }
 	listview& be(HWND hParent, int controlId) { this->_control.be(hParent, controlId); return this->_subc(); }
@@ -378,7 +423,7 @@ public:
 			static_cast<WPARAM>(static_cast<BOOL>(doRedraw)), 0);
 		return *this;
 	}
-	
+
 	listview& set_view(view viewType) {
 		ListView_SetView(this->hwnd(), static_cast<DWORD>(viewType));
 		return *this;
@@ -387,7 +432,7 @@ public:
 	view get_view() const {
 		return static_cast<view>(ListView_GetView(this->hwnd()));
 	}
-	
+
 	listview& icon_push(int iconId) {
 		HIMAGELIST hImg = this->_proceed_imagelist();
 		icon resIco;

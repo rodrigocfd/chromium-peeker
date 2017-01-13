@@ -53,16 +53,7 @@
     <ClInclude Include="winlamb\base_native_control.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\base_on.h">
-      <Filter>WinLamb\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\base_on_notify.h">
-      <Filter>WinLamb\Core</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\base_run.h">
-      <Filter>WinLamb\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\base_subclass.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\base_threaded.h">
@@ -89,12 +80,6 @@
     <ClInclude Include="winlamb\dialog_modal.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\plus_control.h">
-      <Filter>WinLamb\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\plus_text.h">
-      <Filter>WinLamb\Core</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\window.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
@@ -104,7 +89,13 @@
     <ClInclude Include="winlamb\window_main.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\params_notif.h">
+    <ClInclude Include="winlamb\plus_control.h">
+      <Filter>WinLamb\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\plus_on.h">
+      <Filter>WinLamb\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\plus_text.h">
       <Filter>WinLamb\Core</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\params.h">
@@ -187,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="winlamb\zip.h">
       <Filter>WinLamb\More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\subclass.h">
+      <Filter>WinLamb\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

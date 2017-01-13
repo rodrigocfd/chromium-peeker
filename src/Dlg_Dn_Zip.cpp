@@ -7,16 +7,16 @@
 using namespace wl;
 using std::wstring;
 
-Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& taskBar, download::session& session, const wstring& marker)
-	: Dlg_Dn(taskBar), _session(session), _marker(marker)
+Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstring& mk)
+	: Dlg_Dn(tb), m_session(sess), m_marker(mk)
 {
-	on.INITDIALOG([&](params::initdialog p)
+	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
 
 		wstring defSave = path::desktop_path().append(L"\\chrome-win32.zip");
-		if (sysdlg::save_file(hwnd(), L"Zip file (*.zip)|*.zip", _dest, defSave.c_str())) {
+		if (sysdlg::save_file(hwnd(), L"Zip file (*.zip)|*.zip", m_dest, defSave.c_str())) {
 			sys::thread([&]() {
 				_download(); // start right away
 			});
@@ -29,12 +29,11 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& taskBar, download::session& session, co
 
 bool Dlg_Dn_Zip::_download()
 {
-	wstring lnk = str::format(
-		L"http://commondatastorage.googleapis.com/chromium-browser-continuous/%schrome-win32.zip",
-		_marker.c_str() );
+	wstring lnk = str::format(L"%s/%schrome-win32.zip",
+		BASE_URL, m_marker.c_str() );
 
-	download zipdl(_session, lnk);
-	zipdl.set_referrer(L"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html?path=Win/");
+	download zipdl(m_session, lnk);
+	zipdl.set_referrer(REFERRER);
 	zipdl.add_request_header({
 		L"Accept-Encoding: gzip,deflate,sdch",
 		L"Connection: keep-alive",
@@ -44,7 +43,7 @@ bool Dlg_Dn_Zip::_download()
 
 	wstring err;
 	file fout;
-	if (!fout.open_or_create(_dest, &err)) {
+	if (!fout.open_or_create(m_dest, &err)) {
 		return show_err_and_close(L"File creation error", err);
 	}
 
@@ -53,7 +52,7 @@ bool Dlg_Dn_Zip::_download()
 	}
 	ui_thread([&]() {
 		set_text(str::format(L"Downloading %s...",
-			path::file_from(_dest).c_str()).c_str() );
+			path::file_from(m_dest).c_str()).c_str() );
 	});
 
 	if (!fout.set_new_size(zipdl.get_content_length(), &err)) {
@@ -76,10 +75,10 @@ bool Dlg_Dn_Zip::_receive_data(download& zipdl, file& fout)
 			return show_err_and_close(L"File writing error", err);
 		}
 		ui_thread([&]() {
-			_label.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
+			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(),
 				static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
-			_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
+			m_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
 		});
 	}
 
