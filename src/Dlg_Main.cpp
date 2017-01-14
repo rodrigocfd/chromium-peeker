@@ -22,8 +22,8 @@ Dlg_Main::Dlg_Main()
 
 	on_message(WM_INITDIALOG, [&](params&)
 	{
-		m_taskbarProgr.init(hwnd());
-		m_lstEntries.be(hwnd(), LST_BUILDS)
+		m_taskbarProgr.init(this);
+		m_lstEntries.be(this, LST_BUILDS)
 			.set_full_row_select()
 			.set_context_menu(MEN_MAIN)
 			.column_add(L"Build marker", 80)
@@ -31,13 +31,13 @@ Dlg_Main::Dlg_Main()
 			.column_add(L"Zip size", 65)
 			.column_add(L"DLL version", 90)
 			.column_fit(3);
-		m_lblLoaded.be(hwnd(), LBL_LOADED);
-		m_resz.add(hwnd(), LBL_LOADED, resizer::go::RESIZE, resizer::go::NOTHING)
-			.add(hwnd(), LST_BUILDS, resizer::go::RESIZE, resizer::go::RESIZE);
+		m_lblLoaded.be(this, LBL_LOADED);
+		m_resz.add(this, LBL_LOADED, resizer::go::RESIZE, resizer::go::NOTHING)
+			.add(this, LST_BUILDS, resizer::go::RESIZE, resizer::go::RESIZE);
 
 		wstring err;
 		if (!m_session.open(&err)) { // initialize internet session, for the whole program running time
-			sysdlg::msgbox(hwnd(), L"Fail", err, MB_ICONERROR);
+			sysdlg::msgbox(this, L"Fail", err, MB_ICONERROR);
 			SendMessage(hwnd(), WM_CLOSE, 0, 0);
 		}
 		return TRUE;
@@ -73,7 +73,7 @@ Dlg_Main::Dlg_Main()
 		const vector<wstring>& markers = m_chromiumRel.markers();
 
 		Dlg_Dn_List ddl(m_taskbarProgr, m_session, m_chromiumRel);
-		if (ddl.show(hwnd()) == IDOK) {
+		if (ddl.show(this) == IDOK) {
 			m_lstEntries.set_redraw(false);
 			const int iShown = 1200;
 			for (size_t i = markers.size() - iShown; i < markers.size(); ++i) { // display only last markers
@@ -98,7 +98,7 @@ Dlg_Main::Dlg_Main()
 		vector<wstring> markers = listview::get_all_text(sels, 0);
 
 		Dlg_Dn_Info ddi(m_taskbarProgr, m_session, markers);
-		if (ddi.show(hwnd()) == IDOK) {
+		if (ddi.show(this) == IDOK) {
 			m_lstEntries.set_redraw(false);
 			for (size_t i = 0; i < markers.size(); ++i) {
 				wstring relDate = str::format(L"%s %s",
@@ -120,7 +120,7 @@ Dlg_Main::Dlg_Main()
 		vector<listview::item> sels = m_lstEntries.items.get_selected();
 		if (!sels.empty()) {
 			if (sels.size() > 1) {
-				int q = sysdlg::msgbox(hwnd(), L"Too much download",
+				int q = sysdlg::msgbox(this, L"Too much download",
 					L"You are about to download more than one package.\n"
 					L"That's a lot of data, proceed?",
 					MB_ICONEXCLAMATION | MB_YESNO | MB_DEFBUTTON2);
@@ -132,7 +132,7 @@ Dlg_Main::Dlg_Main()
 			vector<wstring> markers = listview::get_all_text(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
 				Dlg_Dn_Dll ddd(m_taskbarProgr, m_session, markers[i]);
-				if (ddd.show(hwnd()) == IDOK) {
+				if (ddd.show(this) == IDOK) {
 					m_lstEntries.items[sels[i].index].set_text(ddd.version, 3);
 				}
 			}
@@ -145,7 +145,7 @@ Dlg_Main::Dlg_Main()
 		if (m_lstEntries.items.count_selected() == 1) {
 			Dlg_Dn_Zip ddz(m_taskbarProgr, m_session,
 				m_lstEntries.items.get_selected()[0].get_text());
-			ddz.show(hwnd());
+			ddz.show(this);
 		}
 		return TRUE;
 	});
