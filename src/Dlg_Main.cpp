@@ -16,6 +16,7 @@ using std::wstring;
 RUN(Dlg_Main);
 
 Dlg_Main::Dlg_Main()
+	: dialog_main(10), msg_command(10)
 {
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
@@ -23,7 +24,7 @@ Dlg_Main::Dlg_Main()
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		m_taskbarProgr.init(this);
-		m_lstEntries.be(this, LST_BUILDS)
+		m_lstEntries.assign(this, LST_BUILDS)
 			.set_full_row_select()
 			.set_context_menu(MEN_MAIN)
 			.column_add(L"Build marker", 80)
@@ -31,7 +32,7 @@ Dlg_Main::Dlg_Main()
 			.column_add(L"Zip size", 65)
 			.column_add(L"DLL version", 90)
 			.column_fit(3);
-		m_lblLoaded.be(this, LBL_LOADED);
+		m_lblLoaded.assign(this, LBL_LOADED);
 		m_resz.add(this, LBL_LOADED, resizer::go::RESIZE, resizer::go::NOTHING)
 			.add(this, LST_BUILDS, resizer::go::RESIZE, resizer::go::RESIZE);
 
@@ -50,16 +51,13 @@ Dlg_Main::Dlg_Main()
 		return TRUE;
 	});
 
-	on_message(WM_INITMENUPOPUP, [&](wm::initmenupopup p)
+	on_initmenupopup(MNU_MAIN_GETBASIC, [&](wm::initmenupopup p)
 	{
 		menu m = p.hmenu();
-		if (m.get_command_id(0) == MNU_MAIN_GETBASIC) {
-			size_t numSelec = m_lstEntries.items.count_selected();
-			m.enable_item({MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL}, numSelec >= 1)
-				.enable_item(MNU_MAIN_DLZIP, numSelec == 1);
-			return TRUE;
-		}
-		return FALSE;
+		size_t numSelec = m_lstEntries.items.count_selected();
+		m.enable_item({MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL}, numSelec >= 1)
+			.enable_item(MNU_MAIN_DLZIP, numSelec == 1);
+		return TRUE;
 	});
 
 	on_command(BTN_DLLIST, [&](params&)

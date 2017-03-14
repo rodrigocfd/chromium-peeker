@@ -20,8 +20,8 @@ void Dlg_Dn::init_controls()
 	center_on_parent();
 	_enable_x_button(false);
 
-	m_lblTitle.be(this, LBL_LBL);
-	m_progBar.be(this, PRO_PRO)
+	m_lblTitle.assign(this, LBL_LBL);
+	m_progBar.assign(this, PRO_PRO)
 		.set_range(0, 100)
 		.set_pos(0);
 }
