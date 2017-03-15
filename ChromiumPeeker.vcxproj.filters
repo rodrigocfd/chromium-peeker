@@ -38,12 +38,6 @@
     <ClInclude Include="src\Dlg_Dn_Zip.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\base_native_control.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\base_text.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\base_threaded.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -89,6 +83,9 @@
     <ClInclude Include="winlamb\dialog_modeless.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\dictionary.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\download.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -105,6 +102,9 @@
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\icon.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\image_list.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\label.h">
@@ -149,9 +149,6 @@
     <ClInclude Include="winlamb\resizer.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\run.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\statusbar.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -170,6 +167,9 @@
     <ClInclude Include="winlamb\textbox.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\treeview.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\window_control.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -185,16 +185,22 @@
     <ClInclude Include="winlamb\base_dialog.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\base_inventory.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\base_loop.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\base_msgs.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\base_inventory.h">
+    <ClInclude Include="winlamb\base_native_control.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\dictionary.h">
+    <ClInclude Include="winlamb\base_run.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\base_text.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
   </ItemGroup>
