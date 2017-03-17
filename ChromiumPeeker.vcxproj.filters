@@ -203,6 +203,9 @@
     <ClInclude Include="winlamb\base_text.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\base_styles.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Dlg_Main.cpp">

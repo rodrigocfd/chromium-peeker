@@ -24,14 +24,16 @@ Dlg_Main::Dlg_Main()
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		m_taskbarProgr.init(this);
+
 		m_lstEntries.assign(this, LST_BUILDS)
-			.set_full_row_select()
+			.style.full_row_select(true)
 			.set_context_menu(MEN_MAIN)
 			.column_add(L"Build marker", 80)
 			.column_add(L"Release date", 105)
 			.column_add(L"Zip size", 65)
 			.column_add(L"DLL version", 90)
 			.column_fit(3);
+
 		m_lblLoaded.assign(this, LBL_LOADED);
 		m_resz.add(this, LBL_LOADED, resizer::go::RESIZE, resizer::go::NOTHING)
 			.add(this, LST_BUILDS, resizer::go::RESIZE, resizer::go::RESIZE);
