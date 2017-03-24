@@ -15,7 +15,7 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
 
-		wstring defSave = path::desktop_path().append(L"\\chrome-win32.zip");
+		wstring defSave = sys::get_desktop_path().append(L"\\chrome-win32.zip");
 		if (sysdlg::save_file(this, L"Zip file (*.zip)|*.zip", m_dest, defSave.c_str())) {
 			sys::thread([&]() {
 				_download(); // start right away

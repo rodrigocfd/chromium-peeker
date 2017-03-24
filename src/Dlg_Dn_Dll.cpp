@@ -38,7 +38,7 @@ bool Dlg_Dn_Dll::_download()
 		L"Host: commondatastorage.googleapis.com"
 	});
 
-	wstring err, destPath = path::exe_path().append(L"\\tmpchro.zip");
+	wstring err, destPath = sys::get_exe_path().append(L"\\tmpchro.zip");
 	file fout;
 	if (!fout.open_or_create(destPath, &err)) {
 		return show_err_and_close(L"File creation error", err);
