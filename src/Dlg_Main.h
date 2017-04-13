@@ -3,11 +3,11 @@
 #include "../winlamb/dialog_main.h"
 #include "../winlamb/msg_command.h"
 #include "../winlamb/msg_initmenupopup.h"
-#include "../winlamb/download.h"
-#include "../winlamb/label.h"
-#include "../winlamb/listview.h"
-#include "../winlamb/resizer.h"
-#include "../winlamb/progress_taskbar.h"
+#include "../winlamb-more/download.h"
+#include "../winlamb-more/label.h"
+#include "../winlamb-more/listview.h"
+#include "../winlamb-more/resizer.h"
+#include "../winlamb-more/progress_taskbar.h"
 #include "Chromium_Rel.h"
 
 class Dlg_Main final :

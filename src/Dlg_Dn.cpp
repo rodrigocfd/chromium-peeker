@@ -1,6 +1,6 @@
 
 #include "Dlg_Dn.h"
-#include "../winlamb/sysdlg.h"
+#include "../winlamb-more/sysdlg.h"
 #include "../res/resource.h"
 using namespace wl;
 using std::wstring;

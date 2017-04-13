@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <Windows.h>
 #include "Chromium_Rel.h"
-#include "../winlamb/str.h"
+#include "../winlamb-more/str.h"
 using namespace wl;
 using std::vector;
 using std::wstring;

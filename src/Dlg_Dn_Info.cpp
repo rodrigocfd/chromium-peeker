@@ -1,8 +1,8 @@
 
 #include "Dlg_Dn_Info.h"
-#include "../winlamb/str.h"
-#include "../winlamb/sys.h"
-#include "../winlamb/xml.h"
+#include "../winlamb-more/str.h"
+#include "../winlamb-more/sys.h"
+#include "../winlamb-more/xml.h"
 using namespace wl;
 using std::vector;
 using std::wstring;

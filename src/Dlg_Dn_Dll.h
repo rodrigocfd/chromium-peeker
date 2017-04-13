@@ -1,7 +1,7 @@
 
 #pragma once
 #include "Dlg_Dn.h"
-#include "../winlamb/download.h"
+#include "../winlamb-more/download.h"
 
 // Downloads DLL version for a marker.
 class Dlg_Dn_Dll final : public Dlg_Dn {

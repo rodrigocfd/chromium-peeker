@@ -1,9 +1,9 @@
 
 #include "Dlg_Dn_Zip.h"
-#include "../winlamb/path.h"
-#include "../winlamb/str.h"
-#include "../winlamb/sys.h"
-#include "../winlamb/sysdlg.h"
+#include "../winlamb-more/path.h"
+#include "../winlamb-more/str.h"
+#include "../winlamb-more/sys.h"
+#include "../winlamb-more/sysdlg.h"
 using namespace wl;
 using std::wstring;
 
