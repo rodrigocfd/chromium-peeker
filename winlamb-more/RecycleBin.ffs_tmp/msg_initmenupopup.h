@@ -1,11 +1,11 @@
 /**
- * Part of WinLamb - Win32 API Lambda Library
+ * Part of WinLamb - Win32 API Lambda Library - More
  * @author Rodrigo Cesar de Freitas Dias
- * @see https://github.com/rodrigocfd/winlamb
+ * @see https://github.com/rodrigocfd/winlamb-more
  */
 
 #pragma once
-#include "base_msgs.h"
+#include "../winlamb/base_msgs.h"
 
 /**
  * base_wnd <-- base_msgs <-- msg_initmenupopup

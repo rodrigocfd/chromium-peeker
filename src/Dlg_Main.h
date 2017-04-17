@@ -2,7 +2,7 @@
 #pragma once
 #include "../winlamb/dialog_main.h"
 #include "../winlamb/msg_command.h"
-#include "../winlamb/msg_initmenupopup.h"
+#include "../winlamb-more/msg_initmenupopup.h"
 #include "../winlamb-more/download.h"
 #include "../winlamb-more/label.h"
 #include "../winlamb-more/listview.h"
