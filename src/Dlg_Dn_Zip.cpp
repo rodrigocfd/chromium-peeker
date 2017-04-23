@@ -50,7 +50,7 @@ bool Dlg_Dn_Zip::_download()
 	if (!zipdl.start(&err)) {
 		return show_err_and_close(L"Error at download start", err);
 	}
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		set_text(str::format(L"Downloading %s...",
 			path::file_from(m_dest).c_str()).c_str() );
 	});
@@ -74,7 +74,7 @@ bool Dlg_Dn_Zip::_receive_data(download& zipdl, file& fout)
 		if (!fout.write(zipdl.get_buffer(), &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(),
 				static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
@@ -85,7 +85,7 @@ bool Dlg_Dn_Zip::_receive_data(download& zipdl, file& fout)
 	if (!err.empty()) {
 		return show_err_and_close(L"Download error", err);
 	}
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		EndDialog(hwnd(), IDOK); // download finished
 	});
 	return true;

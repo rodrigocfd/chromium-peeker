@@ -53,7 +53,7 @@ bool Dlg_Dn_Dll::_download()
 		if (!fout.write(dlfile.get_buffer(), &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_progBar.set_pos(dlfile.get_percent());
 			m_taskbarProg.set_pos(dlfile.get_percent());
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -72,7 +72,7 @@ bool Dlg_Dn_Dll::_download()
 bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		set_text(L"Processing package...");
 		m_lblTitle.set_text(L"Unzipping chrome.dll, please wait...");
 		m_progBar.set_waiting(true);
@@ -84,7 +84,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	}
 
 	// Open chrome.dll as memory-mapped.
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		m_lblTitle.set_text(L"Scanning chrome.dll, please wait...");
 	});
 	wstring dllPath = path::folder_from(zipPath).append(L"\\chrome-win32\\chrome.dll");
@@ -121,7 +121,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	file::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
 	file::del(zipPath);
 		
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDOK);
 	});

@@ -47,7 +47,7 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 	if (!dl.start(&err)) {
 		return show_err_and_close(L"Error at download start", err);
 	}
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		m_progBar.set_pos(0);
 		m_taskbarProg.set_waiting(true);
 		m_lblTitle.set_text(L"XML download started...");
@@ -58,7 +58,7 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 	while (dl.has_data(&err)) {
 		xmlbuf.insert(xmlbuf.end(),
 			dl.get_buffer().begin(), dl.get_buffer().end()); // append
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_progBar.set_pos(dl.get_percent());
 			m_lblTitle.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.get_percent(),
@@ -81,19 +81,19 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& buf)
 	xml xmlc = xmlStr;
 	m_clist.append(xmlc);
 	m_totBytes += static_cast<int>(buf.size());
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
 			m_clist.markers().size(),
 			static_cast<float>(m_totBytes) / 1024).c_str() );
 	});
 	
 	if (!m_clist.is_finished()) {
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_lblTitle.set_text( str::format(L"Next marker: %s...\n", m_clist.next_marker()) );
 		});
 		_download_list(m_clist.next_marker()); // proceed to next marker
 	} else {
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});

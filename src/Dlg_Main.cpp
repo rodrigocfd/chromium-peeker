@@ -95,7 +95,7 @@ Dlg_Main::Dlg_Main()
 		vector<listview::item> sels = m_lstEntries.items.get_selected();
 		if (sels.empty()) return TRUE;
 
-		vector<wstring> markers = listview::get_all_text(sels, 0);
+		vector<wstring> markers = m_lstEntries.items.get_texts(sels, 0);
 
 		Dlg_Dn_Info ddi(m_taskbarProgr, m_session, markers);
 		if (ddi.show(this) == IDOK) {
@@ -129,7 +129,7 @@ Dlg_Main::Dlg_Main()
 				}
 			}
 
-			vector<wstring> markers = listview::get_all_text(sels, 0);
+			vector<wstring> markers = m_lstEntries.items.get_texts(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
 				Dlg_Dn_Dll ddd(m_taskbarProgr, m_session, markers[i]);
 				if (ddd.show(this) == IDOK) {

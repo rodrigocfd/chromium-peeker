@@ -58,7 +58,7 @@ bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 bool Dlg_Dn_Info::_process_file(const vector<BYTE>& buf)
 {
 	m_totDownloaded += static_cast<int>(buf.size());
-	ui_thread([&]() {
+	on_ui_thread([&]() {
 		m_lblTitle.set_text( str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), m_markers.size(),
 			static_cast<float>(m_totDownloaded) / 1024) );
@@ -84,7 +84,7 @@ bool Dlg_Dn_Info::_process_file(const vector<BYTE>& buf)
 	}
 
 	if (data.size() == m_markers.size()) {
-		ui_thread([&]() {
+		on_ui_thread([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
