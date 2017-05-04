@@ -16,7 +16,7 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstr
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
-		set_text(L"Downloading chrome-win32.zip...");
+		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 		sys::thread([&]() {
 			_download(); // start right away
 		});
@@ -73,7 +73,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
 	on_ui_thread([&]() {
-		set_text(L"Processing package...");
+		SetWindowText(hwnd(), L"Processing package...");
 		m_lblTitle.set_text(L"Unzipping chrome.dll, please wait...");
 		m_progBar.set_waiting(true);
 		m_taskbarProg.set_waiting(true);

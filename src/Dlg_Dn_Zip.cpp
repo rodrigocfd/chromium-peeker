@@ -13,7 +13,7 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
-		set_text(L"Downloading chrome-win32.zip...");
+		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
 
 		wstring defSave = sys::get_desktop_path().append(L"\\chrome-win32.zip");
 		if (sysdlg::save_file(this, L"Zip file (*.zip)|*.zip", m_dest, defSave.c_str())) {
@@ -51,7 +51,7 @@ bool Dlg_Dn_Zip::_download()
 		return show_err_and_close(L"Error at download start", err);
 	}
 	on_ui_thread([&]() {
-		set_text(str::format(L"Downloading %s...",
+		SetWindowText(hwnd(), str::format(L"Downloading %s...",
 			path::file_from(m_dest).c_str()).c_str() );
 	});
 

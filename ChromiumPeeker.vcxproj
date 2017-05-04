@@ -189,6 +189,7 @@
     <ClInclude Include="winlamb-more\str.h" />
     <ClInclude Include="winlamb-more\sys.h" />
     <ClInclude Include="winlamb-more\sysdlg.h" />
+    <ClInclude Include="winlamb-more\textable.h" />
     <ClInclude Include="winlamb-more\textbox.h" />
     <ClInclude Include="winlamb-more\treeview.h" />
     <ClInclude Include="winlamb-more\xml.h" />
@@ -199,7 +200,6 @@
     <ClInclude Include="winlamb\base_loop.h" />
     <ClInclude Include="winlamb\base_msgs.h" />
     <ClInclude Include="winlamb\base_run.h" />
-    <ClInclude Include="winlamb\base_text.h" />
     <ClInclude Include="winlamb\base_user_control.h" />
     <ClInclude Include="winlamb\base_wheel.h" />
     <ClInclude Include="winlamb\base_window.h" />

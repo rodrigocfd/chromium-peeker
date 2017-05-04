@@ -14,7 +14,7 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
-		set_text(L"No markers downloaded...");
+		SetWindowText(hwnd(), L"No markers downloaded...");
 		sys::thread([&]() {
 			_download_list(L""); // start downloading first batch of markers
 		});
@@ -82,7 +82,7 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& buf)
 	m_clist.append(xmlc);
 	m_totBytes += static_cast<int>(buf.size());
 	on_ui_thread([&]() {
-		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
+		SetWindowText(hwnd(), str::format(L"%d markers downloaded (%.2f KB)...",
 			m_clist.markers().size(),
 			static_cast<float>(m_totBytes) / 1024).c_str() );
 	});

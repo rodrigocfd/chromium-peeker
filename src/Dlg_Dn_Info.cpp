@@ -14,7 +14,7 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 	on_message(WM_INITDIALOG, [&](params&)
 	{
 		init_controls();
-		set_text(L"Downloading...");
+		SetWindowText(hwnd(), L"Downloading...");
 		sys::thread([&]() {
 			_get_one_file(m_markers[0]); // proceed with first file
 		});
