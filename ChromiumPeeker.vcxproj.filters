@@ -1,45 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="WinLamb">
-      <UniqueIdentifier>{a1011d7d-b1ac-4dc7-a14c-cc5c32e44bd2}</UniqueIdentifier>
+      <UniqueIdentifier>{0d6ac37b-73f7-4354-a1b9-340267ba10dd}</UniqueIdentifier>
     </Filter>
     <Filter Include="WinLamb More">
-      <UniqueIdentifier>{2896a1e9-2c79-495b-8ded-4efa846657d8}</UniqueIdentifier>
+      <UniqueIdentifier>{3ecee854-c6cb-4621-bf27-8bd52679622b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="res\resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Dlg_Main.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Chromium_Rel.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\Dlg_Dn.h">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Dn_Dll.h">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Dn_Info.h">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Dn_List.h">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Dn_Zip.h">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Chromium_Rel.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\base_msgs.h">
       <Filter>WinLamb</Filter>
@@ -80,6 +77,9 @@
     <ClInclude Include="winlamb\msg_notify.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\msg_ui_thread.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\native_control.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -106,6 +106,21 @@
     </ClInclude>
     <ClInclude Include="winlamb\base_loop.h">
       <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\device_context.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\dictionary.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\download.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\file.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\file_ini.h">
+      <Filter>WinLamb More</Filter>
     </ClInclude>
     <ClInclude Include="winlamb-more\file_mapped.h">
       <Filter>WinLamb More</Filter>
@@ -161,6 +176,9 @@
     <ClInclude Include="winlamb-more\sysdlg.h">
       <Filter>WinLamb More</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb-more\textable.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb-more\textbox.h">
       <Filter>WinLamb More</Filter>
     </ClInclude>
@@ -191,55 +209,32 @@
     <ClInclude Include="winlamb-more\datetime_picker.h">
       <Filter>WinLamb More</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb-more\device_context.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\dictionary.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\download.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\file.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\file_ini.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\msg_ui_thread.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\textable.h">
-      <Filter>WinLamb More</Filter>
+    <ClInclude Include="res\resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Dlg_Main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Chromium_Rel.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Dn.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Dn_Dll.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Dn_Info.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Dn_List.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Dn_Zip.cpp">
-      <Filter>src</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\old-chromium.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <ClCompile Include="src\Dlg_Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\ChromiumPeeker.rc">

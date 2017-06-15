@@ -8,6 +8,7 @@
 #include "../winlamb-more/zip.h"
 #include "../res/resource.h"
 using namespace wl;
+using std::vector;
 using std::wstring;
 
 Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstring& mk)
@@ -135,17 +136,20 @@ int Dlg_Dn_Dll::_find_in_binary(const BYTE *pData, size_t dataLen, const wchar_t
 
 	size_t whatlen = lstrlen(what);
 	size_t pWhatSz = whatlen * (asWideChar ? 2 : 1);
-	BYTE *pWhat = static_cast<BYTE*>(_alloca(pWhatSz * sizeof(BYTE)));
+
+	vector<BYTE> whatBuffered;
+	whatBuffered.resize(pWhatSz, 0);
+
 	if (asWideChar) {
-		memcpy(pWhat, what, whatlen * sizeof(wchar_t)); // simply copy the wide string, each char+zero
+		memcpy(&whatBuffered[0], what, whatlen * sizeof(wchar_t)); // simply copy the wide string, each char+zero
 	} else {
 		for (size_t i = 0; i < whatlen; ++i) {
-			pWhat[i] = LOBYTE(what[i]); // raw conversion from wchar_t to char
+			whatBuffered[i] = LOBYTE(what[i]); // raw conversion from wchar_t to char
 		}
 	}
 
-	for (size_t i = 0; i < dataLen; ++i) {
-		if (!memcmp(pData + i, pWhat, pWhatSz * sizeof(BYTE))) {
+	for (size_t i = 0; i < dataLen - pWhatSz; ++i) {
+		if (!memcmp(pData + i, &whatBuffered[0], pWhatSz * sizeof(BYTE))) {
 			return static_cast<int>(i);
 		}
 	}
