@@ -34,12 +34,10 @@ bool Dlg_Dn_Zip::_download()
 
 	download zipdl(m_session, lnk);
 	zipdl.set_referrer(REFERRER);
-	zipdl.add_request_header({
-		L"Accept-Encoding: gzip,deflate,sdch",
-		L"Connection: keep-alive",
-		L"DNT: 1",
-		L"Host: commondatastorage.googleapis.com"
-	});
+	zipdl.add_request_header(L"Accept-Encoding", L"gzip,deflate,sdch")
+		.add_request_header(L"Connection", L"keep-alive")
+		.add_request_header(L"DNT", L"1")
+		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
 	wstring err;
 	file fout;
@@ -71,9 +69,11 @@ bool Dlg_Dn_Zip::_receive_data(download& zipdl, file& fout)
 
 	wstring err;
 	while (zipdl.has_data(&err)) {
-		if (!fout.write(zipdl.get_buffer(), &err)) {
+		if (!fout.write(zipdl.data, &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
+		zipdl.data.clear(); // flushing to file right away
+
 		on_ui_thread([&]() {
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(),

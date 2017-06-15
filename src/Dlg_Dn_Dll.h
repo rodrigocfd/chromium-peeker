@@ -8,7 +8,6 @@ class Dlg_Dn_Dll final : public Dlg_Dn {
 private:
 	wl::download::session& m_session;
 	std::wstring           m_marker;
-	int                    m_totDownloaded;
 
 public:
 	std::wstring version;

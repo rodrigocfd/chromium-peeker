@@ -24,5 +24,5 @@ public:
 
 private:
 	bool _get_one_file(const std::wstring& marker);
-	bool _process_file(const std::vector<BYTE>& buf);
+	bool _process_file(const std::vector<BYTE>& blob);
 };

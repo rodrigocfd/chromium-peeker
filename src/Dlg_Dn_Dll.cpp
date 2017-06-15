@@ -11,7 +11,7 @@ using namespace wl;
 using std::wstring;
 
 Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstring& mk)
-	: Dlg_Dn(tb), m_session(sess), m_marker(mk), m_totDownloaded(0)
+	: Dlg_Dn(tb), m_session(sess), m_marker(mk)
 {
 	on_message(WM_INITDIALOG, [&](params&)
 	{
@@ -31,12 +31,10 @@ bool Dlg_Dn_Dll::_download()
 
 	download dlfile(m_session, lnk);
 	dlfile.set_referrer(REFERRER);
-	dlfile.add_request_header({
-		L"Accept-Encoding: gzip,deflate,sdch",
-		L"Connection: keep-alive",
-		L"DNT: 1",
-		L"Host: commondatastorage.googleapis.com"
-	});
+	dlfile.add_request_header(L"Accept-Encoding", L"gzip,deflate,sdch")
+		.add_request_header(L"Connection", L"keep-alive")
+		.add_request_header(L"DNT", L"1")
+		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
 	wstring err, destPath = sys::get_exe_path().append(L"\\tmpchro.zip");
 	file fout;
@@ -49,10 +47,13 @@ bool Dlg_Dn_Dll::_download()
 	if (!fout.set_new_size(dlfile.get_content_length(), &err)) {
 		return show_err_and_close(L"Error when resizing file", err);
 	}
+
 	while (dlfile.has_data(&err)) {
-		if (!fout.write(dlfile.get_buffer(), &err)) {
+		if (!fout.write(dlfile.data, &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
+		dlfile.data.clear(); // flushing to file right away
+
 		on_ui_thread([&]() {
 			m_progBar.set_pos(dlfile.get_percent());
 			m_taskbarProg.set_pos(dlfile.get_percent());
