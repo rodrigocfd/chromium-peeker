@@ -18,12 +18,19 @@ Dlg_Dn::Dlg_Dn(progress_taskbar& tb)
 void Dlg_Dn::init_controls()
 {
 	center_on_parent();
-	_enable_x_button(false);
 
 	m_lblTitle.assign(this, LBL_LBL);
 	m_progBar.assign(this, PRO_PRO)
 		.set_range(0, 100)
 		.set_pos(0);
+}
+
+void Dlg_Dn::handle_close_msg()
+{
+	on_message(WM_CLOSE, [](params&)
+	{
+		return TRUE; // don't close the dialog, EndDialog() not called
+	});
 }
 
 bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
@@ -36,14 +43,4 @@ bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 		EndDialog(hwnd(), IDCANCEL);
 	});
 	return false;
-}
-
-void Dlg_Dn::_enable_x_button(bool enable) const
-{
-	// Enable/disable the X button to close the window; has no effect on Alt+F4.
-	HMENU hMenu = GetSystemMenu(hwnd(), FALSE);
-	if (hMenu) {
-		UINT dwExtra = enable ? MF_ENABLED : (MF_DISABLED | MF_GRAYED);
-		EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | dwExtra);
-	}
 }

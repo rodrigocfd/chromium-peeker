@@ -23,6 +23,8 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 
 		return TRUE;
 	});
+
+	handle_close_msg();
 }
 
 size_t Dlg_Dn_List::get_total_bytes() const

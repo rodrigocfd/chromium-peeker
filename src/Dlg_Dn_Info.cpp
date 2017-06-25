@@ -23,6 +23,8 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 
 		return TRUE;
 	});
+
+	handle_close_msg();
 }
 
 bool Dlg_Dn_Info::_get_one_file(const wstring& marker)

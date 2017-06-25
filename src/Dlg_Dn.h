@@ -24,8 +24,6 @@ public:
 
 protected:
 	void init_controls();
+	void handle_close_msg();
 	bool show_err_and_close(const wchar_t* msg, const std::wstring& err);
-
-private:
-	void _enable_x_button(bool enable) const;
 };

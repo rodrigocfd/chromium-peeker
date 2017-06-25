@@ -23,6 +23,8 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstr
 		});
 		return TRUE;
 	});
+
+	handle_close_msg();
 }
 
 bool Dlg_Dn_Dll::_download()

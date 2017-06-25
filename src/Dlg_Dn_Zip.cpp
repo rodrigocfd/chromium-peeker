@@ -25,6 +25,8 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 		}
 		return TRUE;
 	});
+
+	handle_close_msg();
 }
 
 bool Dlg_Dn_Zip::_download()
