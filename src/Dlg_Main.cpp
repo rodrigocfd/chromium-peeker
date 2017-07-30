@@ -4,11 +4,11 @@
 #include "Dlg_Dn_Info.h"
 #include "Dlg_Dn_List.h"
 #include "Dlg_Dn_Zip.h"
-#include "../winlamb-more/menu.h"
-#include "../winlamb-more/str.h"
-#include "../winlamb-more/sys.h"
-#include "../winlamb-more/sysdlg.h"
-#include "../res/resource.h"
+#include <winlamb-more/menu.h>
+#include <winlamb-more/str.h>
+#include <winlamb-more/sys.h>
+#include <winlamb-more/sysdlg.h>
+#include "res/resource.h"
 using namespace wl;
 using std::vector;
 using std::wstring;

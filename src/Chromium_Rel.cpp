@@ -1,8 +1,7 @@
 
-#include <algorithm>
-#include <Windows.h>
 #include "Chromium_Rel.h"
-#include "../winlamb-more/str.h"
+#include <algorithm>
+#include <winlamb-more/str.h>
 using namespace wl;
 using std::vector;
 using std::wstring;

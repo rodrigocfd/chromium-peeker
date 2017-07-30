@@ -1,8 +1,8 @@
 
 #pragma once
+#include <winlamb-more/file.h>
+#include <winlamb-more/download.h>
 #include "Dlg_Dn.h"
-#include "../winlamb-more/file.h"
-#include "../winlamb-more/download.h"
 
 // Download the marker zip file to disk, destination chosen by user.
 class Dlg_Dn_Zip final : public Dlg_Dn {

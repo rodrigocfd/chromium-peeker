@@ -1,12 +1,12 @@
 
 #include "Dlg_Dn_Dll.h"
-#include "../winlamb-more/file.h"
-#include "../winlamb-more/file_mapped.h"
-#include "../winlamb-more/path.h"
-#include "../winlamb-more/str.h"
-#include "../winlamb-more/sys.h"
-#include "../winlamb-more/zip.h"
-#include "../res/resource.h"
+#include <winlamb-more/file.h>
+#include <winlamb-more/file_mapped.h>
+#include <winlamb-more/path.h>
+#include <winlamb-more/str.h>
+#include <winlamb-more/sys.h>
+#include <winlamb-more/zip.h>
+#include "res/resource.h"
 using namespace wl;
 using std::vector;
 using std::wstring;
