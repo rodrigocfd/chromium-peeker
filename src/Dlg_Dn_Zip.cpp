@@ -17,7 +17,7 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 
 		wstring defSave = sys::get_desktop_path().append(L"\\chrome-win32.zip");
 		if (sysdlg::save_file(this, L"Zip file (*.zip)|*.zip", m_dest, defSave.c_str())) {
-			sys::thread([&]() {
+			sys::start_thread([&]() {
 				_download(); // start right away
 			});
 		} else {
@@ -46,48 +46,38 @@ bool Dlg_Dn_Zip::_download()
 	if (!fout.open_or_create(m_dest, &err)) {
 		return show_err_and_close(L"File creation error", err);
 	}
-
-	if (!zipdl.start(&err)) {
-		return show_err_and_close(L"Error at download start", err);
-	}
-	on_ui_thread([&]() {
-		SetWindowText(hwnd(), str::format(L"Downloading %s...",
-			path::file_from(m_dest).c_str()).c_str() );
+	
+	zipdl.on_start([&]() {
+		if (!fout.set_new_size(zipdl.get_content_length(), &err)) {
+			return show_err_and_close(L"Error when resizing file", err);
+		}
+		run_ui_thread([&]() {
+			SetWindowText(hwnd(), str::format(L"Downloading %s...",
+				path::file_from(m_dest).c_str()).c_str() );
+		});
+		return true;
 	});
 
-	if (!fout.set_new_size(zipdl.get_content_length(), &err)) {
-		return show_err_and_close(L"Error when resizing file", err);
-	}
-
-	return _receive_data(zipdl, fout);
-}
-
-bool Dlg_Dn_Zip::_receive_data(download& zipdl, file& fout)
-{
-	/*dbg(L"Response headers:\n");
-	zipdl.getResponseHeaders().each([](const Hash<String>::Elem& rh) { // informational debug
-		dbg(L"- %s: %s\n", rh.key.str(), rh.val.str());
-	});*/
-
-	wstring err;
-	while (zipdl.has_data(&err)) {
+	zipdl.on_progress([&]() {
 		if (!fout.write(zipdl.data, &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		zipdl.data.clear(); // flushing to file right away
+		zipdl.data.clear(); // flushing to file right away, so clear download buffer
 
-		on_ui_thread([&]() {
+		run_ui_thread([&]() {
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(),
 				static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
 			m_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
 		});
-	}
+		return true;
+	});
 
-	if (!err.empty()) {
+	if (!zipdl.start(&err)) {
 		return show_err_and_close(L"Download error", err);
 	}
-	on_ui_thread([&]() {
+
+	run_ui_thread([&]() {
 		EndDialog(hwnd(), IDOK); // download finished
 	});
 	return true;

@@ -36,7 +36,7 @@ void Dlg_Dn::handle_close_msg()
 bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		m_taskbarProg.set_error(true);
 		sysdlg::msgbox(this, msg, err, MB_ICONERROR);
 		m_taskbarProg.clear();

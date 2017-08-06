@@ -17,7 +17,7 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 		SetWindowText(hwnd(), L"Downloading...");
 		m_progBar.set_waiting(true);
 
-		sys::thread([&]() {
+		sys::start_thread([&]() {
 			_get_one_file(m_markers[0]); // proceed with first file
 		});
 
@@ -41,12 +41,6 @@ bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 
 	wstring err;
 	if (!dl.start(&err)) {
-		return show_err_and_close(L"Error at download start", err);
-	}
-
-	while (dl.has_data(&err)) ; // each file is small, we don't need to display progress info
-
-	if (!err.empty()) {
 		return show_err_and_close(L"Download error", err);
 	}
 
@@ -56,7 +50,7 @@ bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 bool Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 {
 	m_totDownloaded += static_cast<int>(blob.size());
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		m_lblTitle.set_text( str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), m_markers.size(),
 			static_cast<float>(m_totDownloaded) / 1024) );
@@ -82,7 +76,7 @@ bool Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 	}
 
 	if (data.size() == m_markers.size()) {
-		on_ui_thread([&]() {
+		run_ui_thread([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});

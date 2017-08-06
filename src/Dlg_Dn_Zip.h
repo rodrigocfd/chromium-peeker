@@ -16,5 +16,4 @@ public:
 
 private:
 	bool _download();
-	bool _receive_data(wl::download& zipdl, wl::file& fout);
 };

@@ -18,7 +18,7 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess, const wstr
 	{
 		init_controls();
 		SetWindowText(hwnd(), L"Downloading chrome-win32.zip...");
-		sys::thread([&]() {
+		sys::start_thread([&]() {
 			_download(); // start right away
 		});
 		return TRUE;
@@ -39,44 +39,48 @@ bool Dlg_Dn_Dll::_download()
 		.add_request_header(L"DNT", L"1")
 		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
-	wstring err, destPath = sys::get_exe_path().append(L"\\tmpchro.zip");
+	wstring err;
+	wstring destPath = sys::get_exe_path().append(L"\\tmpchro.zip");
 	file fout;
 	if (!fout.open_or_create(destPath, &err)) {
 		return show_err_and_close(L"File creation error", err);
 	}
-	if (!dlfile.start(&err)) {
-		return show_err_and_close(L"Error at download start", err);
-	}
-	if (!fout.set_new_size(dlfile.get_content_length(), &err)) {
-		return show_err_and_close(L"Error when resizing file", err);
-	}
 
-	while (dlfile.has_data(&err)) {
+	dlfile.on_start([&]() {
+		if (!fout.set_new_size(dlfile.get_content_length(), &err)) {
+			return show_err_and_close(L"Error when resizing file", err);
+		}
+		return true;
+	});
+
+	dlfile.on_progress([&]() {
 		if (!fout.write(dlfile.data, &err)) {
 			return show_err_and_close(L"File writing error", err);
 		}
-		dlfile.data.clear(); // flushing to file right away
+		dlfile.data.clear(); // flushing to file right away, so clear download buffer
 
-		on_ui_thread([&]() {
+		run_ui_thread([&]() {
 			m_progBar.set_pos(dlfile.get_percent());
 			m_taskbarProg.set_pos(dlfile.get_percent());
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				dlfile.get_percent(),
 				static_cast<float>(dlfile.get_total_downloaded()) / 1024 / 1024) );
 		});
-	}
+		return true;
+	});
 
-	fout.close();
-	if (!err.empty()) {
+	if (!dlfile.start(&err)) {
 		return show_err_and_close(L"Download error", err);
 	}
+	
+	fout.close();
 	return _read_version(destPath);
 }
 
 bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		SetWindowText(hwnd(), L"Processing package...");
 		m_lblTitle.set_text(L"Unzipping chrome.dll, please wait...");
 		m_progBar.set_waiting(true);
@@ -88,7 +92,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	}
 
 	// Open chrome.dll as memory-mapped.
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		m_lblTitle.set_text(L"Scanning chrome.dll, please wait...");
 	});
 	wstring dllPath = path::folder_from(zipPath).append(L"\\chrome-win32\\chrome.dll");
@@ -125,7 +129,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 	file::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
 	file::del(zipPath);
 		
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDOK);
 	});

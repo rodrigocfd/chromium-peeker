@@ -17,7 +17,7 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 		SetWindowText(hwnd(), L"No markers downloaded...");
 		m_progBar.set_waiting(true);
 
-		sys::thread([&]() {
+		sys::start_thread([&]() {
 			_download_list(L""); // start downloading first batch of markers
 		});
 
@@ -46,28 +46,30 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 		.add_request_header(L"DNT", L"1")
 		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
-	wstring err;
-	if (!dl.start(&err)) {
-		return show_err_and_close(L"Error at download start", err);
-	}
-	on_ui_thread([&]() {
-		m_progBar.set_waiting(false).set_pos(0);
-		m_taskbarProg.set_waiting(true);
-		m_lblTitle.set_text(L"XML download started...");
+	dl.on_start([&]() {
+		run_ui_thread([&]() {
+			m_progBar.set_waiting(false).set_pos(0);
+			m_taskbarProg.set_waiting(true);
+			m_lblTitle.set_text(L"XML download started...");
+		});
+		return true;
 	});
 
-	while (dl.has_data(&err)) {
-		on_ui_thread([&]() {
+	dl.on_progress([&]() {
+		run_ui_thread([&]() {
 			m_progBar.set_pos(dl.get_percent());
 			m_lblTitle.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.get_percent(),
 				static_cast<float>(dl.get_total_downloaded()) / 1024) );
 		});
-	}
+		return true;
+	});
 
-	if (!err.empty()) {
+	wstring err;
+	if (!dl.start(&err)) {
 		return show_err_and_close(L"Download error", err);
 	}
+
 	return _read_xml(dl.data);
 }
 
@@ -80,19 +82,19 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
 	xml xmlc = xmlStr;
 	m_clist.append(xmlc);
 	m_totBytes += blob.size();
-	on_ui_thread([&]() {
+	run_ui_thread([&]() {
 		SetWindowText(hwnd(), str::format(L"%d markers downloaded (%.2f KB)...",
 			m_clist.markers().size(),
 			static_cast<float>(m_totBytes) / 1024).c_str() );
 	});
 	
 	if (!m_clist.is_finished()) {
-		on_ui_thread([&]() {
+		run_ui_thread([&]() {
 			m_lblTitle.set_text( str::format(L"Next marker: %s...\n", m_clist.next_marker()) );
 		});
 		_download_list(m_clist.next_marker()); // proceed to next marker
 	} else {
-		on_ui_thread([&]() {
+		run_ui_thread([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});
