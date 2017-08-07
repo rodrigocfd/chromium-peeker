@@ -27,11 +27,6 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-size_t Dlg_Dn_List::get_total_bytes() const
-{
-	return m_totBytes;
-}
-
 bool Dlg_Dn_List::_download_list(const wstring& marker)
 {
 	wstring lnk = str::format(L"%s/?delimiter=/&prefix=Win/", BASE_URL);
@@ -52,7 +47,6 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 			m_taskbarProg.set_waiting(true);
 			m_lblTitle.set_text(L"XML download started...");
 		});
-		return true;
 	});
 
 	dl.on_progress([&]() {
@@ -62,7 +56,6 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 				dl.get_percent(),
 				static_cast<float>(dl.get_total_downloaded()) / 1024) );
 		});
-		return true;
 	});
 
 	wstring err;

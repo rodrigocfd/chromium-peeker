@@ -15,7 +15,7 @@ public:
 	Dlg_Dn_List(wl::progress_taskbar& tb, wl::download::session& sess,
 		Chromium_Rel& clst);
 
-	size_t get_total_bytes() const;
+	size_t get_total_bytes() const { return m_totBytes; }
 
 private:
 	bool _download_list(const std::wstring& marker);

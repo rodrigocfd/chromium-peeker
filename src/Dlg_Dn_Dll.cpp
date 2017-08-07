@@ -48,25 +48,29 @@ bool Dlg_Dn_Dll::_download()
 
 	dlfile.on_start([&]() {
 		if (!fout.set_new_size(dlfile.get_content_length(), &err)) {
-			return show_err_and_close(L"Error when resizing file", err);
+			dlfile.abort();
+			fout.close();
+			file::del(destPath);
+			show_err_and_close(L"Error when resizing file", err);
 		}
-		return true;
 	});
 
 	dlfile.on_progress([&]() {
 		if (!fout.write(dlfile.data, &err)) {
-			return show_err_and_close(L"File writing error", err);
+			dlfile.abort();
+			fout.close();
+			file::del(destPath);
+			show_err_and_close(L"File writing error", err);
+		} else {
+			dlfile.data.clear(); // flushing to file right away, so clear download buffer
+			run_ui_thread([&]() {
+				m_progBar.set_pos(dlfile.get_percent());
+				m_taskbarProg.set_pos(dlfile.get_percent());
+				m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
+					dlfile.get_percent(),
+					static_cast<float>(dlfile.get_total_downloaded()) / 1024 / 1024) );
+			});
 		}
-		dlfile.data.clear(); // flushing to file right away, so clear download buffer
-
-		run_ui_thread([&]() {
-			m_progBar.set_pos(dlfile.get_percent());
-			m_taskbarProg.set_pos(dlfile.get_percent());
-			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
-				dlfile.get_percent(),
-				static_cast<float>(dlfile.get_total_downloaded()) / 1024 / 1024) );
-		});
-		return true;
 	});
 
 	if (!dlfile.start(&err)) {

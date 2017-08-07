@@ -49,28 +49,33 @@ bool Dlg_Dn_Zip::_download()
 	
 	zipdl.on_start([&]() {
 		if (!fout.set_new_size(zipdl.get_content_length(), &err)) {
-			return show_err_and_close(L"Error when resizing file", err);
+			zipdl.abort();
+			fout.close();
+			file::del(m_dest);
+			show_err_and_close(L"Error when resizing file", err);
+		} else {
+			run_ui_thread([&]() {
+				SetWindowText(hwnd(), str::format(L"Downloading %s...",
+					path::file_from(m_dest).c_str()).c_str() );
+			});
 		}
-		run_ui_thread([&]() {
-			SetWindowText(hwnd(), str::format(L"Downloading %s...",
-				path::file_from(m_dest).c_str()).c_str() );
-		});
-		return true;
 	});
 
 	zipdl.on_progress([&]() {
 		if (!fout.write(zipdl.data, &err)) {
-			return show_err_and_close(L"File writing error", err);
+			zipdl.abort();
+			fout.close();
+			file::del(m_dest);
+			show_err_and_close(L"File writing error", err);
+		} else {
+			zipdl.data.clear(); // flushing to file right away, so clear download buffer
+			run_ui_thread([&]() {
+				m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
+					zipdl.get_percent(),
+					static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
+				m_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
+			});
 		}
-		zipdl.data.clear(); // flushing to file right away, so clear download buffer
-
-		run_ui_thread([&]() {
-			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
-				zipdl.get_percent(),
-				static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024 ) );
-			m_progBar.set_pos(static_cast<int>(zipdl.get_percent()));
-		});
-		return true;
 	});
 
 	if (!zipdl.start(&err)) {
