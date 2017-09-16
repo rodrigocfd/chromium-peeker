@@ -23,8 +23,12 @@ private:
 	std::vector<item> _items;
 
 public:
+	dictionary() { }
+	dictionary(std::initializer_list<item> items) : _items(items) { }
+
 	const       std::vector<item>& entries() const { return this->_items; }
 	size_t      size() const                       { return this->_items.size(); }
+	bool        empty() const                      { return !this->_items.size(); }
 	dictionary& clear()                            { this->_items.clear(); return *this; }
 	dictionary& reserve(size_t nEntries)           { this->_items.reserve(nEntries); return *this; }
 
