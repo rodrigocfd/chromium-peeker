@@ -170,6 +170,7 @@
     <ClInclude Include="winlamb-more\device_context.h" />
     <ClInclude Include="winlamb-more\dictionary.h" />
     <ClInclude Include="winlamb-more\download.h" />
+    <ClInclude Include="winlamb-more\exe_version.h" />
     <ClInclude Include="winlamb-more\file.h" />
     <ClInclude Include="winlamb-more\file_ini.h" />
     <ClInclude Include="winlamb-more\file_mapped.h" />
@@ -233,6 +234,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\old-chromium.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="winlamb-more\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="winlamb-more\license.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

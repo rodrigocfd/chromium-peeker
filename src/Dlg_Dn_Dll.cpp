@@ -1,5 +1,6 @@
 
 #include "Dlg_Dn_Dll.h"
+#include <winlamb-more/exe_version.h>
 #include <winlamb-more/file.h>
 #include <winlamb-more/file_mapped.h>
 #include <winlamb-more/path.h>
@@ -76,7 +77,7 @@ bool Dlg_Dn_Dll::_download()
 	if (!dlfile.start(&err)) {
 		return show_err_and_close(L"Download error", err);
 	}
-	
+
 	fout.close();
 	return _read_version(destPath);
 }
@@ -95,7 +96,7 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 		return show_err_and_close(L"Unzipping failed", err);
 	}
 
-	// Open chrome.dll as memory-mapped.
+	// Check chrome.dll file.
 	run_ui_thread([&]() {
 		m_lblTitle.set_text(L"Scanning chrome.dll, please wait...");
 	});
@@ -105,63 +106,20 @@ bool Dlg_Dn_Dll::_read_version(wstring zipPath)
 			str::format(L"Could not find DLL:\n%s\n%s", dllPath.c_str()) );
 	}
 
-	file_mapped file;
-	if (!file.open(dllPath, file::access::READONLY, &err)) {
-		return show_err_and_close(L"Could not open file", err);
+	// Read chrome.dll version.
+	exe_version dllVer;
+	if (!dllVer.read(dllPath, &err)) {
+		return show_err_and_close(L"Version reading failed", err);
 	}
+	version = dllVer.to_string();
 
-	// Search strings.
-	const wchar_t *term = L"ProductVersion";
-	int startAt = 26 * 1024 * 1024; // use an offset to search less
-
-	BYTE *pData = file.p_mem();
-	int match1 = _find_in_binary(pData + startAt, file.size() - startAt, term, true); // 1st occurrence
-	if (match1 == -1) {
-		return show_err_and_close(L"Parsing error",
-			str::format(L"1st version offset could not be found in:\n%s", dllPath.c_str()) );
-	}
-
-	startAt += match1 + lstrlen(term) * sizeof(wchar_t);
-	int match2 = _find_in_binary(pData + startAt, file.size() - startAt, term, true); // 2st occurrence
-	if (match2 == -1) {
-		return show_err_and_close(L"Parsing error",
-			str::format(L"2st version offset could not be found in:\n%s", dllPath.c_str()) );
-	}
-	version.assign(reinterpret_cast<const wchar_t*>(pData + startAt + match2 + 30), 11);
-	
-	file.close();
+	// Cleanup.
 	file::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
 	file::del(zipPath);
-		
+
 	run_ui_thread([&]() {
 		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDOK);
 	});
 	return true;
-}
-
-int Dlg_Dn_Dll::_find_in_binary(const BYTE *pData, size_t dataLen, const wchar_t *what, bool asWideChar)
-{
-	// Returns the position of a string within a binary data block, if present.
-
-	size_t whatlen = lstrlen(what);
-	size_t pWhatSz = whatlen * (asWideChar ? 2 : 1);
-
-	vector<BYTE> whatBuffered;
-	whatBuffered.resize(pWhatSz, 0);
-
-	if (asWideChar) {
-		memcpy(&whatBuffered[0], what, whatlen * sizeof(wchar_t)); // simply copy the wide string, each char+zero
-	} else {
-		for (size_t i = 0; i < whatlen; ++i) {
-			whatBuffered[i] = LOBYTE(what[i]); // raw conversion from wchar_t to char
-		}
-	}
-
-	for (size_t i = 0; i < dataLen - pWhatSz; ++i) {
-		if (!memcmp(pData + i, &whatBuffered[0], pWhatSz * sizeof(BYTE))) {
-			return static_cast<int>(i);
-		}
-	}
-	return -1; // not found
 }

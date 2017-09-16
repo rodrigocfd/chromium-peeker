@@ -107,14 +107,8 @@
     <ClInclude Include="winlamb\base_loop.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb-more\device_context.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\dictionary.h">
-      <Filter>WinLamb More</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb-more\download.h">
-      <Filter>WinLamb More</Filter>
+    <ClInclude Include="res\resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="winlamb-more\file.h">
       <Filter>WinLamb More</Filter>
@@ -209,8 +203,17 @@
     <ClInclude Include="winlamb-more\datetime_picker.h">
       <Filter>WinLamb More</Filter>
     </ClInclude>
-    <ClInclude Include="res\resource.h">
-      <Filter>Resource Files</Filter>
+    <ClInclude Include="winlamb-more\device_context.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\dictionary.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\download.h">
+      <Filter>WinLamb More</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb-more\exe_version.h">
+      <Filter>WinLamb More</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -245,5 +248,15 @@
     <Image Include="res\old-chromium.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="winlamb-more\README.md">
+      <Filter>WinLamb More</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="winlamb-more\license.txt">
+      <Filter>WinLamb More</Filter>
+    </Text>
   </ItemGroup>
 </Project>
