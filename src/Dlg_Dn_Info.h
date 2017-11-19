@@ -1,28 +1,28 @@
 
 #pragma once
-#include <winlamb-more/download.h>
+#include <winlamb/download.h>
 #include "Dlg_Dn.h"
 
 // Downloads information for a marker.
 class Dlg_Dn_Info final : public Dlg_Dn {
 public:
 	struct Data final {
-		std::wstring releaseDate;
-		int          packageSize;
+		wstring releaseDate;
+		int     packageSize;
 	};
 	
 private:
-	wl::download::session&           m_session;
-	const std::vector<std::wstring>& m_markers;
-	int                              m_totDownloaded;
+	wl::download::session& m_session;
+	const vector<wstring>& m_markers;
+	int                    m_totDownloaded = 0;
 
 public:
-	std::vector<Data> data;
+	vector<Data> data;
 
 	Dlg_Dn_Info(wl::progress_taskbar& tb, wl::download::session& sess,
-		const std::vector<std::wstring>& mk);
+		const vector<wstring>& mk);
 
 private:
-	bool _get_one_file(const std::wstring& marker);
-	bool _process_file(const std::vector<BYTE>& blob);
+	void _get_one_file(const wstring& marker);
+	void _process_file(const vector<BYTE>& blob);
 };

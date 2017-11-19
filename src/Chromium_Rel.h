@@ -1,20 +1,21 @@
 
 #pragma once
-#include <winlamb-more/xml.h>
+#include "std.h"
+#include <winlamb/xml.h>
 
 class Chromium_Rel final {
 private:
-	std::vector<std::wstring> _markers;
-	std::wstring              _nextMarker;
-	bool                      _isFinished;
+	vector<wstring> _markers;
+	wstring         _nextMarker;
+	bool            _isFinished = false;
+
 public:
-	Chromium_Rel() : _isFinished(false) { }
-	
-	bool           append(wl::xml& data);
-	bool           is_finished() const               { return _isFinished; }
-	const wchar_t* next_marker() const               { return _nextMarker.c_str(); }
-	const std::vector<std::wstring>& markers() const { return _markers; }
-	void           reset();
+	bool                   append(wl::xml& data);
+	bool                   is_finished() const { return _isFinished; }
+	const wchar_t*         next_marker() const { return _nextMarker.c_str(); }
+	const vector<wstring>& markers() const     { return _markers; }
+	Chromium_Rel&          reset();
+
 private:
-	bool _parse_more_prefixes(wl::xml::node& root);
+	void _parse_more_prefixes(wl::xml::node& root);
 };

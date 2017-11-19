@@ -1,10 +1,8 @@
 
 #include "Chromium_Rel.h"
 #include <algorithm>
-#include <winlamb-more/str.h>
+#include <winlamb/str.h>
 using namespace wl;
-using std::vector;
-using std::wstring;
 
 bool Chromium_Rel::append(xml& data)
 {
@@ -18,7 +16,7 @@ bool Chromium_Rel::append(xml& data)
 	if (isTruncated != L"true" &&
 		isTruncated != L"false") return false;
 
-	if (!this->_parse_more_prefixes(root)) return false;
+	_parse_more_prefixes(root);
 
 	if (isTruncated == L"true") { // more to come
 		_nextMarker = root.first_child_by_name(L"NextMarker")->value; // eg.: "Win/93883/"
@@ -36,14 +34,15 @@ bool Chromium_Rel::append(xml& data)
 	return true;
 }
 
-void Chromium_Rel::reset()
+Chromium_Rel& Chromium_Rel::reset()
 {
 	_markers.resize(0);
 	_nextMarker = L"";
 	_isFinished = false;
+	return *this;
 }
 
-bool Chromium_Rel::_parse_more_prefixes(xml::node& root)
+void Chromium_Rel::_parse_more_prefixes(xml::node& root)
 {
 	vector<xml::node*> commonPrefixes = root.children_by_name(L"CommonPrefixes");
 	size_t prevsz = _markers.size();
@@ -53,5 +52,4 @@ bool Chromium_Rel::_parse_more_prefixes(xml::node& root)
 		xml::node *prefix = &cp->children[0];
 		_markers.emplace_back(prefix->value); // eg.: "Win/93883/"
 	}
-	return true;
 }

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by ChromiumPeeker.rc
+// Used by chromium-peeker.rc
 //
 #define ICO_CHROMIUM                    101
 #define DLG_MAIN                        102

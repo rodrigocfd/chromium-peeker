@@ -1,6 +1,6 @@
 
 #pragma once
-#include <winlamb-more/download.h>
+#include <winlamb/download.h>
 #include "Dlg_Dn.h"
 #include "Chromium_Rel.h"
 
@@ -18,6 +18,6 @@ public:
 	size_t get_total_bytes() const { return m_totBytes; }
 
 private:
-	bool _download_list(const std::wstring& marker);
-	bool _read_xml(const std::vector<BYTE>& blob);
+	void _download_list(const wstring& marker);
+	void _read_xml(const vector<BYTE>& blob);
 };

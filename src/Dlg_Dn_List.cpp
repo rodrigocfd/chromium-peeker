@@ -1,23 +1,21 @@
 
 #include "Dlg_Dn_List.h"
-#include <winlamb-more/str.h>
-#include <winlamb-more/sys.h>
-#include <winlamb-more/xml.h>
+#include <winlamb/str.h>
+#include <winlamb/thread.h>
+#include <winlamb/xml.h>
 using namespace wl;
-using std::vector;
-using std::wstring;
 
 Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 	Chromium_Rel& clst)
 	: Dlg_Dn(tb), m_session(sess), m_clist(clst), m_totBytes(0)
 {
-	on_message(WM_INITDIALOG, [&](params&)
+	on_message(WM_INITDIALOG, [&](wm::initdialog)
 	{
 		init_controls();
-		SetWindowText(hwnd(), L"No markers downloaded...");
+		set_text(L"No markers downloaded...");
 		m_progBar.set_waiting(true);
 
-		sys::start_thread([&]() {
+		thread::run_detached([&]() {
 			_download_list(L""); // start downloading first batch of markers
 		});
 
@@ -27,7 +25,7 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-bool Dlg_Dn_List::_download_list(const wstring& marker)
+void Dlg_Dn_List::_download_list(const wstring& marker)
 {
 	wstring lnk = str::format(L"%s/?delimiter=/&prefix=Win/", BASE_URL);
 	if (!marker.empty()) {
@@ -58,27 +56,34 @@ bool Dlg_Dn_List::_download_list(const wstring& marker)
 		});
 	});
 
-	wstring err;
-	if (!dl.start(&err)) {
-		return show_err_and_close(L"Download error", err);
+	try {
+		dl.start();
+	} catch (const std::exception& e) {
+		show_err_and_close(L"Download error", str::parse_ascii(e.what()));
+		return;
 	}
 
-	return _read_xml(dl.data);
+	_read_xml(dl.data);
 }
 
-bool Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
+void Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
 {
-	wstring xmlStr, err;
-	if (!str::parse_blob(blob, xmlStr, &err)) {
-		return show_err_and_close(L"XML parsing error", err);
+	wstring xmlStr;
+	try {
+		xmlStr = str::parse_blob(blob);
+	} catch (const std::exception& e) {
+		show_err_and_close(L"XML parsing error", str::parse_ascii(e.what()));
+		return;
 	}
+
 	xml xmlc = xmlStr;
 	m_clist.append(xmlc);
 	m_totBytes += blob.size();
+
 	run_ui_thread([&]() {
-		SetWindowText(hwnd(), str::format(L"%d markers downloaded (%.2f KB)...",
+		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
 			m_clist.markers().size(),
-			static_cast<float>(m_totBytes) / 1024).c_str() );
+			static_cast<float>(m_totBytes) / 1024) );
 	});
 	
 	if (!m_clist.is_finished()) {
@@ -92,5 +97,4 @@ bool Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});
 	}
-	return true;
 }

@@ -1,9 +1,8 @@
 
 #include "Dlg_Dn.h"
-#include <winlamb-more/sysdlg.h>
+#include <winlamb/sysdlg.h>
 #include "res/resource.h"
 using namespace wl;
-using std::wstring;
 
 Dlg_Dn::~Dlg_Dn()
 {
@@ -27,13 +26,13 @@ void Dlg_Dn::init_controls()
 
 void Dlg_Dn::handle_close_msg()
 {
-	on_message(WM_CLOSE, [](params&)
+	on_message(WM_CLOSE, [](wm::close)
 	{
 		return TRUE; // don't close the dialog, EndDialog() not called
 	});
 }
 
-bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
+void Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
 	run_ui_thread([&]() {
@@ -42,5 +41,4 @@ bool Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
 		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDCANCEL);
 	});
-	return false;
 }

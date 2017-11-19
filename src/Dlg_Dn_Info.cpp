@@ -1,23 +1,21 @@
 
 #include "Dlg_Dn_Info.h"
-#include <winlamb-more/str.h>
-#include <winlamb-more/sys.h>
-#include <winlamb-more/xml.h>
+#include <winlamb/str.h>
+#include <winlamb/thread.h>
+#include <winlamb/xml.h>
 using namespace wl;
-using std::vector;
-using std::wstring;
 
 Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 	const vector<wstring>& mk)
-	: Dlg_Dn(tb), m_session(sess), m_markers(mk), m_totDownloaded(0)
+	: Dlg_Dn(tb), m_session(sess), m_markers(mk)
 {
-	on_message(WM_INITDIALOG, [&](params&)
+	on_message(WM_INITDIALOG, [&](wm::initdialog)
 	{
 		init_controls();
-		SetWindowText(hwnd(), L"Downloading...");
+		set_text(L"Downloading...");
 		m_progBar.set_waiting(true);
 
-		sys::start_thread([&]() {
+		thread::run_detached([&]() {
 			_get_one_file(m_markers[0]); // proceed with first file
 		});
 
@@ -27,10 +25,9 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
+void Dlg_Dn_Info::_get_one_file(const wstring& marker)
 {
-	wstring lnk = str::format(L"%s/?delimiter=/&prefix=%s",
-		BASE_URL, marker.c_str() );
+	wstring lnk = str::format(L"%s/?delimiter=/&prefix=%s", BASE_URL, marker);
 
 	download dl(m_session, lnk);
 	dl.set_referrer(REFERRER);
@@ -39,15 +36,17 @@ bool Dlg_Dn_Info::_get_one_file(const wstring& marker)
 		.add_request_header(L"DNT", L"1")
 		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
-	wstring err;
-	if (!dl.start(&err)) {
-		return show_err_and_close(L"Download error", err);
+	try {
+		dl.start();
+	} catch (const std::exception& e) {
+		show_err_and_close(L"Download error", str::parse_ascii(e.what()));
+		return;
 	}
 
-	return _process_file(dl.data);
+	_process_file(dl.data);
 }
 
-bool Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
+void Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 {
 	m_totDownloaded += static_cast<int>(blob.size());
 	run_ui_thread([&]() {
@@ -59,10 +58,14 @@ bool Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 		m_taskbarProg.set_pos(pct);
 	});
 
-	wstring xmlStr, err;
-	if (!str::parse_blob(blob, xmlStr, &err)) {
-		return show_err_and_close(L"XML parsing error", err);
+	wstring xmlStr;
+	try {
+		xmlStr = str::parse_blob(blob);
+	} catch (const std::exception& e) {
+		show_err_and_close(L"XML parsing error", str::parse_ascii(e.what()));
+		return;
 	}
+
 	xml xmlc = xmlStr;
 	data.resize(data.size() + 1); // realloc public return buffer
 
@@ -81,7 +84,6 @@ bool Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});
 	} else {
-		_get_one_file( m_markers[data.size()].c_str() ); // proceed to next file
+		_get_one_file( m_markers[data.size()] ); // proceed to next file
 	}
-	return true;
 }
