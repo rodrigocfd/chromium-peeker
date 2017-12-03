@@ -48,7 +48,7 @@ void Dlg_Dn_Dll::_download()
 		} catch (const std::exception& e) {
 			dnFile.abort();
 			fout.close();
-			file::del(destPath);
+			file::util::del(destPath);
 			show_err_and_close(L"Error when resizing file",
 				str::parse_ascii(e.what()));
 		}
@@ -60,7 +60,7 @@ void Dlg_Dn_Dll::_download()
 		} catch (const std::exception& e) {
 			dnFile.abort();
 			fout.close();
-			file::del(destPath);
+			file::util::del(destPath);
 			show_err_and_close(L"File writing error", str::parse_ascii(e.what()));
 			return;
 		}
@@ -110,7 +110,7 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 	});
 
 	wstring dllPath = path::folder_from(zipPath).append(L"\\chrome-win32\\chrome.dll");
-	if (!file::exists(dllPath)) {
+	if (!file::util::exists(dllPath)) {
 		show_err_and_close(L"DLL not found",
 			str::format(L"Could not find DLL:\n%s\n%s", dllPath));
 		return;
@@ -133,8 +133,8 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 	versionNo = dllVer.to_string();
 
 	// Cleanup.
-	file::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
-	file::del(zipPath);
+	file::util::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
+	file::util::del(zipPath);
 
 	run_ui_thread([&]() {
 		m_taskbarProg.clear();

@@ -53,7 +53,7 @@ void Dlg_Dn_Zip::_download()
 		} catch (const std::exception& e) {
 			zipdl.abort();
 			fout.close();
-			file::del(m_dest);
+			file::util::del(m_dest);
 			show_err_and_close(L"Error when resizing file", str::parse_ascii(e.what()));
 			return;
 		}
@@ -69,7 +69,7 @@ void Dlg_Dn_Zip::_download()
 		} catch (const std::exception& e) {
 			zipdl.abort();
 			fout.close();
-			file::del(m_dest);
+			file::util::del(m_dest);
 			show_err_and_close(L"File writing error", str::parse_ascii(e.what()));
 			return;
 		}
