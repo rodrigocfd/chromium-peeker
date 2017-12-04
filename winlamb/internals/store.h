@@ -23,7 +23,7 @@ private:
 		idT   id;
 		funcT func;
 		_msg_unit() = default;
-		_msg_unit(idT id, funcT&& func) noexcept { }
+		_msg_unit(idT id, funcT&& func) noexcept : id(id), func(std::move(func)) { }
 	};
 
 	std::vector<_msg_unit> _msgUnits;
