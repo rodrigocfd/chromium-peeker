@@ -11,7 +11,8 @@
 using namespace wl;
 RUN(Dlg_Main);
 
-Dlg_Main::Dlg_Main() {
+Dlg_Main::Dlg_Main()
+{
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
 
