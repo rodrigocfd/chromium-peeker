@@ -50,7 +50,7 @@ void Dlg_Dn_Dll::_download()
 			fout.close();
 			file::util::del(destPath);
 			show_err_and_close(L"Error when resizing file",
-				str::parse_ascii(e.what()));
+				str::to_wstring(e.what()));
 		}
 	});
 
@@ -61,7 +61,7 @@ void Dlg_Dn_Dll::_download()
 			dnFile.abort();
 			fout.close();
 			file::util::del(destPath);
-			show_err_and_close(L"File writing error", str::parse_ascii(e.what()));
+			show_err_and_close(L"File writing error", str::to_wstring(e.what()));
 			return;
 		}
 
@@ -79,7 +79,7 @@ void Dlg_Dn_Dll::_download()
 		fout.open_or_create(destPath);
 		dnFile.start();
 	} catch (const std::exception& e) {
-		show_err_and_close(L"Download error", str::parse_ascii(e.what()));
+		show_err_and_close(L"Download error", str::to_wstring(e.what()));
 		return;
 	}
 
@@ -100,7 +100,7 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 	try {
 		zip::extract_all(zipPath, path::folder_from(zipPath)); // potentially slow
 	} catch (const std::exception& e) {
-		show_err_and_close(L"Unzipping failed", str::parse_ascii(e.what()));
+		show_err_and_close(L"Unzipping failed", str::to_wstring(e.what()));
 		return;
 	}
 
@@ -125,8 +125,7 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 			return;
 		}
 	} catch (const std::exception& e) {
-		show_err_and_close(L"Version reading failed",
-			str::parse_ascii(e.what()));
+		show_err_and_close(L"Version reading failed", str::to_wstring(e.what()));
 		return;
 	}
 

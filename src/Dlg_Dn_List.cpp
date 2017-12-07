@@ -59,7 +59,7 @@ void Dlg_Dn_List::_download_list(const wstring& marker)
 	try {
 		dl.start();
 	} catch (const std::exception& e) {
-		show_err_and_close(L"Download error", str::parse_ascii(e.what()));
+		show_err_and_close(L"Download error", str::to_wstring(e.what()));
 		return;
 	}
 
@@ -70,9 +70,9 @@ void Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
 {
 	wstring xmlStr;
 	try {
-		xmlStr = str::parse_blob(blob);
+		xmlStr = str::to_wstring(blob);
 	} catch (const std::exception& e) {
-		show_err_and_close(L"XML parsing error", str::parse_ascii(e.what()));
+		show_err_and_close(L"XML parsing error", str::to_wstring(e.what()));
 		return;
 	}
 

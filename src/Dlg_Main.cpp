@@ -36,7 +36,7 @@ Dlg_Main::Dlg_Main()
 		try {
 			m_session.open(); // initialize internet session, for the whole program running time
 		} catch (const std::exception& e) {
-			sysdlg::msgbox(this, L"Fail", str::parse_ascii(e.what()), MB_ICONERROR);
+			sysdlg::msgbox(this, L"Fail", str::to_wstring(e.what()), MB_ICONERROR);
 			SendMessage(hwnd(), WM_CLOSE, 0, 0);
 		}
 

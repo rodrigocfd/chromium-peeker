@@ -43,7 +43,7 @@ void Dlg_Dn_Zip::_download()
 	try {
 		fout.open_or_create(m_dest);
 	} catch (const std::exception& e) {
-		show_err_and_close(L"File creation error", str::parse_ascii(e.what()));
+		show_err_and_close(L"File creation error", str::to_wstring(e.what()));
 		return;
 	}
 	
@@ -54,7 +54,7 @@ void Dlg_Dn_Zip::_download()
 			zipdl.abort();
 			fout.close();
 			file::util::del(m_dest);
-			show_err_and_close(L"Error when resizing file", str::parse_ascii(e.what()));
+			show_err_and_close(L"Error when resizing file", str::to_wstring(e.what()));
 			return;
 		}
 
@@ -70,7 +70,7 @@ void Dlg_Dn_Zip::_download()
 			zipdl.abort();
 			fout.close();
 			file::util::del(m_dest);
-			show_err_and_close(L"File writing error", str::parse_ascii(e.what()));
+			show_err_and_close(L"File writing error", str::to_wstring(e.what()));
 			return;
 		}
 
@@ -87,7 +87,7 @@ void Dlg_Dn_Zip::_download()
 	try {
 		zipdl.start();
 	} catch (const std::exception& e) {
-		show_err_and_close(L"Download error", str::parse_ascii(e.what()));
+		show_err_and_close(L"Download error", str::to_wstring(e.what()));
 		return;
 	}
 
