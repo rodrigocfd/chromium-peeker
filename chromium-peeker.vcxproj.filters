@@ -185,9 +185,6 @@
     <ClInclude Include="winlamb\internals\hover_scroll.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\hwnd_wrapper.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\internals\inventory.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
@@ -252,6 +249,9 @@
       <Filter>WinLamb internals</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\com_ptr.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\hwnd_base.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
   </ItemGroup>
