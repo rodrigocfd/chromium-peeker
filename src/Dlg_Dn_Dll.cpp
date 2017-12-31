@@ -3,7 +3,6 @@
 #include <winlamb/file.h>
 #include <winlamb/file_mapped.h>
 #include <winlamb/path.h>
-#include <winlamb/thread.h>
 #include <winlamb/str.h>
 #include <winlamb/version.h>
 #include <winlamb/zip.h>
@@ -18,7 +17,7 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess,
 	{
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
-		thread::run_detached([&]() {
+		run_thread_detached([&]() {
 			_download(); // start right away
 		});
 		return TRUE;
@@ -66,7 +65,7 @@ void Dlg_Dn_Dll::_download()
 		}
 
 		dnFile.data.clear(); // flushing to file right away, so clear download buffer
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_progBar.set_pos(dnFile.get_percent());
 			m_taskbarProg.set_pos(dnFile.get_percent());
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
@@ -90,7 +89,7 @@ void Dlg_Dn_Dll::_download()
 void Dlg_Dn_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		set_text(L"Processing package...");
 		m_lblTitle.set_text(L"Unzipping chrome.dll, please wait...");
 		m_progBar.set_waiting(true);
@@ -105,7 +104,7 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 	}
 
 	// Check chrome.dll file.
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		m_lblTitle.set_text(L"Scanning chrome.dll, please wait...");
 	});
 
@@ -135,7 +134,7 @@ void Dlg_Dn_Dll::_read_version(wstring zipPath)
 	file::util::del(path::folder_from(zipPath).append(L"\\chrome-win32"));
 	file::util::del(zipPath);
 
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		m_taskbarProg.clear();
 		EndDialog(hwnd(), IDOK);
 	});

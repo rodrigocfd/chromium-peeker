@@ -1,7 +1,6 @@
 
 #include "Dlg_Dn_Info.h"
 #include <winlamb/str.h>
-#include <winlamb/thread.h>
 #include <winlamb/xml.h>
 using namespace wl;
 
@@ -15,7 +14,7 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 		set_text(L"Downloading...");
 		m_progBar.set_waiting(true);
 
-		thread::run_detached([&]() {
+		run_thread_detached([&]() {
 			_get_one_file(m_markers[0]); // proceed with first file
 		});
 
@@ -49,7 +48,7 @@ void Dlg_Dn_Info::_get_one_file(const wstring& marker)
 void Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 {
 	m_totDownloaded += static_cast<int>(blob.size());
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		m_lblTitle.set_text( str::format(L"%d/%d markers (%.2f KB)...",
 			data.size(), m_markers.size(),
 			static_cast<float>(m_totDownloaded) / 1024) );
@@ -79,7 +78,7 @@ void Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
 	}
 
 	if (data.size() == m_markers.size()) {
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // last file has been processed
 		});

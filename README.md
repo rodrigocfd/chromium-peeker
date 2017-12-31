@@ -18,3 +18,15 @@ If you want to update the library, pull the code from the repo:
 ```
 git subtree pull --prefix winlamb winlamb master --squash
 ```
+
+### Showcase
+
+The project showcases the following WinLamb features:
+
+* main and modal dialogs;
+* multi-threaded background operations;
+* listview control;
+* progress indicator on taskbar;
+* download files from the Internet;
+* manipulate XML documents;
+* unzip files.

@@ -3,7 +3,6 @@
 #include <winlamb/path.h>
 #include <winlamb/str.h>
 #include <winlamb/sysdlg.h>
-#include <winlamb/thread.h>
 using namespace wl;
 
 Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstring& mk)
@@ -16,7 +15,7 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 
 		wstring defSave = path::get::desktop().append(L"\\chrome-win32.zip");
 		if (sysdlg::save_file(this, L"Zip file (*.zip)|*.zip", m_dest, defSave)) {
-			thread::run_detached([&]() {
+			run_thread_detached([&]() {
 				_download(); // start right away
 			});
 		} else {
@@ -58,7 +57,7 @@ void Dlg_Dn_Zip::_download()
 			return;
 		}
 
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			set_text( str::format(L"Downloading %s...", path::file_from(m_dest)) );
 		});
 	});
@@ -76,7 +75,7 @@ void Dlg_Dn_Zip::_download()
 
 		zipdl.data.clear(); // flushing to file right away, so clear download buffer
 
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_lblTitle.set_text( str::format(L"%.0f%% downloaded (%.1f MB)...\n",
 				zipdl.get_percent(),
 				static_cast<float>(zipdl.get_total_downloaded()) / 1024 / 1024) );
@@ -91,7 +90,7 @@ void Dlg_Dn_Zip::_download()
 		return;
 	}
 
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		EndDialog(hwnd(), IDOK); // download finished
 	});
 }

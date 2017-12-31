@@ -1,7 +1,6 @@
 
 #include "Dlg_Dn_List.h"
 #include <winlamb/str.h>
-#include <winlamb/thread.h>
 #include <winlamb/xml.h>
 using namespace wl;
 
@@ -15,7 +14,7 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 		set_text(L"No markers downloaded...");
 		m_progBar.set_waiting(true);
 
-		thread::run_detached([&]() {
+		run_thread_detached([&]() {
 			_download_list(L""); // start downloading first batch of markers
 		});
 
@@ -40,7 +39,7 @@ void Dlg_Dn_List::_download_list(const wstring& marker)
 		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
 	dl.on_start([&]() {
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_progBar.set_waiting(false).set_pos(0);
 			m_taskbarProg.set_waiting(true);
 			m_lblTitle.set_text(L"XML download started...");
@@ -48,7 +47,7 @@ void Dlg_Dn_List::_download_list(const wstring& marker)
 	});
 
 	dl.on_progress([&]() {
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_progBar.set_pos(dl.get_percent());
 			m_lblTitle.set_text( str::format(L"%.2f%% downloaded (%.2f KB)...\n",
 				dl.get_percent(),
@@ -80,19 +79,19 @@ void Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
 	m_clist.append(xmlc);
 	m_totBytes += blob.size();
 
-	run_ui_thread([&]() {
+	run_thread_ui([&]() {
 		set_text(str::format(L"%d markers downloaded (%.2f KB)...",
 			m_clist.markers().size(),
 			static_cast<float>(m_totBytes) / 1024) );
 	});
 	
 	if (!m_clist.is_finished()) {
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_lblTitle.set_text( str::format(L"Next marker: %s...\n", m_clist.next_marker()) );
 		});
 		_download_list(m_clist.next_marker()); // proceed to next marker
 	} else {
-		run_ui_thread([&]() {
+		run_thread_ui([&]() {
 			m_taskbarProg.clear();
 			EndDialog(hwnd(), IDOK); // all markers downloaded
 		});
