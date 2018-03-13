@@ -55,8 +55,8 @@ Dlg_Main::Dlg_Main()
 		if (p.first_menu_item_id() == MNU_MAIN_GETBASIC) {
 			menu m = p.hmenu();
 			size_t numSelec = m_lstEntries.items.count_selected();
-			m.enable_item({MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL}, numSelec >= 1)
-				.enable_item(MNU_MAIN_DLZIP, numSelec == 1);
+			m.enable_item_by_id({MNU_MAIN_GETBASIC, MNU_MAIN_GETDLL}, numSelec >= 1)
+				.enable_item_by_id(MNU_MAIN_DLZIP, numSelec == 1);
 		}
 		return TRUE;
 	});
