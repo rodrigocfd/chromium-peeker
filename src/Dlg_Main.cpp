@@ -20,6 +20,8 @@ Dlg_Main::Dlg_Main()
 	{
 		m_taskbarProgr.init(this);
 
+		m_btnDlList.assign(this, BTN_DLLIST);
+
 		m_lstEntries.assign(this, LST_BUILDS)
 			.style.full_row_select(true)
 			.set_context_menu(MEN_MAIN)
@@ -63,7 +65,7 @@ Dlg_Main::Dlg_Main()
 
 	on_command(BTN_DLLIST, [&](wm::command)
 	{
-		EnableWindow(GetDlgItem(hwnd(), BTN_DLLIST), FALSE);
+		m_btnDlList.set_enable(false);
 		m_chromiumRel.reset();
 		m_lstEntries.items.remove_all();
 		m_lstEntries.columns.set_width_to_fill(3);
@@ -83,7 +85,7 @@ Dlg_Main::Dlg_Main()
 				static_cast<float>(ddl.get_total_bytes()) / 1024) );
 			m_lstEntries.set_redraw(true)
 				.columns.set_width_to_fill(3);		
-			EnableWindow(GetDlgItem(hwnd(), BTN_DLLIST), TRUE);
+			m_btnDlList.set_enable(true);
 		}
 
 		m_lstEntries.set_focus();

@@ -2,6 +2,7 @@
 #pragma once
 #include "std.h"
 #include <winlamb/dialog_main.h>
+#include <winlamb/button.h>
 #include <winlamb/download.h>
 #include <winlamb/label.h>
 #include <winlamb/listview.h>
@@ -13,6 +14,7 @@ class Dlg_Main final : public wl::dialog_main {
 private:
 	Chromium_Rel          m_chromiumRel;
 	wl::progress_taskbar  m_taskbarProgr;
+	wl::button            m_btnDlList;
 	wl::listview          m_lstEntries;
 	wl::label             m_lblLoaded;
 	wl::resizer           m_resz;
