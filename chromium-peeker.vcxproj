@@ -203,7 +203,7 @@
     <ClInclude Include="winlamb\internals\window.h" />
     <ClInclude Include="winlamb\internals\w_enable.h" />
     <ClInclude Include="winlamb\internals\w_focus.h" />
-    <ClInclude Include="winlamb\internals\w_inventory.h" />
+    <ClInclude Include="winlamb\internals\w_message.h" />
     <ClInclude Include="winlamb\internals\w_text.h" />
     <ClInclude Include="winlamb\internals\w_thread_capable.h" />
     <ClInclude Include="winlamb\internals\w_user_control.h" />
