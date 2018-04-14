@@ -17,25 +17,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Dlg_Dn_Dll.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Dlg_Dn_Info.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Dlg_Dn_List.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Dlg_Dn_Zip.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Dlg_Main.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Chromium_Rel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Dlg_Dn.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.h">
@@ -275,27 +260,42 @@
     <ClInclude Include="winlamb\resizer.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="src\Dlg_Download.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Dll.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Info.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_List.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Zip.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Chromium_Rel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Dlg_Dn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Dn_Dll.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Dn_Info.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Dn_List.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Dn_Zip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Dlg_Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Download.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Download_Dll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Download_Info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Download_List.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Download_Zip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

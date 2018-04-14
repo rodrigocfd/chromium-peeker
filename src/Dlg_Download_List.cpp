@@ -1,14 +1,14 @@
 
-#include "Dlg_Dn_List.h"
+#include "Dlg_Download_List.h"
 #include <winlamb/str.h>
 #include <winlamb/xml.h>
 using namespace wl;
 
-Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
+Dlg_Download_List::Dlg_Download_List(progress_taskbar& tb, download::session& sess,
 	Chromium_Rel& clst)
-	: Dlg_Dn(tb), m_session(sess), m_clist(clst), m_totBytes(0)
+	: Dlg_Download(tb), m_session(sess), m_clist(clst), m_totBytes(0)
 {
-	on_message(WM_INITDIALOG, [&](wm::initdialog)
+	on_message(WM_INITDIALOG, [&](params)
 	{
 		init_controls();
 		set_text(L"No markers downloaded...");
@@ -24,7 +24,7 @@ Dlg_Dn_List::Dlg_Dn_List(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-void Dlg_Dn_List::_download_list(const wstring& marker)
+void Dlg_Download_List::_download_list(const wstring& marker)
 {
 	wstring lnk = str::format(L"%s/?delimiter=/&prefix=Win/", BASE_URL);
 	if (!marker.empty()) {
@@ -65,7 +65,7 @@ void Dlg_Dn_List::_download_list(const wstring& marker)
 	_read_xml(dl.data);
 }
 
-void Dlg_Dn_List::_read_xml(const vector<BYTE>& blob)
+void Dlg_Download_List::_read_xml(const vector<BYTE>& blob)
 {
 	wstring xmlStr;
 	try {

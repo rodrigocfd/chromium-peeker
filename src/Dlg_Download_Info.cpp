@@ -1,14 +1,14 @@
 
-#include "Dlg_Dn_Info.h"
+#include "Dlg_Download_Info.h"
 #include <winlamb/str.h>
 #include <winlamb/xml.h>
 using namespace wl;
 
-Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
+Dlg_Download_Info::Dlg_Download_Info(progress_taskbar& tb, download::session& sess,
 	const vector<wstring>& mk)
-	: Dlg_Dn(tb), m_session(sess), m_markers(mk)
+	: Dlg_Download(tb), m_session(sess), m_markers(mk)
 {
-	on_message(WM_INITDIALOG, [&](wm::initdialog)
+	on_message(WM_INITDIALOG, [&](params)
 	{
 		init_controls();
 		set_text(L"Downloading...");
@@ -24,7 +24,7 @@ Dlg_Dn_Info::Dlg_Dn_Info(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-void Dlg_Dn_Info::_get_one_file(const wstring& marker)
+void Dlg_Download_Info::_get_one_file(const wstring& marker)
 {
 	wstring lnk = str::format(L"%s/?delimiter=/&prefix=%s", BASE_URL, marker);
 
@@ -45,7 +45,7 @@ void Dlg_Dn_Info::_get_one_file(const wstring& marker)
 	_process_file(dl.data);
 }
 
-void Dlg_Dn_Info::_process_file(const vector<BYTE>& blob)
+void Dlg_Download_Info::_process_file(const vector<BYTE>& blob)
 {
 	m_totDownloaded += static_cast<int>(blob.size());
 	run_thread_ui([&]() {

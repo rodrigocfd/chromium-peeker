@@ -1,14 +1,14 @@
 
-#include "Dlg_Dn_Zip.h"
+#include "Dlg_Download_Zip.h"
 #include <winlamb/path.h>
 #include <winlamb/str.h>
 #include <winlamb/sysdlg.h>
 using namespace wl;
 
-Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstring& mk)
-	: Dlg_Dn(tb), m_session(sess), m_marker(mk)
+Dlg_Download_Zip::Dlg_Download_Zip(progress_taskbar& tb, download::session& sess, const wstring& mk)
+	: Dlg_Download(tb), m_session(sess), m_marker(mk)
 {
-	on_message(WM_INITDIALOG, [&](wm::initdialog)
+	on_message(WM_INITDIALOG, [&](params)
 	{
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
@@ -27,7 +27,7 @@ Dlg_Dn_Zip::Dlg_Dn_Zip(progress_taskbar& tb, download::session& sess, const wstr
 	handle_close_msg();
 }
 
-void Dlg_Dn_Zip::_download()
+void Dlg_Download_Zip::_download()
 {
 	wstring lnk = str::format(L"%s/%schrome-win32.zip", BASE_URL, m_marker);
 

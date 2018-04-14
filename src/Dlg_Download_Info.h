@@ -1,10 +1,10 @@
 
 #pragma once
 #include <winlamb/download.h>
-#include "Dlg_Dn.h"
+#include "Dlg_Download.h"
 
 // Downloads information for a marker.
-class Dlg_Dn_Info final : public Dlg_Dn {
+class Dlg_Download_Info final : public Dlg_Download {
 public:
 	struct Data final {
 		wstring releaseDate;
@@ -19,7 +19,7 @@ private:
 public:
 	vector<Data> data;
 
-	Dlg_Dn_Info(wl::progress_taskbar& tb, wl::download::session& sess,
+	Dlg_Download_Info(wl::progress_taskbar& tb, wl::download::session& sess,
 		const vector<wstring>& mk);
 
 private:

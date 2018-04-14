@@ -1,20 +1,20 @@
 
-#include "Dlg_Dn.h"
+#include "Dlg_Download.h"
 #include <winlamb/sysdlg.h>
 #include "res/resource.h"
 using namespace wl;
 
-Dlg_Dn::~Dlg_Dn()
+Dlg_Download::~Dlg_Download()
 {
 }
 
-Dlg_Dn::Dlg_Dn(progress_taskbar& tb)
+Dlg_Download::Dlg_Download(progress_taskbar& tb)
 	: m_taskbarProg(tb)
 {
 	setup.dialogId = DLG_PROGRESS;
 }
 
-void Dlg_Dn::init_controls()
+void Dlg_Download::init_controls()
 {
 	center_on_parent();
 
@@ -24,15 +24,15 @@ void Dlg_Dn::init_controls()
 		.set_pos(0);
 }
 
-void Dlg_Dn::handle_close_msg()
+void Dlg_Download::handle_close_msg()
 {
-	on_message(WM_CLOSE, [](wm::close)
+	on_message(WM_CLOSE, [](params)
 	{
 		return TRUE; // don't close the dialog, EndDialog() not called
 	});
 }
 
-void Dlg_Dn::show_err_and_close(const wchar_t* msg, const wstring& err)
+void Dlg_Download::show_err_and_close(const wchar_t* msg, const wstring& err)
 {
 	// Intended to be used form within a separate thread.
 	run_thread_ui([&]() {

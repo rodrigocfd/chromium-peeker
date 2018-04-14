@@ -2,16 +2,16 @@
 #pragma once
 #include <winlamb/file.h>
 #include <winlamb/download.h>
-#include "Dlg_Dn.h"
+#include "Dlg_Download.h"
 
 // Download the marker zip file to disk, destination chosen by user.
-class Dlg_Dn_Zip final : public Dlg_Dn {
+class Dlg_Download_Zip final : public Dlg_Download {
 private:
 	wl::download::session& m_session;
 	wstring                m_marker, m_dest;
 
 public:
-	Dlg_Dn_Zip(wl::progress_taskbar& tb, wl::download::session& sess, const wstring& mk);
+	Dlg_Download_Zip(wl::progress_taskbar& tb, wl::download::session& sess, const wstring& mk);
 
 private:
 	void _download();

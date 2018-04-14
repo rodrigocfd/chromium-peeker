@@ -1,9 +1,9 @@
 
 #include "Dlg_Main.h"
-#include "Dlg_Dn_Dll.h"
-#include "Dlg_Dn_Info.h"
-#include "Dlg_Dn_List.h"
-#include "Dlg_Dn_Zip.h"
+#include "Dlg_Download_Dll.h"
+#include "Dlg_Download_Info.h"
+#include "Dlg_Download_List.h"
+#include "Dlg_Download_Zip.h"
 #include <winlamb/menu.h>
 #include <winlamb/str.h>
 #include <winlamb/sysdlg.h>
@@ -16,7 +16,7 @@ Dlg_Main::Dlg_Main()
 	setup.dialogId = DLG_MAIN;
 	setup.iconId = ICO_CHROMIUM;
 
-	on_message(WM_INITDIALOG, [&](wm::initdialog)
+	on_message(WM_INITDIALOG, [&](params)
 	{
 		m_taskbarProgr.init(this);
 
@@ -63,7 +63,7 @@ Dlg_Main::Dlg_Main()
 		return TRUE;
 	});
 
-	on_command(BTN_DLLIST, [&](wm::command)
+	on_command(BTN_DLLIST, [&](params)
 	{
 		m_btnDlList.set_enable(false);
 		m_chromiumRel.reset();
@@ -73,7 +73,7 @@ Dlg_Main::Dlg_Main()
 
 		const vector<wstring>& markers = m_chromiumRel.markers();
 
-		Dlg_Dn_List ddl(m_taskbarProgr, m_session, m_chromiumRel);
+		Dlg_Download_List ddl(m_taskbarProgr, m_session, m_chromiumRel);
 		if (ddl.show(this) == IDOK) {
 			m_lstEntries.set_redraw(false);
 			const int iShown = 1200;
@@ -92,14 +92,14 @@ Dlg_Main::Dlg_Main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETBASIC, [&](wm::command)
+	on_command(MNU_MAIN_GETBASIC, [&](params)
 	{
 		vector<listview::item> sels = m_lstEntries.items.get_selected();
 		if (sels.empty()) return TRUE;
 
 		vector<wstring> markers = m_lstEntries.items.get_texts(sels, 0);
 
-		Dlg_Dn_Info ddi(m_taskbarProgr, m_session, markers);
+		Dlg_Download_Info ddi(m_taskbarProgr, m_session, markers);
 		if (ddi.show(this) == IDOK) {
 			m_lstEntries.set_redraw(false);
 			for (size_t i = 0; i < markers.size(); ++i) {
@@ -117,7 +117,7 @@ Dlg_Main::Dlg_Main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_GETDLL, [&](wm::command)
+	on_command(MNU_MAIN_GETDLL, [&](params)
 	{
 		vector<listview::item> sels = m_lstEntries.items.get_selected();
 		if (!sels.empty()) {
@@ -133,7 +133,7 @@ Dlg_Main::Dlg_Main()
 
 			vector<wstring> markers = m_lstEntries.items.get_texts(sels, 0);
 			for (vector<wstring>::size_type i = 0; i < markers.size(); ++i) {
-				Dlg_Dn_Dll ddd(m_taskbarProgr, m_session, markers[i]);
+				Dlg_Download_Dll ddd(m_taskbarProgr, m_session, markers[i]);
 				if (ddd.show(this) == IDOK) {
 					m_lstEntries.items[sels[i].index].set_text(ddd.versionNo, 3);
 				}
@@ -142,10 +142,10 @@ Dlg_Main::Dlg_Main()
 		return TRUE;
 	});
 
-	on_command(MNU_MAIN_DLZIP, [&](wm::command)
+	on_command(MNU_MAIN_DLZIP, [&](params)
 	{
 		if (m_lstEntries.items.count_selected() == 1) {
-			Dlg_Dn_Zip ddz(m_taskbarProgr, m_session,
+			Dlg_Download_Zip ddz(m_taskbarProgr, m_session,
 				m_lstEntries.items.get_selected()[0].get_text());
 			ddz.show(this);
 		}

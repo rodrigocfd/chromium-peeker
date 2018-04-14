@@ -1,5 +1,5 @@
 
-#include "Dlg_Dn_Dll.h"
+#include "Dlg_Download_Dll.h"
 #include <winlamb/file.h>
 #include <winlamb/file_mapped.h>
 #include <winlamb/path.h>
@@ -9,11 +9,11 @@
 #include "res/resource.h"
 using namespace wl;
 
-Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess,
+Dlg_Download_Dll::Dlg_Download_Dll(progress_taskbar& tb, download::session& sess,
 	const wstring& mk)
-	: Dlg_Dn(tb), m_session(sess), m_marker(mk)
+	: Dlg_Download(tb), m_session(sess), m_marker(mk)
 {
-	on_message(WM_INITDIALOG, [&](wm::initdialog)
+	on_message(WM_INITDIALOG, [&](params)
 	{
 		init_controls();
 		set_text(L"Downloading chrome-win32.zip...");
@@ -26,7 +26,7 @@ Dlg_Dn_Dll::Dlg_Dn_Dll(progress_taskbar& tb, download::session& sess,
 	handle_close_msg();
 }
 
-void Dlg_Dn_Dll::_download()
+void Dlg_Download_Dll::_download()
 {
 	wstring lnk = str::format(L"%s/%schrome-win32.zip",
 		BASE_URL, m_marker);
@@ -86,7 +86,7 @@ void Dlg_Dn_Dll::_download()
 	_read_version(destPath);
 }
 
-void Dlg_Dn_Dll::_read_version(wstring zipPath)
+void Dlg_Download_Dll::_read_version(wstring zipPath)
 {
 	// Unzip the package.
 	run_thread_ui([&]() {
