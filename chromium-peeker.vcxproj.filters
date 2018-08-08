@@ -62,9 +62,6 @@
     <ClInclude Include="winlamb\path.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\process.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\progress_taskbar.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -277,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="winlamb\internals\com_bstr.h">
       <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\executable.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
