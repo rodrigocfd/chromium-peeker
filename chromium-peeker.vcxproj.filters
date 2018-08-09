@@ -44,12 +44,6 @@
     <ClInclude Include="src\Dlg_Download_Zip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\image_list.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\insert_order_map.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\label.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -90,6 +84,9 @@
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\sysdlg.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\syspath.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\textbox.h">
@@ -152,6 +149,9 @@
     <ClInclude Include="winlamb\download.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\executable.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\file.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -170,26 +170,11 @@
     <ClInclude Include="winlamb\icon.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\com_lib.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\image_list.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\com_ptr.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\com_variant.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\combinable_flags.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\device_context_objects.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\dialog.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\download_session.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\insert_order_map.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\download_url.h">
       <Filter>WinLamb internals</Filter>
@@ -225,9 +210,6 @@
       <Filter>WinLamb internals</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\params_wmn.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\internals\path_get.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\run.h">
@@ -275,8 +257,26 @@
     <ClInclude Include="winlamb\internals\com_bstr.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\executable.h">
-      <Filter>WinLamb</Filter>
+    <ClInclude Include="winlamb\internals\com_lib.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\com_ptr.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\com_variant.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\combinable_flags.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\device_context_objects.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\dialog.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\download_session.h">
+      <Filter>WinLamb internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

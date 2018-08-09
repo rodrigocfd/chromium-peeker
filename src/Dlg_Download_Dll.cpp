@@ -1,5 +1,6 @@
 
 #include "Dlg_Download_Dll.h"
+#include <winlamb/executable.h>
 #include <winlamb/file.h>
 #include <winlamb/file_mapped.h>
 #include <winlamb/path.h>
@@ -39,7 +40,7 @@ void Dlg_Download_Dll::_download()
 		.add_request_header(L"Host", L"commondatastorage.googleapis.com");
 
 	file fout;
-	wstring destPath = path::get::exe_itself().append(L"\\tmpchro.zip");
+	wstring destPath = executable::get_own_path().append(L"\\tmpchro.zip");
 
 	dnFile.on_start([&]() {
 		try {
