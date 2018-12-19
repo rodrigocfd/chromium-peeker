@@ -47,7 +47,7 @@ Dlg_Main::Dlg_Main()
 
 	on_message(WM_SIZE, [&](wm::size p)
 	{
-		m_resz.arrange(p);
+		m_resz.adjust(p);
 		m_lstEntries.columns.set_width_to_fill(3);
 		return TRUE;
 	});
@@ -65,7 +65,7 @@ Dlg_Main::Dlg_Main()
 
 	on_command(BTN_DLLIST, [&](params)
 	{
-		m_btnDlList.set_enable(false);
+		EnableWindow(m_btnDlList.hwnd(), FALSE);
 		m_chromiumRel.reset();
 		m_lstEntries.items.remove_all();
 		m_lstEntries.columns.set_width_to_fill(3);
@@ -85,10 +85,10 @@ Dlg_Main::Dlg_Main()
 				static_cast<float>(ddl.get_total_bytes()) / 1024) );
 			m_lstEntries.set_redraw(true)
 				.columns.set_width_to_fill(3);		
-			m_btnDlList.set_enable(true);
+			EnableWindow(m_btnDlList.hwnd(), TRUE);
 		}
 
-		m_lstEntries.set_focus();
+		SetFocus(m_lstEntries.hwnd());
 		return TRUE;
 	});
 
