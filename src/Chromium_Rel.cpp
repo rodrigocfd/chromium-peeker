@@ -44,12 +44,12 @@ Chromium_Rel& Chromium_Rel::reset()
 
 void Chromium_Rel::_parse_more_prefixes(xml::node& root)
 {
-	vector<xml::node*> commonPrefixes = root.children_by_name(L"CommonPrefixes");
+	vector<reference_wrapper<xml::node>> commonPrefixes = root.children_by_name(L"CommonPrefixes");
 	size_t prevsz = _markers.size();
 	_markers.reserve(prevsz + commonPrefixes.size()); // make room for more
 
-	for (xml::node *cp : commonPrefixes) {
-		xml::node *prefix = &cp->children[0];
-		_markers.emplace_back(prefix->value); // eg.: "Win/93883/"
+	for (xml::node& cp : commonPrefixes) {
+		xml::node& prefix = cp.children[0];
+		_markers.emplace_back(prefix.value); // eg.: "Win/93883/"
 	}
 }

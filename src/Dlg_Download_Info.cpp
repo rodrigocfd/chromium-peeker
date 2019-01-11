@@ -68,11 +68,11 @@ void Dlg_Download_Info::_process_file(const vector<BYTE>& blob)
 	xml xmlc = xmlStr;
 	data.resize(data.size() + 1); // realloc public return buffer
 
-	vector<xml::node*> cnodes = xmlc.root.children_by_name(L"Contents");
-	for (xml::node *cnode : cnodes) {
-		if (str::ends_withi(cnode->first_child_by_name(L"Key")->value, L"chrome-win32.zip")) {
-			data.back().releaseDate = cnode->first_child_by_name(L"LastModified")->value;
-			data.back().packageSize = std::stoi(cnode->first_child_by_name(L"Size")->value);
+	vector<reference_wrapper<xml::node>> cnodes = xmlc.root.children_by_name(L"Contents");
+	for (xml::node& cnode : cnodes) {
+		if (str::ends_withi(cnode.first_child_by_name(L"Key")->value, L"chrome-win32.zip")) {
+			data.back().releaseDate = cnode.first_child_by_name(L"LastModified")->value;
+			data.back().packageSize = std::stoi(cnode.first_child_by_name(L"Size")->value);
 			break;
 		}
 	}
