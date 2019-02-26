@@ -1,6 +1,5 @@
 
 #pragma once
-#include "std.h"
 #include <winlamb/dialog_main.h>
 #include <winlamb/button.h>
 #include <winlamb/download.h>

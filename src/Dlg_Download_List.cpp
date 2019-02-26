@@ -2,6 +2,8 @@
 #include "Dlg_Download_List.h"
 #include <winlamb/str.h>
 #include <winlamb/xml.h>
+using std::vector;
+using std::wstring;
 using namespace wl;
 
 Dlg_Download_List::Dlg_Download_List(progress_taskbar& tb, download::session& sess,

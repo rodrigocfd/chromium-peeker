@@ -8,7 +8,10 @@
 #include <winlamb/str.h>
 #include <winlamb/sysdlg.h>
 #include "res/resource.h"
+using std::vector;
+using std::wstring;
 using namespace wl;
+
 RUN(Dlg_Main);
 
 Dlg_Main::Dlg_Main()

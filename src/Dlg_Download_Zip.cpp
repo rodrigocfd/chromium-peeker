@@ -4,10 +4,12 @@
 #include <winlamb/str.h>
 #include <winlamb/sysdlg.h>
 #include <winlamb/syspath.h>
+using std::wstring;
 using namespace wl;
 
-Dlg_Download_Zip::Dlg_Download_Zip(progress_taskbar& tb, download::session& sess, const wstring& mk)
-	: Dlg_Download(tb), m_session(sess), m_marker(mk)
+Dlg_Download_Zip::Dlg_Download_Zip(progress_taskbar& tb, download::session& sess,
+	const wstring& mk) :
+	Dlg_Download(tb), m_session(sess), m_marker(mk)
 {
 	on_message(WM_INITDIALOG, [&](params)
 	{

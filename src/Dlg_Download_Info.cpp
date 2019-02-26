@@ -2,6 +2,9 @@
 #include "Dlg_Download_Info.h"
 #include <winlamb/str.h>
 #include <winlamb/xml.h>
+using std::reference_wrapper;
+using std::vector;
+using std::wstring;
 using namespace wl;
 
 Dlg_Download_Info::Dlg_Download_Info(progress_taskbar& tb, download::session& sess,

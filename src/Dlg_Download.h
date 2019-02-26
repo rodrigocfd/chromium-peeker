@@ -1,6 +1,5 @@
 
 #pragma once
-#include "std.h"
 #include <winlamb/dialog_modal.h>
 #include <winlamb/label.h>
 #include <winlamb/progressbar.h>
@@ -23,5 +22,5 @@ public:
 protected:
 	void init_controls();
 	void handle_close_msg();
-	void show_err_and_close(const wchar_t* msg, const wstring& err);
+	void show_err_and_close(const wchar_t* msg, const std::wstring& err);
 };

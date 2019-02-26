@@ -8,6 +8,7 @@
 #include <winlamb/version.h>
 #include <winlamb/zip.h>
 #include "res/resource.h"
+using std::wstring;
 using namespace wl;
 
 Dlg_Download_Dll::Dlg_Download_Dll(progress_taskbar& tb, download::session& sess,

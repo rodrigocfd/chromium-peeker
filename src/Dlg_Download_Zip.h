@@ -8,10 +8,11 @@
 class Dlg_Download_Zip final : public Dlg_Download {
 private:
 	wl::download::session& m_session;
-	wstring                m_marker, m_dest;
+	std::wstring           m_marker, m_dest;
 
 public:
-	Dlg_Download_Zip(wl::progress_taskbar& tb, wl::download::session& sess, const wstring& mk);
+	Dlg_Download_Zip(wl::progress_taskbar& tb, wl::download::session& sess,
+		const std::wstring& mk);
 
 private:
 	void _download();

@@ -7,22 +7,22 @@
 class Dlg_Download_Info final : public Dlg_Download {
 public:
 	struct Data final {
-		wstring releaseDate;
-		int     packageSize;
+		std::wstring releaseDate;
+		int          packageSize;
 	};
 	
 private:
-	wl::download::session& m_session;
-	const vector<wstring>& m_markers;
-	int                    m_totDownloaded = 0;
+	wl::download::session&           m_session;
+	const std::vector<std::wstring>& m_markers;
+	int                              m_totDownloaded = 0;
 
 public:
-	vector<Data> data;
+	std::vector<Data> data;
 
 	Dlg_Download_Info(wl::progress_taskbar& tb, wl::download::session& sess,
-		const vector<wstring>& mk);
+		const std::vector<std::wstring>& mk);
 
 private:
-	void _get_one_file(const wstring& marker);
-	void _process_file(const vector<BYTE>& blob);
+	void _get_one_file(const std::wstring& marker);
+	void _process_file(const std::vector<BYTE>& blob);
 };

@@ -18,6 +18,6 @@ public:
 	size_t get_total_bytes() const { return m_totBytes; }
 
 private:
-	void _download_list(const wstring& marker);
-	void _read_xml(const vector<BYTE>& blob);
+	void _download_list(const std::wstring& marker);
+	void _read_xml(const std::vector<BYTE>& blob);
 };

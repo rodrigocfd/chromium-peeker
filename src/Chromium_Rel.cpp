@@ -2,6 +2,9 @@
 #include "Chromium_Rel.h"
 #include <algorithm>
 #include <winlamb/str.h>
+using std::reference_wrapper;
+using std::vector;
+using std::wstring;
 using namespace wl;
 
 bool Chromium_Rel::append(xml& data)
