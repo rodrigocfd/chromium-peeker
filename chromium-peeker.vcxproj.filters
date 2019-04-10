@@ -83,9 +83,6 @@
     <ClInclude Include="winlamb\datetime_picker.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\device_context.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\dialog_control.h">
       <Filter>WinLamb</Filter>
     </ClInclude>
@@ -206,9 +203,6 @@
     <ClInclude Include="winlamb\internals\com_variant.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\device_context_objects.h">
-      <Filter>WinLamb internals</Filter>
-    </ClInclude>
     <ClInclude Include="winlamb\internals\download_session.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
@@ -285,6 +279,12 @@
       <Filter>WinLamb internals</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\base_native_ctrl.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\gdi.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\internals\gdi_objects.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
   </ItemGroup>
