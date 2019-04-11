@@ -72,8 +72,8 @@ public:
 	template<typename idispatch_derivedT>
 	variant& set_idispatch(ptr<idispatch_derivedT>& objToQueryFrom) {
 		this->clear();
-		this->_variant.vt = VT_DISPATCH;
-		objToQueryFrom.query_interface(IID_IDispatch, &this->_variant.pdispVal);
+		this->_variantObj.vt = VT_DISPATCH;
+		objToQueryFrom.query_interface(IID_IDispatch, &this->_variantObj.pdispVal);
 		return *this;
 	}
 
