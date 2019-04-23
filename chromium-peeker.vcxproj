@@ -202,10 +202,12 @@
     <ClInclude Include="winlamb\internals\params_wmn.h" />
     <ClInclude Include="winlamb\internals\run.h" />
     <ClInclude Include="winlamb\internals\store.h" />
+    <ClInclude Include="winlamb\internals\str_priv.h" />
     <ClInclude Include="winlamb\internals\styler.h" />
     <ClInclude Include="winlamb\internals\styles_wc.h" />
     <ClInclude Include="winlamb\internals\styles_ws.h" />
     <ClInclude Include="winlamb\internals\styles_wsx.h" />
+    <ClInclude Include="winlamb\internals\sysdlg_priv.h" />
     <ClInclude Include="winlamb\internals\treeview_item.h" />
     <ClInclude Include="winlamb\internals\treeview_item_collection.h" />
     <ClInclude Include="winlamb\internals\treeview_styler.h" />
