@@ -29,10 +29,10 @@ Dlg_Main::Dlg_Main()
 			.style.full_row_select(true)
 			.set_context_menu(MEN_MAIN)
 			.columns.add(L"Build marker", 80)
-			.columns.add(L"Release date", 105)
-			.columns.add(L"Zip size", 65)
-			.columns.add(L"DLL version", 90)
-			.columns.set_width_to_fill(3);
+				.add(L"Release date", 105)
+				.add(L"Zip size", 65)
+				.add(L"DLL version", 90)
+				.set_width_to_fill(3);
 
 		m_lblLoaded.assign(this, LBL_LOADED);
 		m_resz.add(this, LBL_LOADED, resizer::go::RESIZE, resizer::go::NOTHING)
