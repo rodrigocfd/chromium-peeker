@@ -10,7 +10,7 @@ public:
 		std::wstring releaseDate;
 		int          packageSize;
 	};
-	
+
 private:
 	wl::download::session&           m_session;
 	const std::vector<std::wstring>& m_markers;

@@ -87,7 +87,7 @@ Dlg_Main::Dlg_Main()
 				iShown, markers.size(),
 				static_cast<float>(ddl.get_total_bytes()) / 1024) );
 			m_lstEntries.set_redraw(true)
-				.columns.set_width_to_fill(3);		
+				.columns.set_width_to_fill(3);
 			m_btnDlList.set_enabled(true);
 		}
 

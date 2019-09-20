@@ -48,7 +48,7 @@ void Dlg_Download_Zip::_download()
 		show_err_and_close(L"File creation error", str::to_wstring(e.what()));
 		return;
 	}
-	
+
 	zipdl.on_start([&]() {
 		try {
 			fout.set_new_size(zipdl.get_content_length());

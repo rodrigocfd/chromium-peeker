@@ -86,7 +86,7 @@ void Dlg_Download_List::_read_xml(const vector<BYTE>& blob)
 			m_clist.markers().size(),
 			static_cast<float>(m_totBytes) / 1024) );
 	});
-	
+
 	if (!m_clist.is_finished()) {
 		run_thread_ui([&]() {
 			m_lblTitle.set_text( str::format(L"Next marker: %s...\n", m_clist.next_marker()) );
