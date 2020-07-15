@@ -1,13 +1,13 @@
 
 #include "Dlg_Download_Dll.h"
-#include <winlamb/executable.h>
-#include <winlamb/file.h>
-#include <winlamb/file_mapped.h>
-#include <winlamb/path.h>
-#include <winlamb/str.h>
-#include <winlamb/version.h>
-#include <winlamb/zip.h>
-#include "res/resource.h"
+#include "../winlamb/executable.h"
+#include "../winlamb/file.h"
+#include "../winlamb/file_mapped.h"
+#include "../winlamb/path.h"
+#include "../winlamb/str.h"
+#include "../winlamb/version.h"
+#include "../winlamb/zip.h"
+#include "../res/resource.h"
 using std::wstring;
 using namespace wl;
 

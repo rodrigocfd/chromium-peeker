@@ -1,9 +1,9 @@
 
 #pragma once
-#include <winlamb/dialog_modal.h>
-#include <winlamb/label.h>
-#include <winlamb/progressbar.h>
-#include <winlamb/progress_taskbar.h>
+#include "../winlamb/dialog_modal.h"
+#include "../winlamb/label.h"
+#include "../winlamb/progressbar.h"
+#include "../winlamb/progress_taskbar.h"
 
 #define BASE_URL L"http://commondatastorage.googleapis.com/chromium-browser-continuous"
 #define REFERRER BASE_URL L"/index.html?path=Win/"

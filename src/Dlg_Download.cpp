@@ -1,7 +1,7 @@
 
 #include "Dlg_Download.h"
-#include <winlamb/sysdlg.h>
-#include "res/resource.h"
+#include "../winlamb/sysdlg.h"
+#include "../res/resource.h"
 using std::wstring;
 using namespace wl;
 

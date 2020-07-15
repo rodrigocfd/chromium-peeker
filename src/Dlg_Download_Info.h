@@ -1,6 +1,6 @@
 
 #pragma once
-#include <winlamb/download.h>
+#include "../winlamb/download.h"
 #include "Dlg_Download.h"
 
 // Downloads information for a marker.

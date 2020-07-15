@@ -1,7 +1,7 @@
 
 #include "Dlg_Download_List.h"
-#include <winlamb/str.h>
-#include <winlamb/xml.h>
+#include "../winlamb/str.h"
+#include "../winlamb/xml.h"
 using std::vector;
 using std::wstring;
 using namespace wl;

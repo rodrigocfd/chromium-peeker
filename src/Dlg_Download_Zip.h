@@ -1,7 +1,7 @@
 
 #pragma once
-#include <winlamb/file.h>
-#include <winlamb/download.h>
+#include "../winlamb/file.h"
+#include "../winlamb/download.h"
 #include "Dlg_Download.h"
 
 // Download the marker zip file to disk, destination chosen by user.

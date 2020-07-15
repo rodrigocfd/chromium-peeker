@@ -4,10 +4,10 @@
 #include "Dlg_Download_Info.h"
 #include "Dlg_Download_List.h"
 #include "Dlg_Download_Zip.h"
-#include <winlamb/menu.h>
-#include <winlamb/str.h>
-#include <winlamb/sysdlg.h>
-#include "res/resource.h"
+#include "../winlamb/menu.h"
+#include "../winlamb/str.h"
+#include "../winlamb/sysdlg.h"
+#include "../res/resource.h"
 using std::vector;
 using std::wstring;
 using namespace wl;

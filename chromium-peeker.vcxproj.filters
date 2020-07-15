@@ -1,57 +1,177 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="WinLamb">
-      <UniqueIdentifier>{80faf315-82ae-46f7-a092-281c44e3e034}</UniqueIdentifier>
+      <UniqueIdentifier>{ca686300-6ce0-4786-a451-a55141ca1a8b}</UniqueIdentifier>
     </Filter>
     <Filter Include="WinLamb internals">
-      <UniqueIdentifier>{82503f9d-7f09-41f8-b7e9-b721ef420170}</UniqueIdentifier>
+      <UniqueIdentifier>{808ed2c7-142b-42b9-96af-d4033a2696cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Dlg_Main.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Chromium_Rel.h">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Dll.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Info.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_List.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Download_Zip.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Main.h">
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Download.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="winlamb\gdi.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Download_Dll.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="winlamb\icon.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Download_Info.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="winlamb\image_list.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Download_List.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="winlamb\insert_order_map.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Download_Zip.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="winlamb\label.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\base_msg.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\listview.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\base_msg_pubm.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\menu.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\base_native_ctrl.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\path.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\internals\base_native_ctrl_pubm.h">
-      <Filter>WinLamb internals</Filter>
+    <ClInclude Include="winlamb\progress_taskbar.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\progressbar.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\radio.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\radio_group.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\resizer.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\scrollinfo.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\statusbar.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\str.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\subclass.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\sysdlg.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\syspath.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\textbox.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\treeview.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\vec.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\version.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_control.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\window_main.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\wnd.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\xml.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\zip.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\button.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\checkbox.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\com.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\combobox.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\datetime.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\datetime_picker.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\dialog_control.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\dialog_main.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\dialog_modal.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\dialog_modeless.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\download.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\executable.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\file.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\file_ini.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\file_mapped.h">
+      <Filter>WinLamb</Filter>
+    </ClInclude>
+    <ClInclude Include="winlamb\font.h">
+      <Filter>WinLamb</Filter>
     </ClInclude>
     <ClInclude Include="winlamb\internals\base_scroll.h">
       <Filter>WinLamb internals</Filter>
@@ -158,163 +278,46 @@
     <ClInclude Include="winlamb\internals\base_dialog.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
+    <ClInclude Include="winlamb\internals\base_focus_pubm.h">
+      <Filter>WinLamb internals</Filter>
+    </ClInclude>
     <ClInclude Include="winlamb\internals\base_loop.h">
       <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\resizer.h">
-      <Filter>WinLamb</Filter>
+    <ClInclude Include="winlamb\internals\base_msg.h">
+      <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\scrollinfo.h">
-      <Filter>WinLamb</Filter>
+    <ClInclude Include="winlamb\internals\base_msg_pubm.h">
+      <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\statusbar.h">
-      <Filter>WinLamb</Filter>
+    <ClInclude Include="winlamb\internals\base_native_ctrl.h">
+      <Filter>WinLamb internals</Filter>
     </ClInclude>
-    <ClInclude Include="winlamb\str.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\subclass.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\sysdlg.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\syspath.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\textbox.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\treeview.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\vec.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\version.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\window_control.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\window_main.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\wnd.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\xml.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\zip.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\button.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\checkbox.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\com.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\combobox.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\datetime.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\datetime_picker.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\dialog_control.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\dialog_main.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\dialog_modal.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\dialog_modeless.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\download.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\executable.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\file.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\file_ini.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\file_mapped.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\font.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\gdi.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\icon.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\image_list.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\insert_order_map.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\label.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\listview.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\menu.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\path.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\progress_taskbar.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\progressbar.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\radio.h">
-      <Filter>WinLamb</Filter>
-    </ClInclude>
-    <ClInclude Include="winlamb\radio_group.h">
-      <Filter>WinLamb</Filter>
+    <ClInclude Include="winlamb\internals\base_native_ctrl_pubm.h">
+      <Filter>WinLamb internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Chromium_Rel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Download.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Download_Dll.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Download_Info.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Download_List.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Dlg_Download_Zip.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Main.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

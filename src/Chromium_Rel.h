@@ -1,6 +1,6 @@
 
 #pragma once
-#include <winlamb/xml.h>
+#include "../winlamb/xml.h"
 
 class Chromium_Rel final {
 private:
